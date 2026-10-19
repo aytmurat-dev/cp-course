@@ -14,9 +14,6 @@ const problemSchema = z.object({
 });
 
 const frontmatterSchema = z.object({
-  title: z.string().min(1),
-  section: z.string().min(1),
-  order: z.number(),
   summary: z.string().min(1),
   prerequisites: z.array(z.string()).default([]),
   problems: z.array(problemSchema).default([]),
@@ -26,15 +23,16 @@ export type Difficulty = z.infer<typeof problemSchema>["difficulty"];
 
 export type Problem = z.infer<typeof problemSchema> & { platform: Platform; key: string };
 
-export type Topic = Omit<z.infer<typeof frontmatterSchema>, "problems"> & {
+/** Mavzu faylining mazmuni. Nomi va o'rni content/course.yaml dan olinadi. */
+export type TopicContent = Omit<z.infer<typeof frontmatterSchema>, "problems"> & {
   slug: string;
   body: string;
   problems: Problem[];
+  /** Frontmatter'dagi e'tiborga olinmaydigan maydonlar (masalan eski title/section/order). */
+  ignoredKeys: string[];
 };
 
-export type Section = { name: string; topics: Topic[] };
-
-export function parseTopic(file: string, raw: string): Topic {
+export function parseTopic(file: string, raw: string): TopicContent {
   const slug = file.replace(/\.md$/, "");
   const { data, content } = matter(raw);
   const parsed = frontmatterSchema.safeParse(data);
@@ -46,5 +44,6 @@ export function parseTopic(file: string, raw: string): Topic {
     if (!info) throw new Error(`content/topics/${file}: qo'llab-quvvatlanmaydigan URL — ${p.url}`);
     return { ...p, ...info };
   });
-  return { ...parsed.data, slug, body: content, problems };
+  const ignoredKeys = Object.keys(data).filter((k) => !(k in frontmatterSchema.shape));
+  return { ...parsed.data, slug, body: content, problems, ignoredKeys };
 }

@@ -7,7 +7,7 @@ import { ProblemTable } from "@/components/problem-table";
 import { SubmitButton } from "@/components/submit-button";
 import { formatDate, PlatformBadge, ProgressBar } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
-import { getSections } from "@/lib/content";
+import { getTopics } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getCourseSolves } from "@/lib/progress";
 import { adminSyncStudent, adminUnlinkHandle, deleteStudent } from "../../actions";
@@ -23,8 +23,8 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
   if (!student) notFound();
 
   const [linked, solved] = await Promise.all([getUserHandles(id), getCourseSolves(id)]);
-  const sections = getSections();
-  const total = sections.reduce((n, s) => n + s.topics.reduce((m, t) => m + t.problems.length, 0), 0);
+  const topics = getTopics();
+  const total = topics.reduce((n, t) => n + t.content.problems.length, 0);
 
   return (
     <div className="space-y-8">
@@ -87,28 +87,28 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
 
       <div className="space-y-3">
         <h2 className="text-xl font-extrabold">Mavzular bo&apos;yicha</h2>
-        {sections.flatMap((sec) =>
-          sec.topics.map((t) => {
-            const done = t.problems.filter((p) => solved.has(p.key)).length;
+        {topics.length === 0 && <p className="card p-5 text-muted">Hali mavzular yozilmagan.</p>}
+        {topics.map((t) => {
+            const done = t.content.problems.filter((p) => solved.has(p.key)).length;
             return (
               <details key={t.slug} className="card group overflow-hidden">
                 <summary className="flex cursor-pointer list-none items-center gap-4 p-4 hover:bg-surface-2">
                   <span className="text-faint transition group-open:rotate-90">▸</span>
                   <span className="flex-1 font-bold">
-                    {t.title} <span className="ml-2 text-xs font-normal text-faint">{sec.name}</span>
+                    <span className="text-faint">{t.number}.</span> {t.title}{" "}
+                    <span className="ml-2 text-xs font-normal text-faint">{t.partTitle}</span>
                   </span>
                   <span className="text-sm font-bold">
-                    {done} <span className="text-faint">/ {t.problems.length}</span>
+                    {done} <span className="text-faint">/ {t.content.problems.length}</span>
                   </span>
-                  <ProgressBar value={done} total={t.problems.length} className="w-24" />
+                  <ProgressBar value={done} total={t.content.problems.length} className="w-24" />
                 </summary>
                 <div className="border-t border-line p-3">
-                  <ProblemTable problems={t.problems} solved={solved} />
+                  <ProblemTable problems={t.content.problems} solved={solved} />
                 </div>
               </details>
             );
-          }),
-        )}
+          })}
       </div>
     </div>
   );

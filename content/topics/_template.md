@@ -1,7 +1,4 @@
 ---
-title: "Mavzu nomi"
-section: "Asoslar"
-order: 99
 summary: "Bitta jumlada: mavzu qanday muammoni hal qiladi."
 prerequisites: []
 problems:

@@ -3,18 +3,23 @@ import Link from "next/link";
 import { SyncStatus } from "@/components/sync-status";
 import { formatDate, ProgressBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { getSections } from "@/lib/content";
+import { getCourse, getTopics, type CourseChapter, type CourseTopic } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getCourseSolves } from "@/lib/progress";
 import { isStale } from "@/lib/sync";
 
 export const metadata: Metadata = { title: "Mavzular" };
 
+type Solved = Map<string, Date>;
+
+const countDone = (t: CourseTopic, solved: Solved) => t.content?.problems.filter((p) => solved.has(p.key)).length ?? 0;
+const countTotal = (t: CourseTopic) => t.content?.problems.length ?? 0;
+
 export default async function TopicsPage() {
   const user = await requireUser();
   const [solved, linked] = await Promise.all([getCourseSolves(user.id), getUserHandles(user.id)]);
-  const sections = getSections();
-  const total = sections.reduce((n, s) => n + s.topics.reduce((m, t) => m + t.problems.length, 0), 0);
+  const parts = getCourse();
+  const total = getTopics().reduce((n, t) => n + t.content.problems.length, 0);
 
   return (
     <div>
@@ -32,42 +37,85 @@ export default async function TopicsPage() {
         )}
       </div>
 
-      {sections.length === 0 && <p className="card mt-8 p-6 text-muted">Hozircha mavzular yo&apos;q.</p>}
-
-      <div className="mt-8 space-y-10">
-        {sections.map((sec) => (
-          <section key={sec.name}>
-            <h2 className="mb-3 text-sm font-extrabold uppercase tracking-widest text-muted">{sec.name}</h2>
-            <div className="space-y-2.5">
-              {sec.topics.map((t) => {
-                const done = t.problems.filter((p) => solved.has(p.key)).length;
-                return (
-                  <Link
-                    key={t.slug}
-                    href={`/topics/${t.slug}`}
-                    className="card group flex items-center gap-4 p-4 transition hover:border-line-strong hover:bg-surface-2 sm:p-5"
-                  >
-                    <span className="hidden w-8 shrink-0 text-center text-lg font-extrabold text-faint sm:block">
-                      {t.order}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold group-hover:text-accent">{t.title}</h3>
-                      <p className="mt-0.5 truncate text-sm text-muted">{t.summary}</p>
-                    </div>
-                    <div className="w-24 shrink-0 text-right sm:w-32">
-                      <div className="text-sm font-bold">
-                        {done}
-                        <span className="text-faint"> / {t.problems.length}</span>
-                      </div>
-                      <ProgressBar value={done} total={t.problems.length} className="mt-1.5" />
-                    </div>
-                  </Link>
-                );
-              })}
+      <div className="mt-10 space-y-14">
+        {parts.map((part) => (
+          <section key={part.title}>
+            <h2 className="mb-5 text-2xl font-extrabold">
+              <span className="text-gradient">{part.title}</span>
+            </h2>
+            <div className="space-y-3">
+              {part.chapters.map((ch) => (
+                <Chapter key={ch.number} chapter={ch} solved={solved} />
+              ))}
             </div>
           </section>
         ))}
       </div>
     </div>
+  );
+}
+
+function Chapter({ chapter, solved }: { chapter: CourseChapter; solved: Solved }) {
+  if (chapter.single) {
+    return (
+      <div className="card overflow-hidden">
+        <TopicRow topic={chapter.topics[0]} solved={solved} heading />
+      </div>
+    );
+  }
+  const done = chapter.topics.reduce((n, t) => n + countDone(t, solved), 0);
+  const total = chapter.topics.reduce((n, t) => n + countTotal(t), 0);
+  return (
+    <div className="card overflow-hidden">
+      <div className="flex items-center gap-4 border-b border-line bg-surface-2/50 px-4 py-3.5 sm:px-5">
+        <span className="w-10 shrink-0 text-lg font-extrabold text-faint">{chapter.number}.</span>
+        <h3 className="min-w-0 flex-1 text-lg font-extrabold">{chapter.title}</h3>
+        {total > 0 && (
+          <span className="shrink-0 text-sm font-bold text-muted">
+            {done} <span className="font-normal text-faint">/ {total}</span>
+          </span>
+        )}
+      </div>
+      <ul className="divide-y divide-line">
+        {chapter.topics.map((t) => (
+          <li key={t.slug}>
+            <TopicRow topic={t} solved={solved} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TopicRow({ topic, solved, heading }: { topic: CourseTopic; solved: Solved; heading?: boolean }) {
+  const inner = (
+    <>
+      <span className={`w-10 shrink-0 font-extrabold text-faint ${heading ? "text-lg" : "text-sm"}`}>
+        {topic.number}
+        {heading && "."}
+      </span>
+      <div className="min-w-0 flex-1">
+        <span className={`${heading ? "text-lg font-extrabold" : "font-bold"} ${topic.content ? "group-hover:text-accent" : ""}`}>{topic.title}</span>
+        {topic.content && <p className="mt-0.5 truncate text-sm text-muted">{topic.content.summary}</p>}
+      </div>
+      {topic.content ? (
+        <div className="w-24 shrink-0 text-right sm:w-32">
+          <div className="text-sm font-bold">
+            {countDone(topic, solved)}
+            <span className="text-faint"> / {countTotal(topic)}</span>
+          </div>
+          <ProgressBar value={countDone(topic, solved)} total={countTotal(topic)} className="mt-1.5" />
+        </div>
+      ) : (
+        <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold text-faint ring-1 ring-line">Tez orada</span>
+      )}
+    </>
+  );
+  const cls = `flex items-center gap-4 px-4 sm:px-5 ${heading ? "py-4" : "py-3"}`;
+  if (!topic.content) return <div className={`${cls} opacity-60`}>{inner}</div>;
+  return (
+    <Link href={`/topics/${topic.slug}`} className={`${cls} group transition hover:bg-surface-2`}>
+      {inner}
+    </Link>
   );
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/header";
 import { site } from "@/config";
 import { getCurrentUser } from "@/lib/auth";
-import { getSections, getTopics } from "@/lib/content";
+import { getCourse, getCourseTopics, getTopics } from "@/lib/content";
 
 const STEPS = [
   {
@@ -21,9 +21,10 @@ const STEPS = [
 
 export default async function Home() {
   const user = await getCurrentUser();
-  const sections = getSections();
-  const topics = getTopics();
-  const problemCount = topics.reduce((n, t) => n + t.problems.length, 0);
+  const parts = getCourse();
+  const chapterCount = parts.reduce((n, p) => n + p.chapters.length, 0);
+  const topicCount = getCourseTopics().length;
+  const problemCount = getTopics().reduce((n, t) => n + t.content.problems.length, 0);
 
   return (
     <>
@@ -47,8 +48,8 @@ export default async function Home() {
             </Link>
           </div>
           <dl className="mx-auto mt-14 grid max-w-md grid-cols-3 gap-4">
-            <Stat label="bo'lim" value={sections.length} />
-            <Stat label="mavzu" value={topics.length} />
+            <Stat label="bo'lim" value={chapterCount} />
+            <Stat label="mavzu" value={topicCount} />
             <Stat label="masala" value={problemCount} />
           </dl>
         </section>
@@ -63,26 +64,34 @@ export default async function Home() {
           ))}
         </section>
 
-        {sections.length > 0 && (
-          <section className="pb-20">
-            <h2 className="text-2xl font-extrabold">Kurs dasturi</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {sections.map((sec) => (
-                <div key={sec.name} className="card p-5">
-                  <h3 className="font-bold text-gradient">{sec.name}</h3>
-                  <ul className="mt-3 space-y-1.5 text-sm text-muted">
-                    {sec.topics.map((t) => (
-                      <li key={t.slug} className="flex gap-2">
-                        <span className="text-faint">•</span>
-                        {t.title}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <section className="pb-20">
+          <h2 className="text-2xl font-extrabold">Kurs dasturi</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {parts.map((part) => (
+              <div key={part.title} className="card p-5">
+                <h3 className="text-lg font-extrabold text-gradient">{part.title}</h3>
+                <ol className="mt-3 space-y-2 text-sm">
+                  {part.chapters.map((ch) => (
+                    <li key={ch.number}>
+                      <span className="font-bold">
+                        <span className="text-faint">{ch.number}.</span> {ch.title}
+                      </span>
+                      {!ch.single && (
+                        <ul className="mt-1 space-y-0.5 pl-6 text-muted">
+                          {ch.topics.map((t) => (
+                            <li key={t.slug}>
+                              <span className="text-faint">{t.number}</span> {t.title}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <p className="border-t border-line py-8 text-center text-sm text-faint">
           Ro&apos;yxatdan o&apos;tish faqat administrator orqali. © {new Date().getFullYear()} {site.author}

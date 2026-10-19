@@ -7,23 +7,26 @@ Bo'sh shablon: [content/topics/_template.md](../content/topics/_template.md) —
 
 ---
 
-## 1. Fayl
+## 1. Kurs tuzilmasi va fayllar
 
-- Joylashuvi: `content/topics/<slug>.md`
-- `slug` — fayl nomi, **kebab-case**, inglizcha, qisqa: `prefix-sums.md`, `binary-search.md`, `dsu.md`.
-  U URL bo'ladi: `/topics/prefix-sums`. Keyin o'zgartirmang.
+Kurs uch darajadan iborat: **qism (Part) → bo'lim → mavzu**. Masalan: *Part 1 → 5. Prefiks yig'indi va farqlar massivi → 5.1. Prefiks yig'indi*.
+
+- Tuzilma bitta faylda: [content/course.yaml](../content/course.yaml). Unda har bir mavzuning **nomi** va **slug**'i yozilgan. Raqamlar (5, 5.1, 5.2…) tartibdan avtomatik qo'yiladi.
+- Har bir mavzu matni — alohida fayl: `content/topics/<slug>.md`. `slug` aynan `course.yaml` dagidek bo'lishi shart.
+- Fayli hali yo'q mavzular saytda **"Tez orada"** deb ko'rinadi. Fayl qo'shilishi bilan mavzu ochiladi.
+- Yangi mavzu yoki bo'lim qo'shish, tartibni o'zgartirish — faqat `course.yaml` da.
+- `slug` — **kebab-case**, inglizcha, qisqa (`prefix-sums`, `dsu`). U URL bo'ladi: `/topics/prefix-sums`. Bir marta qo'yilgandan keyin o'zgartirmang.
 - `_` bilan boshlanadigan fayllar (masalan `_template.md`) saytda ko'rinmaydi.
 - Kodirovka UTF-8. O'zbek tilidagi apostrof uchun oddiy `'` belgisi ishlatiladi (`o'`, `g'`, `ma'lumot`).
 
 ## 2. Frontmatter (fayl boshidagi YAML)
 
+Mavzu nomi va o'rni frontmatter'da **yozilmaydi** — ular `course.yaml` dan olinadi.
+
 ```yaml
 ---
-title: "Prefiks yig'indilar"          # Mavzu nomi (o'zbekcha, bosh harf faqat birinchi so'zda)
-section: "Asoslar"                     # Bo'lim nomi — mavjud bo'limlardan biri (pastga qarang)
-order: 2                               # Global tartib raqami (butun kurs bo'yicha yagona)
 summary: "Massiv qismlari yig'indisini O(1) da hisoblash usuli."   # 1 jumla, 120 belgigacha
-prerequisites: [complexity]            # Avval o'qilishi kerak bo'lgan mavzular slug'lari (ixtiyoriy)
+prerequisites: [brute-force]           # Avval o'qilishi kerak bo'lgan mavzular slug'lari (ixtiyoriy)
 problems:
   - title: "Ilya and Queries"          # Masalaning ASL nomi (platformadagidek)
     url: "https://codeforces.com/problemset/problem/313/B"
@@ -32,21 +35,6 @@ problems:
     note: "Klassik 1D prefiks"         # ixtiyoriy: 2–6 so'zli maslahat, yechimni oshkor qilmasin
 ---
 ```
-
-### Bo'limlar (section) va tartib (order)
-
-| order oralig'i | section |
-|---|---|
-| 1–19 | `Asoslar` |
-| 20–39 | `Saralash va qidiruv` |
-| 40–59 | `Ma'lumotlar tuzilmalari` |
-| 60–79 | `Graflar` |
-| 80–99 | `Dinamik dasturlash` |
-| 100–119 | `Matematika` |
-| 120–139 | `Satrlar` |
-| 140+ | `Murakkab mavzular` |
-
-Oraliqda bo'sh raqam qoldiring (1, 2, 3… emas, balki 1, 3, 5…) — keyin o'rtaga mavzu qo'shish oson bo'ladi.
 
 ### Qo'llab-quvvatlanadigan masala URL'lari
 
@@ -69,7 +57,7 @@ Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchu
 
 ## 3. Matn tuzilmasi
 
-Matnda `#` (H1) **ishlatilmaydi** — sarlavha frontmatter'dagi `title` dan chiqadi.
+Matnda `#` (H1) **ishlatilmaydi** — sarlavha `course.yaml` dagi nomdan chiqadi.
 "Masalalar" bo'limini ham **yozmang** — u frontmatter'dan avtomatik jadval bo'lib chiqadi.
 
 Bo'limlar quyidagi tartibda, aynan shu nomlar bilan (`##`):
@@ -185,7 +173,7 @@ Rasm kerak bo'lsa: `public/topics/<slug>/rasm.png` ga qo'ying va `![izoh](/topic
 
 ## 9. Tekshirish ro'yxati (commit qilishdan oldin)
 
-- [ ] Fayl nomi kebab-case, `order` boshqa mavzu bilan takrorlanmaydi
+- [ ] Fayl nomi `course.yaml` dagi slug bilan bir xil
 - [ ] Barcha majburiy bo'limlar bor, H1 va "Masalalar" bo'limi yo'q
 - [ ] Kod kompilyatsiya bo'ladi va misoldagi javobni beradi
 - [ ] `npm run check-content` — 0 xato
@@ -200,16 +188,16 @@ Quyidagi matnni nusxalang, `<...>` joylarini to'ldiring va **shu faylning to'liq
 ```text
 Sen tajribali competitive programming murabbiyisan. O'zbek tilida (lotin) kurs mavzusi yozib ber.
 
-Mavzu: <masalan: Ikki ko'rsatkich (two pointers)>
+Mavzu: <masalan: 6.1. Ikki ko'rsatkich>   (Part 1 → 6. Ikki ko'rsatkich va sirpanuvchi oyna)
 slug: <two-pointers>
-section: <Saralash va qidiruv>
-order: <25>
-prerequisites: <[sorting, prefix-sums]>
+Shu bo'limdagi boshqa mavzular: <6.2. Sirpanuvchi oyna>   (takrorlanmasin, keyingi mavzuga qoldirilsin)
+prerequisites: <[prefix-sums, binary-search]>
 O'quvchi darajasi: <Codeforces 800–1400>
 
 Qat'iy talablar:
 1. Ilova qilingan CONTENT_GUIDE.md dagi BARCHA qoidalarga amal qil: frontmatter formati,
    bo'limlar tartibi va nomlari, atamalar lug'ati, callout'lar, KaTeX, C++17 kod uslubi.
+   Frontmatter'da title/section/order YOZMA — faqat summary, prerequisites, problems.
 2. Tuzilma ilova qilingan _template.md ga mos bo'lsin (namuna mavzu ilova qilingan bo'lsa — uslub va hajm bo'yicha unga o'xshasin).
 3. 6–12 ta masala tanla: faqat Codeforces va AtCoder. Faqat HAQIQATAN MAVJUD
    masalalar, aniq URL va asl nomi bilan. Ishonching komil bo'lmagan masalani qo'shma.

@@ -46,7 +46,7 @@ Cron (`vercel.json`) har kuni 01:00 UTC da barcha o'quvchilarni sinxronlaydi (Ho
 
 ## Mavzu qo'shish
 
-Mavzular — `content/topics/*.md` fayllari. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
+Kurs tuzilmasi (qism → bo'lim → mavzu, nomlar va tartib) — [content/course.yaml](content/course.yaml). Har bir mavzu matni — `content/topics/<slug>.md`; fayli yo'q mavzular saytda "Tez orada" deb turadi. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
 
 ```bash
 npm run check-content     # format + masalalar platformada haqiqatan borligini tekshiradi

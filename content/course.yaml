@@ -1,0 +1,103 @@
+# Kurs tuzilmasi: qism (part) → bo'lim (chapter) → mavzu (topic).
+#
+# - Raqamlar (1, 1.1, 1.2 …) tartibdan avtomatik qo'yiladi — yozish shart emas.
+# - slug — mavzu fayli nomi: content/topics/<slug>.md va sayt manzili /topics/<slug>.
+#   Bir marta qo'yilgandan keyin o'zgartirmang (o'quvchi havolalari buziladi).
+# - Bo'limda bitta mavzu bo'lsa, `topics` o'rniga bo'limning o'ziga `slug` yoziladi.
+# - Fayli hali yo'q mavzular saytda "Tez orada" deb ko'rinadi.
+
+parts:
+  - title: "Part 1"
+    chapters:
+      - title: "To'liq qidiruv"
+        topics:
+          - { slug: brute-force, title: "Brute force va Big-O" }
+          - { slug: complete-search, title: "To'liq qidiruv: permutatsiyalar va qism to'plamlar" }
+      - title: "Rekursiya"
+        topics:
+          - { slug: recursion, title: "Rekursiya asoslari" }
+          - { slug: backtracking, title: "Backtracking" }
+      - title: "Ikkilik sonlar va bitlar"
+        topics:
+          - { slug: binary-numbers, title: "Ikkilik sonlar" }
+          - { slug: bit-operations, title: "Bit amallari" }
+          - { slug: bitmask-subsets, title: "Bitmask bilan qism to'plamlarni sanash" }
+      - title: "Chastota massivi"
+        topics:
+          - { slug: frequency-array, title: "Chastota massivi" }
+          - { slug: string-frequency, title: "Satrlarda chastota" }
+      - title: "Prefiks yig'indi va farqlar massivi"
+        topics:
+          - { slug: prefix-sums, title: "Prefiks yig'indi" }
+          - { slug: difference-array, title: "Farqlar massivi" }
+          - { slug: prefix-sums-2d, title: "2D prefiks yig'indi" }
+      - title: "Ikki ko'rsatkich va sirpanuvchi oyna"
+        topics:
+          - { slug: two-pointers, title: "Ikki ko'rsatkich" }
+          - { slug: sliding-window, title: "Sirpanuvchi oyna" }
+      - title: "Ikkilik qidiruv"
+        topics:
+          - { slug: binary-search, title: "Ikkilik qidiruv asoslari" }
+          - { slug: binary-search-on-answer, title: "Javob bo'yicha ikkilik qidiruv" }
+      - title: "Greedy algoritmlar"
+        slug: greedy
+      - title: "Murakkab implementatsiyali masalalar"
+        slug: implementation
+      - title: "Sonlar nazariyasi asoslari"
+        topics:
+          - { slug: primes, title: "Tub sonlar" }
+          - { slug: gcd-lcm, title: "EKUB, EKUK va Evklid algoritmi" }
+          - { slug: modular-arithmetic, title: "Modulli arifmetika va tez darajaga ko'tarish" }
+      - title: "Kombinatorika"
+        topics:
+          - { slug: combinatorics-intro, title: "Kombinatorikaga kirish" }
+          - { slug: binomial-coefficients, title: "Binomial koeffitsiyentlar" }
+      - title: "Graflar va ularni saqlash"
+        slug: graphs-intro
+      - title: "Memoizatsiyali rekursiya"
+        slug: memoization
+
+  - title: "Part 2"
+    chapters:
+      - title: "Ikkilik qidiruv turlari"
+        topics:
+          - { slug: binary-search-real, title: "Haqiqiy sonlarda ikkilik qidiruv" }
+          - { slug: ternary-search, title: "Ternar qidiruv" }
+          - { slug: power-of-two-search, title: "Ikkining darajalari bo'yicha qidiruv" }
+      - title: "Skanlayn va hodisalarni qayta ishlash"
+        slug: sweep-line
+      - title: "Dinamik dasturlash"
+        topics:
+          - { slug: dp-intro, title: "Dinamik dasturlashga kirish" }
+          - { slug: dp-2d, title: "2D dinamik dasturlash" }
+          - { slug: dp-path-recovery, title: "DP'da yo'lni tiklash" }
+          - { slug: knapsack-lis, title: "Ryukzak (knapsack) va LIS" }
+      - title: "Sonlar nazariyasi"
+        topics:
+          - { slug: factorization, title: "Faktorizatsiya" }
+          - { slug: sieve, title: "Eratosfen g'alviri" }
+          - { slug: smallest-prime-factor, title: "Eng kichik tub bo'luvchi" }
+      - title: "Graf bo'ylab yurishlar"
+        topics:
+          - { slug: dfs, title: "Chuqurlik bo'yicha qidiruv (DFS)" }
+          - { slug: connected-components, title: "Bog'liqlik komponentalari" }
+          - { slug: bfs, title: "Kenglik bo'yicha qidiruv (BFS)" }
+          - { slug: bipartite-check, title: "Ikki bo'lakli graf tekshiruvi" }
+          - { slug: topological-sort, title: "Topologik saralash" }
+          - { slug: dfs-edge-classification, title: "DFS'da qirralar klassifikatsiyasi" }
+      - title: "Eng qisqa yo'llar"
+        topics:
+          - { slug: dijkstra, title: "Deykstra algoritmi" }
+          - { slug: bellman-ford, title: "Bellman–Ford algoritmi" }
+          - { slug: floyd-warshall, title: "Floyd–Uorshell algoritmi" }
+      - title: "DSU va MST"
+        topics:
+          - { slug: dsu, title: "Kesishmaydigan to'plamlar (DSU)" }
+          - { slug: mst-kruskal, title: "Minimal ostov daraxt (Kruskal)" }
+      - title: "O'yin holatlari: yutuq va yutqiziq pozitsiyalar"
+        slug: game-theory
+      - title: "Geometriyaga kirish"
+        topics:
+          - { slug: geometry-basics, title: "Asosiy geometriya" }
+          - { slug: signed-area, title: "Uchburchakning ishorali yuzi" }
+          - { slug: geometry-problems, title: "Geometriyadan qo'shimcha masalalar" }

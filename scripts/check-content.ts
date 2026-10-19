@@ -1,6 +1,7 @@
 /**
- * content/topics/*.md fayllarini tekshiradi:
- *  - frontmatter formati, takrorlangan order/slug, prerequisites
+ * Kurs kontentini tekshiradi:
+ *  - content/course.yaml tuzilmasi, takrorlangan slug'lar
+ *  - content/topics/*.md frontmatter formati, course.yaml da bormi, prerequisites
  *  - masalalar haqiqatan mavjudmi (Codeforces / AtCoder API orqali)
  *
  *   npm run check-content
@@ -8,9 +9,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { parseTopic, type Topic } from "../src/lib/topic-parser";
+import { flattenCourse, parseCourse } from "../src/lib/course-parser";
+import { parseTopic, type TopicContent } from "../src/lib/topic-parser";
 
-const DIR = path.join(process.cwd(), "content", "topics");
+const CONTENT = path.join(process.cwd(), "content");
+const DIR = path.join(CONTENT, "topics");
 const offline = process.argv.includes("--offline");
 
 let errors = 0;
@@ -20,9 +23,7 @@ const warn = (m: string) => (warnings++, console.log(`  ! ${m}`));
 
 async function main() {
   const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".md") && !f.startsWith("_"));
-  const topics: Topic[] = [];
-
-  console.log(`\n${files.length} ta mavzu fayli tekshirilmoqda…\n`);
+  const topics: TopicContent[] = [];
   for (const f of files) {
     try {
       topics.push(parseTopic(f, fs.readFileSync(path.join(DIR, f), "utf8")));
@@ -31,16 +32,23 @@ async function main() {
     }
   }
 
-  const slugs = new Set(topics.map((t) => t.slug));
-  const orders = new Map<number, string>();
-  const problemOwner = new Map<string, string>();
+  let courseSlugs = new Set<string>();
+  try {
+    const course = flattenCourse(parseCourse(fs.readFileSync(path.join(CONTENT, "course.yaml"), "utf8"), new Map()));
+    courseSlugs = new Set(course.map((t) => t.slug));
+    console.log(`
+Kurs: ${course.length} ta mavzu, shundan ${topics.filter((t) => courseSlugs.has(t.slug)).length} tasi yozilgan.
+`);
+  } catch (e) {
+    err((e as Error).message);
+  }
 
+  const problemOwner = new Map<string, string>();
   for (const t of topics) {
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.slug)) err(`${t.slug}: fayl nomi kebab-case bo'lsin (masalan prefix-sums.md)`);
-    if (orders.has(t.order)) err(`${t.slug}: order=${t.order} "${orders.get(t.order)}" bilan bir xil`);
-    orders.set(t.order, t.slug);
-    for (const p of t.prerequisites) if (!slugs.has(p)) err(`${t.slug}: prerequisites'da noma'lum mavzu "${p}"`);
-    if (/^#\s/m.test(t.body)) err(`${t.slug}: matnda "# " (H1) bo'lmasin — sarlavha frontmatter'dan olinadi`);
+    if (!courseSlugs.has(t.slug)) err(`${t.slug}.md: content/course.yaml da bunday slug yo'q — mavzu saytda ko'rinmaydi`);
+    if (t.ignoredKeys.length) warn(`${t.slug}: frontmatter'dagi ${t.ignoredKeys.join(", ")} e'tiborga olinmaydi (nom va tartib course.yaml da)`);
+    for (const p of t.prerequisites) if (!courseSlugs.has(p)) err(`${t.slug}: prerequisites'da noma'lum mavzu "${p}"`);
+    if (/^#\s/m.test(t.body)) err(`${t.slug}: matnda "# " (H1) bo'lmasin — sarlavha course.yaml dan olinadi`);
     if (/^##\s+Masalalar\s*$/m.test(t.body)) warn(`${t.slug}: "## Masalalar" bo'limini yozmang — u avtomatik chiqadi`);
     if (t.problems.length < 3) warn(`${t.slug}: masalalar soni ${t.problems.length} (kamida 5 tavsiya etiladi)`);
     for (const p of t.problems) {
@@ -51,11 +59,13 @@ async function main() {
 
   if (!offline) await checkProblemsExist(topics);
 
-  console.log(`\nNatija: ${errors} xato, ${warnings} ogohlantirish\n`);
+  console.log(`
+Natija: ${errors} xato, ${warnings} ogohlantirish
+`);
   process.exit(errors ? 1 : 0);
 }
 
-async function checkProblemsExist(topics: Topic[]) {
+async function checkProblemsExist(topics: TopicContent[]) {
   const all = topics.flatMap((t) => t.problems.map((p) => ({ ...p, topic: t.slug })));
   console.log("\nMasalalar platformalarda tekshirilmoqda…");
 
