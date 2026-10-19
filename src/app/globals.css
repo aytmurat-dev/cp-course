@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/* ── Dizayn tokenlari (referens: youkn0wwho.academy uslubidagi qorong'i tema) ── */
+@theme {
+  --color-bg: #08080c;
+  --color-surface: #14141b;
+  --color-surface-2: #1b1b24;
+  --color-line: #262632;
+  --color-line-strong: #34343f;
+  --color-fg: #ececf1;
+  --color-muted: #9a9aab;
+  --color-faint: #6b6b7b;
+  --color-accent: #60a5fa;
+  --color-accent-2: #a78bfa;
+  --color-ok: #34d399;
+  --color-warn: #fbbf24;
+  --color-bad: #f87171;
+
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgb(96 165 250 / 0.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgb(167 139 250 / 0.06), transparent 60%),
+    var(--color-bg);
+  background-attachment: fixed;
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Kurs matni (Markdown) ── */
+.prose-cp {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #d9d9e3;
+}
+.prose-cp > * + * {
+  margin-top: 1.1em;
+}
+.prose-cp h2 {
+  margin-top: 2.4em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--color-fg);
+  scroll-margin-top: 5rem;
+}
+.prose-cp h3 {
+  margin-top: 1.8em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-fg);
+}
+.prose-cp h4 {
+  margin-top: 1.4em;
+  font-weight: 700;
+  color: var(--color-fg);
+}
+.prose-cp strong {
+  color: var(--color-fg);
+  font-weight: 700;
+}
+.prose-cp a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgb(96 165 250 / 0.4);
+}
+.prose-cp a:hover {
+  text-decoration-color: var(--color-accent);
+}
+.prose-cp ul,
+.prose-cp ol {
+  padding-left: 1.5em;
+}
+.prose-cp ul {
+  list-style: disc;
+}
+.prose-cp ol {
+  list-style: decimal;
+}
+.prose-cp li + li {
+  margin-top: 0.35em;
+}
+.prose-cp li::marker {
+  color: var(--color-faint);
+}
+.prose-cp hr {
+  border-color: var(--color-line);
+  margin: 2.5em 0;
+}
+.prose-cp img {
+  border-radius: 0.5rem;
+  margin-inline: auto;
+}
+.prose-cp :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  color: #f0abfc;
+}
+.prose-cp blockquote:not(.callout) {
+  border-left: 3px solid var(--color-line-strong);
+  padding-left: 1em;
+  color: var(--color-muted);
+}
+
+/* Jadvallar */
+.prose-cp .table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 0.6rem;
+}
+.prose-cp table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-cp th,
+.prose-cp td {
+  padding: 0.55em 0.9em;
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+}
+.prose-cp th {
+  background: var(--color-surface-2);
+  color: var(--color-fg);
+  font-weight: 700;
+}
+.prose-cp tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Kod bloklari */
+.code-block {
+  position: relative;
+}
+.code-block pre {
+  overflow-x: auto;
+  padding: 1em 1.1em;
+  border-radius: 0.6rem;
+  background: #0e0e14;
+  border: 1px solid var(--color-line);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+.code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+  border-radius: 0.35rem;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  color: var(--color-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.code-block:hover .code-copy,
+.code-copy:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .code-copy {
+    opacity: 1;
+  }
+}
+
+/* Sintaksis ranglari (highlight.js klasslari) */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-meta .hljs-keyword {
+  color: #c792ea;
+}
+.hljs-type,
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-title.class_ {
+  color: #82aaff;
+}
+.hljs-title,
+.hljs-title.function_ {
+  color: #7fdbca;
+}
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #c3e88d;
+}
+.hljs-number,
+.hljs-literal {
+  color: #f78c6c;
+}
+.hljs-comment {
+  color: #6b6b85;
+  font-style: italic;
+}
+.hljs-meta {
+  color: #ffcb6b;
+}
+.hljs-params,
+.hljs-variable {
+  color: #e6e6f0;
+}
+
+/* Callout'lar: > [!TIP] ... */
+.callout {
+  padding: 0.9em 1.1em;
+  border-radius: 0.6rem;
+  border: 1px solid var(--callout-border);
+  background: var(--callout-bg);
+}
+.callout > * + * {
+  margin-top: 0.5em;
+}
+.callout-title {
+  font-weight: 800;
+  color: var(--callout-fg);
+}
+.callout-note {
+  --callout-fg: #93c5fd;
+  --callout-border: rgb(96 165 250 / 0.3);
+  --callout-bg: rgb(96 165 250 / 0.06);
+}
+.callout-tip {
+  --callout-fg: #6ee7b7;
+  --callout-border: rgb(52 211 153 / 0.3);
+  --callout-bg: rgb(52 211 153 / 0.06);
+}
+.callout-warning {
+  --callout-fg: #fcd34d;
+  --callout-border: rgb(251 191 36 / 0.3);
+  --callout-bg: rgb(251 191 36 / 0.06);
+}
+.callout-important {
+  --callout-fg: #fca5a5;
+  --callout-border: rgb(248 113 113 / 0.3);
+  --callout-bg: rgb(248 113 113 / 0.06);
+}
+.callout-example {
+  --callout-fg: #c4b5fd;
+  --callout-border: rgb(167 139 250 / 0.3);
+  --callout-bg: rgb(167 139 250 / 0.06);
+}
+
+/* KaTeX */
+.prose-cp .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
