@@ -11,7 +11,7 @@ const STEPS = [
   },
   {
     title: "Masalalarni yeching",
-    text: "Masalalar Codeforces, AtCoder va LeetCode'dan saralangan — o'sha saytlarda yechasiz.",
+    text: "Masalalar Codeforces va AtCoder'dan saralangan — o'sha saytlarda yechasiz.",
   },
   {
     title: "Natija o'zi yoziladi",

@@ -54,17 +54,16 @@ Oraliqda bo'sh raqam qoldiring (1, 2, 3… emas, balki 1, 3, 5…) — keyin o'r
 |---|---|
 | Codeforces | `https://codeforces.com/problemset/problem/{contest}/{index}` yoki `/contest/{contest}/problem/{index}` yoki `/gym/{id}/problem/{index}` |
 | AtCoder | `https://atcoder.jp/contests/{contest}/tasks/{task_id}` |
-| LeetCode | `https://leetcode.com/problems/{slug}/` |
 
-Boshqa saytlar (CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchun ishlatilmaydi.
+Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchun ishlatilmaydi.
 
 ### Masalalarni tanlash qoidalari
 
 - Har mavzuda **6–12 masala**, oson → qiyin tartibda.
 - Taqsimot: ~40% `easy`, ~40% `medium`, ~20% `hard`.
 - Birinchi 1–2 masala — mavzuni "toza" qo'llash (klassik).
-- Imkon qadar uch platformadan aralash, lekin Codeforces asosiy.
-- `difficulty` — **shu kurs o'quvchisi uchun** nisbiy: taxminan CF 800–1200 → `easy`, 1300–1700 → `medium`, 1800+ → `hard`. LeetCode uchun platformadagi Easy/Medium/Hard ga mos qo'ying.
+- Codeforces asosiy, AtCoder (ayniqsa ABC) bilan aralash.
+- `difficulty` — **shu kurs o'quvchisi uchun** nisbiy: taxminan CF 800–1200 → `easy`, 1300–1700 → `medium`, 1800+ → `hard`. AtCoder ABC uchun taxminan: A–B → `easy`, C–D → `medium`, E+ → `hard`.
 - Bitta masala ikki mavzuda takrorlanmasin.
 - Faqat **haqiqatan mavjud** masalalar. Tekshirish: `npm run check-content`.
 
@@ -212,7 +211,7 @@ Qat'iy talablar:
 1. Ilova qilingan CONTENT_GUIDE.md dagi BARCHA qoidalarga amal qil: frontmatter formati,
    bo'limlar tartibi va nomlari, atamalar lug'ati, callout'lar, KaTeX, C++17 kod uslubi.
 2. Uslub va hajm bo'yicha ilova qilingan prefix-sums.md namunasiga o'xshasin.
-3. 6–12 ta masala tanla: faqat Codeforces, AtCoder, LeetCode. Faqat HAQIQATAN MAVJUD
+3. 6–12 ta masala tanla: faqat Codeforces va AtCoder. Faqat HAQIQATAN MAVJUD
    masalalar, aniq URL va asl nomi bilan. Ishonching komil bo'lmagan masalani qo'shma.
 4. Javob — faqat bitta tayyor .md fayl mazmuni, boshqa izohsiz.
 ```

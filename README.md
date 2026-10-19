@@ -1,6 +1,6 @@
 # CP Kurs
 
-Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Codeforces / AtCoder / LeetCode bilan avtomatik sinxronizatsiya.
+Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Codeforces va AtCoder bilan avtomatik sinxronizatsiya.
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Drizzle ORM · Neon Postgres · Vercel
 
@@ -12,8 +12,7 @@ Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Code
 - **Masalalar** saytda yechilmaydi — tashqi havola. O'quvchi yechgan masala kursda avtomatik belgilanadi.
 - **Handle ulash (egalik tasdiqlanadi):**
   - Codeforces — ko'rsatilgan masalaga 15 daqiqa ichida *Compilation Error* yuborish;
-  - AtCoder — profildagi *Affiliation* maydoniga kod yozish;
-  - LeetCode — profildagi *Summary* maydoniga kod yozish.
+  - AtCoder — profildagi *Affiliation* maydoniga kod yozish.
 - **Sinxronizatsiya:** sahifa ochilganda (ma'lumot 10 daqiqadan eski bo'lsa), "Yangilash" tugmasi orqali va har kuni Vercel Cron bilan.
 - **Admin panel** — o'quvchilar ro'yxati va progressi, har bir o'quvchining mavzular bo'yicha yechgan masalalari, parolni tiklash, handle uzish, o'chirish.
 
@@ -56,7 +55,6 @@ git add content && git commit -m "Yangi mavzu" && git push   # Vercel o'zi yangi
 
 ## Cheklovlar
 
-- **LeetCode** ochiq API'si faqat oxirgi ~20 ta Accepted yechimni beradi. Sinxronizatsiya muntazam ishlagani uchun odatda muammo emas, lekin handle ulanishidan oldin yechilgan eski masalalar ko'rinmasligi mumkin.
 - **AtCoder** ma'lumotlari [AtCoder Problems](https://kenkoooo.com/atcoder/) orqali olinadi — yangi yechim bir necha daqiqa kechikib ko'rinishi mumkin.
 
 ## Tuzilma
@@ -68,6 +66,6 @@ scripts/             create-admin, check-content
 src/app/             Sahifalar: /, /login, /topics, /topics/[slug], /settings, /admin
 src/app/api/         /api/sync (o'quvchi), /api/cron/sync (Vercel Cron)
 src/db/              Drizzle sxemasi
-src/lib/judges/      Codeforces, AtCoder, LeetCode integratsiyalari
+src/lib/judges/      Codeforces va AtCoder integratsiyalari
 src/lib/sync.ts      Sinxronizatsiya mantig'i
 ```

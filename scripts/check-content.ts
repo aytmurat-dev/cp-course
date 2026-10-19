@@ -1,7 +1,7 @@
 /**
  * content/topics/*.md fayllarini tekshiradi:
  *  - frontmatter formati, takrorlangan order/slug, prerequisites
- *  - masalalar haqiqatan mavjudmi (Codeforces / AtCoder / LeetCode API orqali)
+ *  - masalalar haqiqatan mavjudmi (Codeforces / AtCoder API orqali)
  *
  *   npm run check-content
  *   npm run check-content -- --offline   (faqat format, tarmoqsiz)
@@ -76,23 +76,6 @@ async function checkProblemsExist(topics: Topic[]) {
     const names = new Map<string, string>(list.map((p: { id: string; title: string }) => [`ac:${p.id}`, p.title]));
     for (const p of all.filter((p) => p.platform === "atcoder")) {
       if (!names.has(p.key)) err(`${p.topic}: AtCoder masala topilmadi — ${p.url}`);
-    }
-  }
-
-  for (const p of all.filter((p) => p.platform === "leetcode")) {
-    const res = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Referer: "https://leetcode.com" },
-      body: JSON.stringify({
-        query: "query($s: String!) { question(titleSlug: $s) { title difficulty } }",
-        variables: { s: p.key.slice(3) },
-      }),
-    }).then((r) => r.json());
-    const q = res.data?.question;
-    if (!q) err(`${p.topic}: LeetCode masala topilmadi — ${p.url}`);
-    else {
-      const diff = q.difficulty.toLowerCase();
-      if (diff !== p.difficulty) warn(`${p.topic}: ${p.key} LeetCode'da "${q.difficulty}", siz "${p.difficulty}" deb yozgansiz`);
     }
   }
 }

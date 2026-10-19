@@ -5,13 +5,6 @@ order: 21
 summary: "Saralangan massivda va monoton shartlarda javobni O(log n) da topish."
 prerequisites: [complexity]
 problems:
-  - title: "Binary Search"
-    url: "https://leetcode.com/problems/binary-search/"
-    difficulty: easy
-    note: "Klassik shablon"
-  - title: "Search Insert Position"
-    url: "https://leetcode.com/problems/search-insert-position/"
-    difficulty: easy
   - title: "Interesting drink"
     url: "https://codeforces.com/problemset/problem/706/B"
     difficulty: easy
@@ -21,20 +14,35 @@ problems:
     url: "https://codeforces.com/problemset/problem/474/B"
     difficulty: easy
     rating: 1200
+  - title: "Queries about less or equal elements"
+    url: "https://codeforces.com/problemset/problem/600/B"
+    difficulty: easy
+    rating: 1300
+    note: "Saralash + upper_bound"
+  - title: "Snuke Festival"
+    url: "https://atcoder.jp/contests/abc077/tasks/arc084_a"
+    difficulty: medium
+    note: "O'rtadagi element bo'yicha sanash"
   - title: "Buy an Integer"
     url: "https://atcoder.jp/contests/abc146/tasks/abc146_c"
     difficulty: medium
     note: "Javob bo'yicha qidiruv"
-  - title: "Koko Eating Bananas"
-    url: "https://leetcode.com/problems/koko-eating-bananas/"
-    difficulty: medium
   - title: "Maximum Median"
     url: "https://codeforces.com/problemset/problem/1201/C"
     difficulty: medium
     rating: 1400
-  - title: "Split Array Largest Sum"
-    url: "https://leetcode.com/problems/split-array-largest-sum/"
+  - title: "Frodo and pillows"
+    url: "https://codeforces.com/problemset/problem/760/B"
+    difficulty: medium
+    rating: 1500
+  - title: "Hamburgers"
+    url: "https://codeforces.com/problemset/problem/371/C"
+    difficulty: medium
+    rating: 1600
+  - title: "Magic Ship"
+    url: "https://codeforces.com/problemset/problem/1117/C"
     difficulty: hard
+    rating: 1900
 ---
 
 Lug'atdan so'z qidirganda uni birinchi betdan boshlab varaqlamaysiz — o'rtasini ochasiz va kerakli yarmiga o'tasiz. **Binar qidiruv (binary search)** aynan shu g'oya: har qadamda qidiruv sohasini ikki marta qisqartirish. Natijada $10^9$ ta variant orasidan ham javob atigi ~30 qadamda topiladi.
@@ -133,7 +141,7 @@ Javob: $hi = 3$, $a_3 = 5 = x$ — topildi ✓
 
 Ko'p masalalar "eng kichik $X$ ni toping, shunday ki ..." ko'rinishida bo'ladi. Agar $X$ yaroqli bo'lsa, undan kattasi ham yaroqli bo'lsa — shart monoton, javobni binar qidiruv bilan topamiz.
 
-Misol (*Koko Eating Bananas*): soatiga $k$ ta banan yesa, $h$ soatda hammasini yeb bo'ladimi? $k$ oshgani sari kerakli vaqt kamayadi — monoton. Demak, eng kichik yaroqli $k$ ni qidiramiz:
+Misol: $n$ ta uyumda bananlar bor. Soatiga $k$ ta banan yesak, $h$ soatda hammasini yeb bo'ladimi? $k$ oshgani sari kerakli vaqt kamayadi — monoton. Demak, eng kichik yaroqli $k$ ni qidiramiz:
 
 ```cpp
 auto ok = [&](long long k) {

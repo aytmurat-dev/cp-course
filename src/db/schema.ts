@@ -11,7 +11,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const PLATFORMS = ["codeforces", "atcoder", "leetcode"] as const;
+export const PLATFORMS = ["codeforces", "atcoder"] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
 export const users = pgTable("users", {
@@ -54,14 +54,14 @@ export const verifications = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     platform: text("platform", { enum: PLATFORMS }).notNull(),
     handle: text("handle").notNull(),
-    // Codeforces: masala ("4/A"), AtCoder/LeetCode: profilga yoziladigan kod.
+    // Codeforces: masala ("4/A"), AtCoder: profilga yoziladigan kod.
     challenge: text("challenge").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.platform] })],
 );
 
-/** O'quvchi yechgan masalalar. problemKey: "cf:1234A", "ac:abc300_a", "lc:two-sum". */
+/** O'quvchi yechgan masalalar. problemKey: "cf:1234A", "ac:abc300_a". */
 export const solves = pgTable(
   "solves",
   {

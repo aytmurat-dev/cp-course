@@ -21,7 +21,6 @@ type Props = {
 const PROFILE_URL: Record<Platform, (h: string) => string> = {
   codeforces: (h) => `https://codeforces.com/profile/${h}`,
   atcoder: (h) => `https://atcoder.jp/users/${h}`,
-  leetcode: (h) => `https://leetcode.com/u/${h}/`,
 };
 
 export function HandleCard({ platform, linked, pending }: Props) {
@@ -116,26 +115,13 @@ function Instructions({ platform, pending }: { platform: Platform; pending: NonN
       </ol>
     );
   }
-  if (platform === "atcoder") {
-    return (
-      <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted">
-        <li>
-          <a href="https://atcoder.jp/settings" target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
-            AtCoder sozlamalarida ↗
-          </a>{" "}
-          <b className="text-fg">Affiliation</b> maydoniga quyidagi kodni yozib saqlang: {code}
-        </li>
-        <li>&quot;Tekshirish&quot;ni bosing. Tasdiqlangandan keyin kodni o&apos;chirib tashlashingiz mumkin.</li>
-      </ol>
-    );
-  }
   return (
     <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted">
       <li>
-        <a href="https://leetcode.com/profile/" target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
-          LeetCode profil sozlamalarida ↗
+        <a href="https://atcoder.jp/settings" target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
+          AtCoder sozlamalarida ↗
         </a>{" "}
-        <b className="text-fg">Summary</b> (About me) maydoniga quyidagi kodni yozib saqlang: {code}
+        <b className="text-fg">Affiliation</b> maydoniga quyidagi kodni yozib saqlang: {code}
       </li>
       <li>&quot;Tekshirish&quot;ni bosing. Tasdiqlangandan keyin kodni o&apos;chirib tashlashingiz mumkin.</li>
     </ol>

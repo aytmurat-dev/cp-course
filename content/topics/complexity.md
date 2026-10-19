@@ -20,14 +20,14 @@ problems:
   - title: "Shift only"
     url: "https://atcoder.jp/contests/abs/tasks/abc081_b"
     difficulty: easy
-  - title: "Two Sum"
-    url: "https://leetcode.com/problems/two-sum/"
-    difficulty: easy
-    note: "O(n²) va O(n) yechimlarni solishtiring"
   - title: "Coins"
     url: "https://atcoder.jp/contests/abs/tasks/abc087_b"
     difficulty: easy
     note: "Uchta ichma-ich sikl yetarlimi?"
+  - title: "Otoshidama"
+    url: "https://atcoder.jp/contests/abs/tasks/abc085_c"
+    difficulty: medium
+    note: "O(N³) dan O(N²) ga"
 ---
 
 Competitive programmingda to'g'ri yechimning o'zi yetarli emas — u **vaqt limiti** ichida ishlashi ham kerak. Yaxshi xabar: yechim tez yoki sekin ekanini kod yozmasdan oldin, faqat cheklovlarga qarab baholash mumkin. Buning vositasi — **vaqt murakkabligi (time complexity)** va "katta O" belgilashi.

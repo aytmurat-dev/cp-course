@@ -67,7 +67,6 @@ export function ProgressBar({ value, total, className = "" }: { value: number; t
 const PLATFORM_STYLE: Record<Platform, string> = {
   codeforces: "text-sky-300 bg-sky-400/10 ring-sky-400/25",
   atcoder: "text-zinc-200 bg-zinc-400/10 ring-zinc-400/25",
-  leetcode: "text-amber-300 bg-amber-400/10 ring-amber-400/25",
 };
 
 export function PlatformBadge({ platform }: { platform: Platform }) {

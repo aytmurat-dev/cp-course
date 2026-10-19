@@ -5,13 +5,14 @@ order: 3
 summary: "Massivning istalgan qismi yig'indisini bitta ayirish amali bilan — O(1) da hisoblash."
 prerequisites: [complexity]
 problems:
-  - title: "Range Sum Query - Immutable"
-    url: "https://leetcode.com/problems/range-sum-query-immutable/"
+  - title: "GeT AC"
+    url: "https://atcoder.jp/contests/abc122/tasks/abc122_c"
     difficulty: easy
     note: "Klassik 1D prefiks"
-  - title: "Find Pivot Index"
-    url: "https://leetcode.com/problems/find-pivot-index/"
+  - title: "Attention"
+    url: "https://atcoder.jp/contests/abc098/tasks/arc098_a"
     difficulty: easy
+    note: "Chapdan va o'ngdan prefiks"
   - title: "Ilya and Queries"
     url: "https://codeforces.com/problemset/problem/313/B"
     difficulty: easy
@@ -21,10 +22,11 @@ problems:
     url: "https://codeforces.com/problemset/problem/433/B"
     difficulty: easy
     rating: 1200
-  - title: "Subarray Sum Equals K"
-    url: "https://leetcode.com/problems/subarray-sum-equals-k/"
+  - title: "Karen and Coffee"
+    url: "https://codeforces.com/problemset/problem/816/B"
     difficulty: medium
-    note: "Prefiks + hash map"
+    rating: 1400
+    note: "Ayirmalar massivi + prefiks"
   - title: "Greg and Array"
     url: "https://codeforces.com/problemset/problem/295/A"
     difficulty: medium
@@ -34,6 +36,11 @@ problems:
     url: "https://codeforces.com/problemset/problem/466/C"
     difficulty: hard
     rating: 1700
+  - title: "Good Subarrays"
+    url: "https://codeforces.com/problemset/problem/1398/C"
+    difficulty: hard
+    rating: 1600
+    note: "Prefiks + map"
 ---
 
 Tasavvur qiling: sizga $n$ ta sondan iborat massiv va $q$ ta so'rov berilgan. Har bir so'rovda $l$-elementdan $r$-elementgacha bo'lgan sonlar yig'indisini aytish kerak. Har safar qaytadan qo'shib chiqish juda sekin. **Prefiks yig'indi (prefix sum)** — massivni bir marta oldindan qayta ishlab, keyin har bir so'rovga bir zumda javob berish usuli. Bu competitive programmingdagi eng ko'p ishlatiladigan g'oyalardan biri.

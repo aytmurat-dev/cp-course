@@ -14,7 +14,7 @@ import { syncUser } from "@/lib/sync";
 export type ActionState = { error?: string; success?: string };
 
 /** Tasdiqlash topshirig'i qancha vaqt amal qiladi. */
-const VERIFY_TTL_MIN: Record<Platform, number> = { codeforces: 15, atcoder: 60, leetcode: 60 };
+const VERIFY_TTL_MIN: Record<Platform, number> = { codeforces: 15, atcoder: 60 };
 
 function readPlatform(form: FormData): Platform {
   const p = String(form.get("platform"));

@@ -3,13 +3,11 @@ import type { Platform } from "@/db/schema";
 export const PLATFORM_LABEL: Record<Platform, string> = {
   codeforces: "Codeforces",
   atcoder: "AtCoder",
-  leetcode: "LeetCode",
 };
 
 export const PLATFORM_PREFIX: Record<Platform, string> = {
   codeforces: "cf",
   atcoder: "ac",
-  leetcode: "lc",
 };
 
 export type ParsedProblem = { platform: Platform; key: string };
@@ -20,7 +18,6 @@ export type ParsedProblem = { platform: Platform; key: string };
  *  - https://codeforces.com/contest/1234/problem/A       → cf:1234A
  *  - https://codeforces.com/gym/100001/problem/B         → cf:100001B
  *  - https://atcoder.jp/contests/abc300/tasks/abc300_a   → ac:abc300_a
- *  - https://leetcode.com/problems/two-sum/              → lc:two-sum
  */
 export function parseProblemUrl(raw: string): ParsedProblem | null {
   let url: URL;
@@ -41,10 +38,6 @@ export function parseProblemUrl(raw: string): ParsedProblem | null {
   if (host === "atcoder.jp") {
     const m = path.match(/^\/contests\/[^/]+\/tasks\/([^/]+)$/);
     return m ? { platform: "atcoder", key: `ac:${m[1]}` } : null;
-  }
-  if (host === "leetcode.com" || host === "leetcode.cn") {
-    const m = path.match(/^\/problems\/([a-z0-9-]+)(?:\/.*)?$/);
-    return m ? { platform: "leetcode", key: `lc:${m[1]}` } : null;
   }
   return null;
 }
