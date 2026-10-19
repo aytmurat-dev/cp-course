@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkCallouts from "@/lib/remark-callouts";
@@ -11,7 +12,8 @@ export function Markdown({ children }: { children: string }) {
     <div className="prose-cp">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath, remarkCallouts]}
-        rehypePlugins={[rehypeKatex, [rehypeHighlight, { detect: false, ignoreMissing: true }]]}
+        // rehype-raw — matndagi HTML (masalan <details>) uchun. Kontentni faqat admin yozadi.
+        rehypePlugins={[rehypeRaw, rehypeKatex, [rehypeHighlight, { detect: false, ignoreMissing: true }]]}
         components={{
           pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
           a: ({ href, children }) => {
