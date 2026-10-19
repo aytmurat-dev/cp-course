@@ -46,7 +46,7 @@ Cron (`vercel.json`) har kuni 01:00 UTC da barcha o'quvchilarni sinxronlaydi (Ho
 
 ## Mavzu qo'shish
 
-Mavzular — `content/topics/*.md` fayllari. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Namuna: [content/topics/prefix-sums.md](content/topics/prefix-sums.md).
+Mavzular — `content/topics/*.md` fayllari. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
 
 ```bash
 npm run check-content     # format + masalalar platformada haqiqatan borligini tekshiradi

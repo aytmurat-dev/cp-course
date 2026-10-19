@@ -3,7 +3,7 @@
 Bu hujjat — barcha mavzular **bir xil uslub va tuzilmada** bo'lishi uchun yagona standart.
 Yangi mavzuni AI bilan generatsiya qilganda shu faylni to'liq prompt'ga qo'shing (pastda tayyor prompt bor).
 
-Namuna sifatida [content/topics/prefix-sums.md](../content/topics/prefix-sums.md) faylini oching — u barcha qoidalarga mos yozilgan.
+Bo'sh shablon: [content/topics/_template.md](../content/topics/_template.md) — yangi mavzuni shundan nusxalab boshlang.
 
 ---
 
@@ -195,7 +195,7 @@ Rasm kerak bo'lsa: `public/topics/<slug>/rasm.png` ga qo'ying va `![izoh](/topic
 
 ## 10. AI uchun tayyor prompt
 
-Quyidagi matnni nusxalang, `<...>` joylarini to'ldiring va **shu faylning to'liq matnini** hamda namunani (`prefix-sums.md`) qo'shib yuboring:
+Quyidagi matnni nusxalang, `<...>` joylarini to'ldiring va **shu faylning to'liq matnini** hamda shablonni (`_template.md`) qo'shib yuboring. Kursda tayyor mavzular paydo bo'lgach, eng yaxshi chiqqanini ham namuna sifatida qo'shing — uslub yanada bir xil bo'ladi:
 
 ```text
 Sen tajribali competitive programming murabbiyisan. O'zbek tilida (lotin) kurs mavzusi yozib ber.
@@ -210,7 +210,7 @@ O'quvchi darajasi: <Codeforces 800–1400>
 Qat'iy talablar:
 1. Ilova qilingan CONTENT_GUIDE.md dagi BARCHA qoidalarga amal qil: frontmatter formati,
    bo'limlar tartibi va nomlari, atamalar lug'ati, callout'lar, KaTeX, C++17 kod uslubi.
-2. Uslub va hajm bo'yicha ilova qilingan prefix-sums.md namunasiga o'xshasin.
+2. Tuzilma ilova qilingan _template.md ga mos bo'lsin (namuna mavzu ilova qilingan bo'lsa — uslub va hajm bo'yicha unga o'xshasin).
 3. 6–12 ta masala tanla: faqat Codeforces va AtCoder. Faqat HAQIQATAN MAVJUD
    masalalar, aniq URL va asl nomi bilan. Ishonching komil bo'lmagan masalani qo'shma.
 4. Javob — faqat bitta tayyor .md fayl mazmuni, boshqa izohsiz.
