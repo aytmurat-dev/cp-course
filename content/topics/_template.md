@@ -1,12 +1,6 @@
 ---
 summary: "Bitta jumlada: mavzu qanday muammoni hal qiladi."
 prerequisites: []
-problems:
-  - title: "Masalaning asl nomi"
-    url: "https://codeforces.com/problemset/problem/1/A"
-    difficulty: easy
-    rating: 1000
-    note: "Qisqa maslahat (ixtiyoriy)"
 ---
 
 Kirish: 2–4 jumla. Mavzu qanday muammoni hal qiladi va nega kerak.

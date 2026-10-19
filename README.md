@@ -46,10 +46,12 @@ Cron (`vercel.json`) har kuni 01:00 UTC da barcha o'quvchilarni sinxronlaydi (Ho
 
 ## Mavzu qo'shish
 
-Kurs tuzilmasi (qism → bo'lim → mavzu, nomlar va tartib) — [content/course.yaml](content/course.yaml). Har bir mavzu matni — `content/topics/<slug>.md`; fayli yo'q mavzular saytda "Tez orada" deb turadi. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
+Kurs tuzilmasi (qism → bo'lim → mavzu, nomlar va tartib) — [content/course.yaml](content/course.yaml). Har bir mavzu matni — `content/topics/<slug>.md`; matni ham, masalasi ham yo'q mavzular saytda "Tez orada" deb turadi.
+
+**Masalalar** admin paneldan qo'shiladi: admin sifatida mavzu sahifasini oching va pastdagi formaga Codeforces/AtCoder havolasini qo'ying — nomi, reytingi va qiyinligi avtomatik olinadi. Masalani tahrirlash, o'chirish va tartibini o'zgartirish ham shu yerda. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
 
 ```bash
-npm run check-content     # format + masalalar platformada haqiqatan borligini tekshiradi
+npm run check-content     # course.yaml va mavzu fayllari formatini tekshiradi
 git add content && git commit -m "Yangi mavzu" && git push   # Vercel o'zi yangilaydi
 ```
 

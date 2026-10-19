@@ -3,23 +3,28 @@ import Link from "next/link";
 import { SyncStatus } from "@/components/sync-status";
 import { formatDate, ProgressBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { getCourse, getTopics, type CourseChapter, type CourseTopic } from "@/lib/content";
+import { getCourse, getProblemCount, getProblemsBySlug, isAvailable, type CourseChapter, type CourseTopic, type Problem } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getCourseSolves } from "@/lib/progress";
 import { isStale } from "@/lib/sync";
 
 export const metadata: Metadata = { title: "Mavzular" };
 
-type Solved = Map<string, Date>;
+type Ctx = { solved: Map<string, Date>; problems: Map<string, Problem[]>; isAdmin: boolean };
 
-const countDone = (t: CourseTopic, solved: Solved) => t.content?.problems.filter((p) => solved.has(p.key)).length ?? 0;
-const countTotal = (t: CourseTopic) => t.content?.problems.length ?? 0;
+const topicProblems = (t: CourseTopic, ctx: Ctx) => ctx.problems.get(t.slug) ?? [];
+const countDone = (t: CourseTopic, ctx: Ctx) => topicProblems(t, ctx).filter((p) => ctx.solved.has(p.problemKey)).length;
 
 export default async function TopicsPage() {
   const user = await requireUser();
-  const [solved, linked] = await Promise.all([getCourseSolves(user.id), getUserHandles(user.id)]);
+  const [solved, linked, problems, total] = await Promise.all([
+    getCourseSolves(user.id),
+    getUserHandles(user.id),
+    getProblemsBySlug(),
+    getProblemCount(),
+  ]);
+  const ctx: Ctx = { solved, problems, isAdmin: user.role === "admin" };
   const parts = getCourse();
-  const total = getTopics().reduce((n, t) => n + t.content.problems.length, 0);
 
   return (
     <div>
@@ -45,7 +50,7 @@ export default async function TopicsPage() {
             </h2>
             <div className="space-y-3">
               {part.chapters.map((ch) => (
-                <Chapter key={ch.number} chapter={ch} solved={solved} />
+                <Chapter key={ch.number} chapter={ch} ctx={ctx} />
               ))}
             </div>
           </section>
@@ -55,16 +60,16 @@ export default async function TopicsPage() {
   );
 }
 
-function Chapter({ chapter, solved }: { chapter: CourseChapter; solved: Solved }) {
+function Chapter({ chapter, ctx }: { chapter: CourseChapter; ctx: Ctx }) {
   if (chapter.single) {
     return (
       <div className="card overflow-hidden">
-        <TopicRow topic={chapter.topics[0]} solved={solved} heading />
+        <TopicRow topic={chapter.topics[0]} ctx={ctx} heading />
       </div>
     );
   }
-  const done = chapter.topics.reduce((n, t) => n + countDone(t, solved), 0);
-  const total = chapter.topics.reduce((n, t) => n + countTotal(t), 0);
+  const done = chapter.topics.reduce((n, t) => n + countDone(t, ctx), 0);
+  const total = chapter.topics.reduce((n, t) => n + topicProblems(t, ctx).length, 0);
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center gap-4 border-b border-line bg-surface-2/50 px-4 py-3.5 sm:px-5">
@@ -79,7 +84,7 @@ function Chapter({ chapter, solved }: { chapter: CourseChapter; solved: Solved }
       <ul className="divide-y divide-line">
         {chapter.topics.map((t) => (
           <li key={t.slug}>
-            <TopicRow topic={t} solved={solved} />
+            <TopicRow topic={t} ctx={ctx} />
           </li>
         ))}
       </ul>
@@ -87,7 +92,13 @@ function Chapter({ chapter, solved }: { chapter: CourseChapter; solved: Solved }
   );
 }
 
-function TopicRow({ topic, solved, heading }: { topic: CourseTopic; solved: Solved; heading?: boolean }) {
+function TopicRow({ topic, ctx, heading }: { topic: CourseTopic; ctx: Ctx; heading?: boolean }) {
+  const available = isAvailable(topic, ctx.problems);
+  // Admin "Tez orada" mavzularni ham ochadi — masala qo'shish uchun.
+  const clickable = available || ctx.isAdmin;
+  const total = topicProblems(topic, ctx).length;
+  const done = countDone(topic, ctx);
+
   const inner = (
     <>
       <span className={`w-10 shrink-0 font-extrabold text-faint ${heading ? "text-lg" : "text-sm"}`}>
@@ -95,26 +106,33 @@ function TopicRow({ topic, solved, heading }: { topic: CourseTopic; solved: Solv
         {heading && "."}
       </span>
       <div className="min-w-0 flex-1">
-        <span className={`${heading ? "text-lg font-extrabold" : "font-bold"} ${topic.content ? "group-hover:text-accent" : ""}`}>{topic.title}</span>
+        <span className={`${heading ? "text-lg font-extrabold" : "font-bold"} ${clickable ? "group-hover:text-accent" : ""}`}>
+          {topic.title}
+        </span>
         {topic.content && <p className="mt-0.5 truncate text-sm text-muted">{topic.content.summary}</p>}
       </div>
-      {topic.content ? (
+      {total > 0 ? (
         <div className="w-24 shrink-0 text-right sm:w-32">
           <div className="text-sm font-bold">
-            {countDone(topic, solved)}
-            <span className="text-faint"> / {countTotal(topic)}</span>
+            {done}
+            <span className="text-faint"> / {total}</span>
           </div>
-          <ProgressBar value={countDone(topic, solved)} total={countTotal(topic)} className="mt-1.5" />
+          <ProgressBar value={done} total={total} className="mt-1.5" />
         </div>
       ) : (
-        <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold text-faint ring-1 ring-line">Tez orada</span>
+        !available && (
+          <span className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold text-faint ring-1 ring-line">Tez orada</span>
+        )
       )}
     </>
   );
   const cls = `flex items-center gap-4 px-4 sm:px-5 ${heading ? "py-4" : "py-3"}`;
-  if (!topic.content) return <div className={`${cls} opacity-60`}>{inner}</div>;
+  if (!clickable) return <div className={`${cls} opacity-60`}>{inner}</div>;
   return (
-    <Link href={`/topics/${topic.slug}`} className={`${cls} group transition hover:bg-surface-2`}>
+    <Link
+      href={`/topics/${topic.slug}`}
+      className={`${cls} group transition hover:bg-surface-2 ${available ? "" : "opacity-60 hover:opacity-100"}`}
+    >
       {inner}
     </Link>
   );

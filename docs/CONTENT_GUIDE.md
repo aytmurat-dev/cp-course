@@ -27,16 +27,14 @@ Mavzu nomi va o'rni frontmatter'da **yozilmaydi** — ular `course.yaml` dan oli
 ---
 summary: "Massiv qismlari yig'indisini O(1) da hisoblash usuli."   # 1 jumla, 120 belgigacha
 prerequisites: [brute-force]           # Avval o'qilishi kerak bo'lgan mavzular slug'lari (ixtiyoriy)
-problems:
-  - title: "Ilya and Queries"          # Masalaning ASL nomi (platformadagidek)
-    url: "https://codeforces.com/problemset/problem/313/B"
-    difficulty: easy                   # easy | medium | hard  (kurs ichidagi nisbiy qiyinlik)
-    rating: 1100                       # ixtiyoriy: Codeforces reytingi
-    note: "Klassik 1D prefiks"         # ixtiyoriy: 2–6 so'zli maslahat, yechimni oshkor qilmasin
 ---
 ```
 
-### Qo'llab-quvvatlanadigan masala URL'lari
+### Masalalar — admin panelda
+
+Masalalar mavzu faylida **yozilmaydi**. Admin sifatida saytga kiring, mavzu sahifasini oching va pastdagi **"Masala qo'shish"** formasiga havolani qo'ying. Nomi, reytingi va qiyinligi platformadan avtomatik olinadi; keyin tahrirlash, o'chirish va tartibini (↑ ↓) o'zgartirish mumkin. Masala qo'shilgan mavzu matni hali yozilmagan bo'lsa ham o'quvchilarga ochiladi.
+
+#### Qo'llab-quvvatlanadigan havolalar
 
 | Platforma | URL formati |
 |---|---|
@@ -45,7 +43,7 @@ problems:
 
 Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchun ishlatilmaydi.
 
-### Masalalarni tanlash qoidalari
+#### Masalalarni tanlash qoidalari
 
 - Har mavzuda **6–12 masala**, oson → qiyin tartibda.
 - Taqsimot: ~40% `easy`, ~40% `medium`, ~20% `hard`.
@@ -53,12 +51,12 @@ Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchu
 - Codeforces asosiy, AtCoder (ayniqsa ABC) bilan aralash.
 - `difficulty` — **shu kurs o'quvchisi uchun** nisbiy: taxminan CF 800–1200 → `easy`, 1300–1700 → `medium`, 1800+ → `hard`. AtCoder ABC uchun taxminan: A–B → `easy`, C–D → `medium`, E+ → `hard`.
 - Bitta masala ikki mavzuda takrorlanmasin.
-- Faqat **haqiqatan mavjud** masalalar. Tekshirish: `npm run check-content`.
+- Qiyinlik avtomatik qo'yiladi, lekin uni **shu kurs o'quvchisi uchun** nisbiy baholab, kerak bo'lsa tahrirlang.
 
 ## 3. Matn tuzilmasi
 
 Matnda `#` (H1) **ishlatilmaydi** — sarlavha `course.yaml` dagi nomdan chiqadi.
-"Masalalar" bo'limini ham **yozmang** — u frontmatter'dan avtomatik jadval bo'lib chiqadi.
+"Masalalar" bo'limini ham **yozmang** — u admin paneldagi masalalardan avtomatik jadval bo'lib chiqadi.
 
 Bo'limlar quyidagi tartibda, aynan shu nomlar bilan (`##`):
 
@@ -197,11 +195,9 @@ O'quvchi darajasi: <Codeforces 800–1400>
 Qat'iy talablar:
 1. Ilova qilingan CONTENT_GUIDE.md dagi BARCHA qoidalarga amal qil: frontmatter formati,
    bo'limlar tartibi va nomlari, atamalar lug'ati, callout'lar, KaTeX, C++17 kod uslubi.
-   Frontmatter'da title/section/order YOZMA — faqat summary, prerequisites, problems.
+   Frontmatter'da faqat summary va prerequisites bo'lsin (title/section/order/problems YOZMA).
 2. Tuzilma ilova qilingan _template.md ga mos bo'lsin (namuna mavzu ilova qilingan bo'lsa — uslub va hajm bo'yicha unga o'xshasin).
-3. 6–12 ta masala tanla: faqat Codeforces va AtCoder. Faqat HAQIQATAN MAVJUD
-   masalalar, aniq URL va asl nomi bilan. Ishonching komil bo'lmagan masalani qo'shma.
-4. Javob — faqat bitta tayyor .md fayl mazmuni, boshqa izohsiz.
+3. Javob — faqat bitta tayyor .md fayl mazmuni, boshqa izohsiz.
 ```
 
 AI javobini `content/topics/<slug>.md` ga saqlang, `npm run check-content` bilan tekshiring va xatolarni tuzating.

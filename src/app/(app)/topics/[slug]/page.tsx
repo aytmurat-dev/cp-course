@@ -6,33 +6,40 @@ import { ProblemTable } from "@/components/problem-table";
 import { SyncStatus } from "@/components/sync-status";
 import { formatDate, ProgressBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
-import { getCourseTopics, getTopic, getTopics } from "@/lib/content";
+import { getCourseTopic, getCourseTopics, getProblemsBySlug, isAvailable } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getCourseSolves } from "@/lib/progress";
 import { isStale } from "@/lib/sync";
+import { AdminProblems } from "./admin-problems";
 
 export async function generateMetadata({ params }: PageProps<"/topics/[slug]">): Promise<Metadata> {
-  const topic = getTopic((await params).slug);
+  const topic = getCourseTopic((await params).slug);
   return { title: topic ? `${topic.number}. ${topic.title}` : "Mavzu topilmadi" };
 }
 
 export default async function TopicPage({ params }: PageProps<"/topics/[slug]">) {
   const { slug } = await params;
-  const topic = getTopic(slug);
+  const topic = getCourseTopic(slug);
   if (!topic) notFound();
-  const { content } = topic;
 
   const user = await requireUser();
-  const [solved, linked] = await Promise.all([getCourseSolves(user.id), getUserHandles(user.id)]);
-  const done = content.problems.filter((p) => solved.has(p.key)).length;
+  const isAdmin = user.role === "admin";
+  const problemsBySlug = await getProblemsBySlug();
+  // Matni ham, masalasi ham yo'q mavzu o'quvchiga ko'rinmaydi; admin esa uni to'ldirishi uchun ochadi.
+  if (!isAdmin && !isAvailable(topic, problemsBySlug)) notFound();
 
-  // Oldingi/keyingi — faqat yozilgan mavzular orasida.
-  const written = getTopics();
-  const idx = written.findIndex((t) => t.slug === slug);
-  const prev = written[idx - 1];
-  const next = written[idx + 1];
+  const problems = problemsBySlug.get(slug) ?? [];
+  const [solved, linked] = await Promise.all([getCourseSolves(user.id), getUserHandles(user.id)]);
+  const done = problems.filter((p) => solved.has(p.problemKey)).length;
+  const content = topic.content;
+
+  // Oldingi/keyingi — o'quvchiga ochiq mavzular orasida.
   const all = getCourseTopics();
-  const prereq = content.prerequisites.map((s) => all.find((t) => t.slug === s)).filter((t) => !!t);
+  const open = all.filter((t) => t.slug === slug || isAvailable(t, problemsBySlug));
+  const idx = open.findIndex((t) => t.slug === slug);
+  const prev = open[idx - 1];
+  const next = open[idx + 1];
+  const prereq = (content?.prerequisites ?? []).map((s) => all.find((t) => t.slug === s)).filter((t) => !!t);
 
   return (
     <article className="mx-auto max-w-3xl">
@@ -48,14 +55,14 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
           <span className="text-faint">{topic.number}. </span>
           <span className="text-gradient">{topic.title}</span>
         </h1>
-        <p className="mt-3 text-lg text-muted">{content.summary}</p>
+        {content && <p className="mt-3 text-lg text-muted">{content.summary}</p>}
         {prereq.length > 0 && (
           <p className="mt-3 text-sm text-muted">
             Avval o&apos;qing:{" "}
             {prereq.map((t, i) => (
               <span key={t.slug}>
                 {i > 0 && ", "}
-                {t.content ? (
+                {isAvailable(t, problemsBySlug) ? (
                   <Link href={`/topics/${t.slug}`} className="font-semibold text-accent hover:underline">
                     {t.number}. {t.title}
                   </Link>
@@ -71,23 +78,37 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
       </header>
 
       <div className="mt-10">
-        <Markdown>{content.body}</Markdown>
+        {content ? (
+          <Markdown>{content.body}</Markdown>
+        ) : (
+          <p className="card p-5 text-muted">
+            Mavzu matni hali yozilmagan.
+            {isAdmin && (
+              <>
+                {" "}
+                Uni <code className="font-mono text-fg">content/topics/{slug}.md</code> fayliga qo&apos;shing.
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       <section id="masalalar" className="mt-16 scroll-mt-20">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-2xl font-extrabold">Masalalar</h2>
-            <div className="mt-2 flex items-center gap-3 text-sm text-muted">
-              <ProgressBar value={done} total={content.problems.length} className="w-32" />
-              {done} / {content.problems.length} yechilgan
-            </div>
+            {problems.length > 0 && (
+              <div className="mt-2 flex items-center gap-3 text-sm text-muted">
+                <ProgressBar value={done} total={problems.length} className="w-32" />
+                {done} / {problems.length} yechilgan
+              </div>
+            )}
           </div>
-          {user.role === "student" && (
+          {user.role === "student" && problems.length > 0 && (
             <SyncStatus stale={isStale(user.lastSyncedAt)} hasHandles={linked.length > 0} lastSynced={formatDate(user.lastSyncedAt)} />
           )}
         </div>
-        <ProblemTable problems={content.problems} solved={solved} />
+        {isAdmin ? <AdminProblems slug={slug} problems={problems} /> : <ProblemTable problems={problems} solved={solved} />}
       </section>
 
       <nav className="mt-14 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">

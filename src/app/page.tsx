@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/header";
 import { site } from "@/config";
 import { getCurrentUser } from "@/lib/auth";
-import { getCourse, getCourseTopics, getTopics } from "@/lib/content";
+import { getCourse, getCourseTopics, getProblemCount } from "@/lib/content";
 
 const STEPS = [
   {
@@ -24,7 +24,7 @@ export default async function Home() {
   const parts = getCourse();
   const chapterCount = parts.reduce((n, p) => n + p.chapters.length, 0);
   const topicCount = getCourseTopics().length;
-  const problemCount = getTopics().reduce((n, t) => n + t.content.problems.length, 0);
+  const problemCount = await getProblemCount();
 
   return (
     <>

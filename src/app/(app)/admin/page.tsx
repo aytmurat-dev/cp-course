@@ -4,7 +4,7 @@ import Link from "next/link";
 import { db, handles, users } from "@/db";
 import { formatDate, PlatformBadge, ProgressBar } from "@/components/ui";
 import { requireAdmin } from "@/lib/auth";
-import { getAllProblemKeys } from "@/lib/content";
+import { getProblemCount } from "@/lib/content";
 import { getCourseSolveCounts } from "@/lib/progress";
 import { CreateStudentForm } from "./create-student-form";
 
@@ -12,12 +12,12 @@ export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [students, allHandles, counts] = await Promise.all([
+  const [students, allHandles, counts, total] = await Promise.all([
     db.select().from(users).where(eq(users.role, "student")).orderBy(asc(users.name)),
     db.select().from(handles),
     getCourseSolveCounts(),
+    getProblemCount(),
   ]);
-  const total = getAllProblemKeys().length;
 
   return (
     <div className="space-y-8">

@@ -1,5 +1,4 @@
-import type { Platform } from "@/db/schema";
-import type { Difficulty } from "@/lib/content";
+import type { Difficulty, Platform } from "@/db/schema";
 import { PLATFORM_LABEL } from "@/lib/problems";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {

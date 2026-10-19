@@ -1,4 +1,4 @@
-import type { Problem } from "@/lib/content";
+import type { Problem } from "@/db/schema";
 import { DifficultyLabel, formatDate, PlatformBadge, SolvedIcon } from "./ui";
 
 export function ProblemTable({ problems, solved }: { problems: Problem[]; solved: Map<string, Date> }) {
@@ -19,9 +19,9 @@ export function ProblemTable({ problems, solved }: { problems: Problem[]; solved
         </thead>
         <tbody>
           {problems.map((p, i) => {
-            const at = solved.get(p.key);
+            const at = solved.get(p.problemKey);
             return (
-              <tr key={p.key} className={`border-b border-line last:border-0 ${at ? "bg-ok/[0.04]" : ""}`}>
+              <tr key={p.id} className={`border-b border-line last:border-0 ${at ? "bg-ok/[0.04]" : ""}`}>
                 <td className="px-4 py-3" title={at ? `Yechilgan: ${formatDate(at)}` : undefined}>
                   <SolvedIcon solved={!!at} />
                 </td>
@@ -39,7 +39,7 @@ export function ProblemTable({ problems, solved }: { problems: Problem[]; solved
                   <PlatformBadge platform={p.platform} />
                 </td>
                 <td className="whitespace-nowrap py-3 pr-4">
-                  <DifficultyLabel difficulty={p.difficulty} rating={p.rating} />
+                  <DifficultyLabel difficulty={p.difficulty} rating={p.rating ?? undefined} />
                 </td>
               </tr>
             );

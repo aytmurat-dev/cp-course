@@ -74,6 +74,32 @@ export const solves = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.problemKey] }), index("solves_key_idx").on(t.problemKey)],
 );
 
+export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
+export type Difficulty = (typeof DIFFICULTIES)[number];
+
+/** Mavzu oxiridagi masalalar — admin paneldan qo'shiladi. topicSlug: content/course.yaml dagi slug. */
+export const topicProblems = pgTable(
+  "topic_problems",
+  {
+    id: serial("id").primaryKey(),
+    topicSlug: text("topic_slug").notNull(),
+    problemKey: text("problem_key").notNull(),
+    platform: text("platform", { enum: PLATFORMS }).notNull(),
+    url: text("url").notNull(),
+    title: text("title").notNull(),
+    difficulty: text("difficulty", { enum: DIFFICULTIES }).notNull(),
+    rating: integer("rating"),
+    note: text("note"),
+    position: integer("position").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("topic_problems_topic_key_uq").on(t.topicSlug, t.problemKey),
+    index("topic_problems_topic_pos_idx").on(t.topicSlug, t.position),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
+export type Problem = typeof topicProblems.$inferSelect;
 export type Handle = typeof handles.$inferSelect;
 export type Verification = typeof verifications.$inferSelect;
