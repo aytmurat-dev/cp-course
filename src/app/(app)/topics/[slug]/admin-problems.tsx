@@ -90,7 +90,7 @@ function AddForm({ slug }: { slug: string }) {
       <p className="text-sm font-extrabold">Masala qo&apos;shish</p>
       <div className="grid gap-3 sm:grid-cols-[1fr_10rem]">
         <Field
-          label="Havola (Codeforces yoki AtCoder)"
+          label="Havola (Codeforces, AtCoder yoki Kep.uz)"
           name="url"
           type="url"
           placeholder="https://codeforces.com/problemset/problem/313/B"
@@ -124,7 +124,8 @@ function AddForm({ slug }: { slug: string }) {
       </Button>
       <p className="text-xs text-faint">
         Nomi va reytingi platformadan avtomatik olinadi. Qiyinlik: Codeforces reytingi bo&apos;yicha (≤1200 oson,
-        ≤1700 o&apos;rta), AtCoder harfi bo&apos;yicha (ABC A–B oson, C–D o&apos;rta).
+        ≤1700 o&apos;rta), AtCoder harfi bo&apos;yicha (ABC A–B oson, C–D o&apos;rta), Kep.uz darajasi bo&apos;yicha (1–3 oson,
+        4–5 o&apos;rta).
       </p>
     </form>
   );

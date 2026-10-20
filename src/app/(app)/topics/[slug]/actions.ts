@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getCourseTopic } from "@/lib/content";
 import { JudgeError } from "@/lib/judges";
 import { fetchProblemInfo } from "@/lib/judges/problem-info";
-import { parseProblemUrl } from "@/lib/problems";
+import { canonicalProblemUrl, parseProblemUrl } from "@/lib/problems";
 
 /** url/note — xato bo'lganda formada qayta ko'rsatish uchun. */
 export type ProblemFormState = { error?: string; success?: string; url?: string; note?: string };
@@ -44,7 +44,7 @@ async function addProblemImpl(form: FormData): Promise<ProblemFormState> {
   if (!parsed) {
     return {
       error:
-        "Havola tanilmadi. Masalan: https://codeforces.com/problemset/problem/313/B yoki https://atcoder.jp/contests/abc086/tasks/abc086_a",
+        "Havola tanilmadi. Masalan: https://codeforces.com/problemset/problem/313/B, https://atcoder.jp/contests/abc086/tasks/abc086_a yoki https://kep.uz/practice/problems/problem/1",
     };
   }
 
@@ -74,7 +74,7 @@ async function addProblemImpl(form: FormData): Promise<ProblemFormState> {
     problemKey: parsed.key,
     platform: parsed.platform,
     // Bir xil ko'rinish uchun Codeforces havolasi problemset formatiga keltiriladi.
-    url: parsed.platform === "codeforces" && !/\/gym\//.test(url) ? canonicalCfUrl(parsed.key) : url,
+    url: canonicalProblemUrl(parsed, url),
     title: info.title,
     difficulty: readDifficulty(form.get("difficulty")) ?? info.difficulty,
     rating: info.rating,
@@ -85,10 +85,6 @@ async function addProblemImpl(form: FormData): Promise<ProblemFormState> {
   return { success: `Qo'shildi: ${info.title}` };
 }
 
-function canonicalCfUrl(key: string) {
-  const [, contest, index] = key.match(/^cf:(\d+)([A-Z]\d?)$/)!;
-  return `https://codeforces.com/problemset/problem/${contest}/${index}`;
-}
 
 export async function updateProblem(_: ProblemFormState, form: FormData): Promise<ProblemFormState> {
   await requireAdmin();

@@ -14,7 +14,7 @@ import { syncUser } from "@/lib/sync";
 export type ActionState = { error?: string; success?: string };
 
 /** Tasdiqlash topshirig'i qancha vaqt amal qiladi. */
-const VERIFY_TTL_MIN: Record<Platform, number> = { codeforces: 15, atcoder: 60 };
+const VERIFY_TTL_MIN: Record<Platform, number> = { codeforces: 15, atcoder: 60, kep: 15 };
 
 function readPlatform(form: FormData): Platform {
   const p = String(form.get("platform"));
@@ -101,7 +101,9 @@ export async function confirmVerification(_: ActionState, form: FormData): Promi
       error:
         platform === "codeforces"
           ? "Compilation Error topilmadi. Yuborganingizdan keyin 10–20 soniya kutib, qayta tekshiring."
-          : "Profilingizda kod topilmadi. Saqlaganingizga ishonch hosil qilib, qayta tekshiring.",
+          : platform === "kep"
+            ? "Sintaktik xatolik topilmadi. Yuborganingizdan keyin 10–20 soniya kutib, qayta tekshiring."
+            : "Profilingizda kod topilmadi. Saqlaganingizga ishonch hosil qilib, qayta tekshiring.",
     };
   }
 

@@ -50,7 +50,7 @@ export default async function SettingsPage() {
                     ? {
                         handle: v.handle,
                         challenge: v.challenge,
-                        problemUrl: platform === "codeforces" ? verifyProblemUrl(v.challenge) : null,
+                        problemUrl: verifyProblemUrl(platform, v.challenge),
                       }
                     : null
                 }

@@ -40,6 +40,7 @@ Masalalar mavzu faylida **yozilmaydi**. Admin sifatida saytga kiring, mavzu sahi
 |---|---|
 | Codeforces | `https://codeforces.com/problemset/problem/{contest}/{index}` yoki `/contest/{contest}/problem/{index}` yoki `/gym/{id}/problem/{index}` |
 | AtCoder | `https://atcoder.jp/contests/{contest}/tasks/{task_id}` |
+| Kep.uz | `https://kep.uz/practice/problems/problem/{id}` |
 
 Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchun ishlatilmaydi.
 
@@ -48,8 +49,8 @@ Boshqa saytlar (LeetCode, CSES, SPOJ…) avtomatik sinxronlanmaydi, shuning uchu
 - Har mavzuda **6–12 masala**, oson → qiyin tartibda.
 - Taqsimot: ~40% `easy`, ~40% `medium`, ~20% `hard`.
 - Birinchi 1–2 masala — mavzuni "toza" qo'llash (klassik).
-- Codeforces asosiy, AtCoder (ayniqsa ABC) bilan aralash.
-- `difficulty` — **shu kurs o'quvchisi uchun** nisbiy: taxminan CF 800–1200 → `easy`, 1300–1700 → `medium`, 1800+ → `hard`. AtCoder ABC uchun taxminan: A–B → `easy`, C–D → `medium`, E+ → `hard`.
+- Codeforces asosiy, AtCoder (ayniqsa ABC) bilan aralash. Kep.uz — o'zbek tilidagi masalalar: boshlovchilar uchun mavzuning birinchi, oson masalalariga qulay.
+- `difficulty` — **shu kurs o'quvchisi uchun** nisbiy: taxminan CF 800–1200 → `easy`, 1300–1700 → `medium`, 1800+ → `hard`. AtCoder ABC uchun taxminan: A–B → `easy`, C–D → `medium`, E+ → `hard`. Kep.uz darajasi: 1–3 → `easy`, 4–5 → `medium`, 6–7 → `hard`.
 - Bitta masala ikki mavzuda takrorlanmasin.
 - Qiyinlik avtomatik qo'yiladi, lekin uni **shu kurs o'quvchisi uchun** nisbiy baholab, kerak bo'lsa tahrirlang.
 

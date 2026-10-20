@@ -3,11 +3,13 @@ import type { Platform } from "@/db/schema";
 export const PLATFORM_LABEL: Record<Platform, string> = {
   codeforces: "Codeforces",
   atcoder: "AtCoder",
+  kep: "Kep.uz",
 };
 
 export const PLATFORM_PREFIX: Record<Platform, string> = {
   codeforces: "cf",
   atcoder: "ac",
+  kep: "kep",
 };
 
 export type ParsedProblem = { platform: Platform; key: string };
@@ -18,6 +20,7 @@ export type ParsedProblem = { platform: Platform; key: string };
  *  - https://codeforces.com/contest/1234/problem/A       → cf:1234A
  *  - https://codeforces.com/gym/100001/problem/B         → cf:100001B
  *  - https://atcoder.jp/contests/abc300/tasks/abc300_a   → ac:abc300_a
+ *  - https://kep.uz/practice/problems/problem/12         → kep:12
  */
 export function parseProblemUrl(raw: string): ParsedProblem | null {
   let url: URL;
@@ -39,5 +42,19 @@ export function parseProblemUrl(raw: string): ParsedProblem | null {
     const m = path.match(/^\/contests\/[^/]+\/tasks\/([^/]+)$/);
     return m ? { platform: "atcoder", key: `ac:${m[1]}` } : null;
   }
+  if (host === "kep.uz") {
+    const m = path.match(/^\/(?:practice\/)?problems\/(?:problem\/)?(\d+)$/);
+    return m ? { platform: "kep", key: `kep:${Number(m[1])}` } : null;
+  }
   return null;
+}
+
+/** Bir xil ko'rinish uchun havolani standart formatga keltiradi (Codeforces gym va AtCoder o'zgarmaydi). */
+export function canonicalProblemUrl({ platform, key }: ParsedProblem, url: string) {
+  if (platform === "kep") return `https://kep.uz/practice/problems/problem/${key.slice(4)}`;
+  if (platform === "codeforces" && !/\/gym\//.test(url)) {
+    const [, contest, index] = key.match(/^cf:(\d+)([A-Z]\d?)$/)!;
+    return `https://codeforces.com/problemset/problem/${contest}/${index}`;
+  }
+  return url;
 }

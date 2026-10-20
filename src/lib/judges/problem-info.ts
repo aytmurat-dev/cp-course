@@ -1,4 +1,5 @@
 import type { Difficulty, Platform } from "@/db/schema";
+import * as kep from "./kep";
 import { fetchJson, fetchText } from "./types";
 
 export type ProblemInfo = { title: string; rating: number | null; difficulty: Difficulty };
@@ -46,6 +47,7 @@ export async function fetchProblemInfo(platform: Platform, key: string, url: str
     const rating = p.rating ?? null;
     return { title: p.name, rating, difficulty: difficultyFromRating(rating) };
   }
+  if (platform === "kep") return kep.fetchProblemInfo(key.slice(4));
   const page = new URL(url);
   page.search = "lang=en";
   const { status, text } = await fetchText(page.toString());

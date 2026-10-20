@@ -66,6 +66,7 @@ export function ProgressBar({ value, total, className = "" }: { value: number; t
 const PLATFORM_STYLE: Record<Platform, string> = {
   codeforces: "text-sky-300 bg-sky-400/10 ring-sky-400/25",
   atcoder: "text-zinc-200 bg-zinc-400/10 ring-zinc-400/25",
+  kep: "text-emerald-300 bg-emerald-400/10 ring-emerald-400/25",
 };
 
 export function PlatformBadge({ platform }: { platform: Platform }) {

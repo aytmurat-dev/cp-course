@@ -11,7 +11,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const PLATFORMS = ["codeforces", "atcoder"] as const;
+export const PLATFORMS = ["codeforces", "atcoder", "kep"] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
 export const users = pgTable("users", {

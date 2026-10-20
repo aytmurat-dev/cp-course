@@ -1,6 +1,6 @@
 # CP Kurs
 
-Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Codeforces va AtCoder bilan avtomatik sinxronizatsiya.
+Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Codeforces, AtCoder, Kep.uz bilan avtomatik sinxronizatsiya.
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Drizzle ORM · Neon Postgres · Vercel
 
@@ -12,7 +12,8 @@ Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Code
 - **Masalalar** saytda yechilmaydi — tashqi havola. O'quvchi yechgan masala kursda avtomatik belgilanadi.
 - **Handle ulash (egalik tasdiqlanadi):**
   - Codeforces — ko'rsatilgan masalaga 15 daqiqa ichida *Compilation Error* yuborish;
-  - AtCoder — profildagi *Affiliation* maydoniga kod yozish.
+  - AtCoder — profildagi *Affiliation* maydoniga kod yozish;
+  - Kep.uz — ko'rsatilgan masalaga 15 daqiqa ichida *Sintaktik xatolik* beradigan kod yuborish.
 - **Sinxronizatsiya:** sahifa ochilganda (ma'lumot 10 daqiqadan eski bo'lsa), "Yangilash" tugmasi orqali va har kuni Vercel Cron bilan.
 - **Admin panel** — o'quvchilar ro'yxati va progressi, har bir o'quvchining mavzular bo'yicha yechgan masalalari, parolni tiklash, handle uzish, o'chirish.
 
@@ -48,7 +49,7 @@ Cron (`vercel.json`) har kuni 01:00 UTC da barcha o'quvchilarni sinxronlaydi (Ho
 
 Kurs tuzilmasi (qism → bo'lim → mavzu, nomlar va tartib) — [content/course.yaml](content/course.yaml). Har bir mavzu matni — `content/topics/<slug>.md`; matni ham, masalasi ham yo'q mavzular saytda "Tez orada" deb turadi.
 
-**Masalalar** admin paneldan qo'shiladi: admin sifatida mavzu sahifasini oching va pastdagi formaga Codeforces/AtCoder havolasini qo'ying — nomi, reytingi va qiyinligi avtomatik olinadi. Masalani tahrirlash, o'chirish va tartibini o'zgartirish ham shu yerda. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
+**Masalalar** admin paneldan qo'shiladi: admin sifatida mavzu sahifasini oching va pastdagi formaga Codeforces/AtCoder/Kep.uz havolasini qo'ying — nomi, reytingi va qiyinligi avtomatik olinadi. Masalani tahrirlash, o'chirish va tartibini o'zgartirish ham shu yerda. Yozish qoidalari va AI uchun tayyor prompt: **[docs/CONTENT_GUIDE.md](docs/CONTENT_GUIDE.md)**. Shablon: [content/topics/_template.md](content/topics/_template.md).
 
 ```bash
 npm run check-content     # course.yaml va mavzu fayllari formatini tekshiradi
@@ -68,6 +69,6 @@ scripts/             create-admin, check-content
 src/app/             Sahifalar: /, /login, /topics, /topics/[slug], /settings, /admin
 src/app/api/         /api/sync (o'quvchi), /api/cron/sync (Vercel Cron)
 src/db/              Drizzle sxemasi
-src/lib/judges/      Codeforces va AtCoder integratsiyalari
+src/lib/judges/      Codeforces, AtCoder, Kep.uz integratsiyalari
 src/lib/sync.ts      Sinxronizatsiya mantig'i
 ```

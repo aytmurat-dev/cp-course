@@ -21,6 +21,7 @@ type Props = {
 const PROFILE_URL: Record<Platform, (h: string) => string> = {
   codeforces: (h) => `https://codeforces.com/profile/${h}`,
   atcoder: (h) => `https://atcoder.jp/users/${h}`,
+  kep: (h) => `https://kep.uz/users/user/${h}`,
 };
 
 export function HandleCard({ platform, linked, pending }: Props) {
@@ -109,6 +110,20 @@ function Instructions({ platform, pending }: { platform: Platform; pending: NonN
             Shu masalaga ↗
           </a>{" "}
           <b className="text-fg">{pending.handle}</b> akkauntidan <b className="text-fg">Compilation Error</b> beradigan
+          kod yuboring (masalan, faqat <code className="font-mono">qwerty</code> deb yozing).
+        </li>
+        <li>15 daqiqa ichida &quot;Tekshirish&quot; tugmasini bosing.</li>
+      </ol>
+    );
+  }
+  if (platform === "kep") {
+    return (
+      <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted">
+        <li>
+          <a href={pending.problemUrl!} target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
+            Shu masalaga ↗
+          </a>{" "}
+          <b className="text-fg">{pending.handle}</b> akkauntidan <b className="text-fg">Sintaktik xatolik</b> beradigan
           kod yuboring (masalan, faqat <code className="font-mono">qwerty</code> deb yozing).
         </li>
         <li>15 daqiqa ichida &quot;Tekshirish&quot; tugmasini bosing.</li>
