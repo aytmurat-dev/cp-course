@@ -123,8 +123,9 @@ function Instructions({ platform, pending }: { platform: Platform; pending: NonN
           <a href={pending.problemUrl!} target="_blank" rel="noreferrer" className="font-semibold text-accent hover:underline">
             Shu masalaga ↗
           </a>{" "}
-          <b className="text-fg">{pending.handle}</b> akkauntidan <b className="text-fg">Compilation error</b> (Python&apos;da
-          &quot;Sintaktik xatolik&quot;) beradigan kod yuboring (masalan, faqat <code className="font-mono">qwerty</code> deb yozing).
+          <b className="text-fg">{pending.handle}</b> akkauntidan tilni <b className="text-fg">C++</b> qilib tanlab, faqat{" "}
+          <code className="font-mono">qwerty</code> deb yuboring — natija <b className="text-fg">Compilation error</b> bo&apos;lishi
+          kerak (Python&apos;da bu Runtime error beradi va hisoblanmaydi).
         </li>
         <li>15 daqiqa ichida &quot;Tekshirish&quot; tugmasini bosing.</li>
       </ol>
