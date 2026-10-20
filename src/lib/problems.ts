@@ -12,6 +12,12 @@ export const PLATFORM_PREFIX: Record<Platform, string> = {
   kep: "kep",
 };
 
+/** Masala kalitidan platforma: "cf:1234A" → "codeforces". */
+export function platformOfKey(key: string): Platform | null {
+  const prefix = key.slice(0, key.indexOf(":"));
+  return (Object.keys(PLATFORM_PREFIX) as Platform[]).find((p) => PLATFORM_PREFIX[p] === prefix) ?? null;
+}
+
 export type ParsedProblem = { platform: Platform; key: string };
 
 /**

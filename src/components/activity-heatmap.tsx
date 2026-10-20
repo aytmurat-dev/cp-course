@@ -1,4 +1,5 @@
-import { ACTIVITY_WEEKS, type Activity } from "@/lib/activity";
+import { ACTIVITY_WEEKS, type Activity, type ActivityDay } from "@/lib/activity";
+import { PLATFORM_LABEL } from "@/lib/problems";
 
 const DAY_LABELS = ["Du", "", "Ch", "", "Ju", "", "Ya"];
 const LEVELS = ["bg-line", "bg-ok/25", "bg-ok/50", "bg-ok/75", "bg-ok"];
@@ -14,6 +15,13 @@ function level(count: number) {
 }
 
 const formatDay = (date: string) => date.split("-").reverse().join(".");
+
+/** "3 ta masala (Codeforces: 2, AtCoder: 1) · 16.11.2025" */
+function tooltip(day: ActivityDay) {
+  if (!day.count) return `Yechim yo'q · ${formatDay(day.date)}`;
+  const parts = Object.entries(day.byPlatform).map(([p, n]) => `${PLATFORM_LABEL[p as keyof typeof PLATFORM_LABEL]}: ${n}`);
+  return `${day.count} ta masala (${parts.join(", ")}) · ${formatDay(day.date)}`;
+}
 
 /** Yillik faollik xaritasi: har bir katak — bir kun, rangi — o'sha kuni yechilgan masalalar soni. */
 export function ActivityHeatmap({ activity }: { activity: Activity }) {
@@ -37,7 +45,7 @@ export function ActivityHeatmap({ activity }: { activity: Activity }) {
             day ? (
               <span
                 key={day.date}
-                title={`${day.count ? `${day.count} ta masala` : "Yechim yo'q"} · ${formatDay(day.date)}`}
+                title={tooltip(day)}
                 className={`aspect-square rounded-[3px] ${LEVELS[level(day.count)]}`}
               />
             ) : (

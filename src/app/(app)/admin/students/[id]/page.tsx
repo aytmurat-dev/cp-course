@@ -9,6 +9,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { formatDate, PlatformBadge, ProgressBar } from "@/components/ui";
 import { buildActivity } from "@/lib/activity";
 import { requireAdmin } from "@/lib/auth";
+import { PLATFORM_LABEL, platformOfKey } from "@/lib/problems";
 import { getCourse, getProblemsBySlug, type CourseChapter, type CourseTopic, type Difficulty, type Problem } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getUserSolves } from "@/lib/progress";
@@ -21,6 +22,13 @@ type Ctx = { problems: Map<string, Problem[]>; solved: Map<string, Date> };
 
 const topicProblems = (t: CourseTopic, ctx: Ctx) => ctx.problems.get(t.slug) ?? [];
 const countDone = (ps: Problem[], ctx: Ctx) => ps.filter((p) => ctx.solved.has(p.problemKey)).length;
+
+/** problemKey → yechilgan vaqt xaritasini faollik xaritasi uchun platformali ro'yxatga aylantiradi. */
+const toActivitySolves = (solves: Map<string, Date>) =>
+  [...solves].flatMap(([key, at]) => {
+    const platform = platformOfKey(key);
+    return platform ? [{ at, platform }] : [];
+  });
 
 const DIFFICULTY: Record<Difficulty, { label: string; cls: string }> = {
   easy: { label: "Oson", cls: "text-ok" },
@@ -56,7 +64,11 @@ export default async function StudentPage({ params, searchParams }: PageProps<"/
     return { difficulty: d, total: keys.length, done: keys.filter((k) => solved.has(k)).length };
   });
 
-  const activity = buildActivity([...(allActivity ? allSolves : solved).values()]);
+  const activity = buildActivity(toActivitySolves(allActivity ? allSolves : solved));
+  // Ulangan platformalar va (handle uzilgan bo'lsa ham) oxirgi yilda yechimi bor platformalar.
+  const activityPlatforms = [
+    ...new Set([...linked.map((h) => h.platform), ...(Object.keys(activity.byPlatform) as (keyof typeof PLATFORM_LABEL)[])]),
+  ];
   const recent = [...solved]
     .sort((a, b) => b[1].getTime() - a[1].getTime())
     .slice(0, 10)
@@ -113,11 +125,30 @@ export default async function StudentPage({ params, searchParams }: PageProps<"/
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-extrabold">Faollik</h2>
-            <p className="mt-0.5 text-sm text-muted">
+            <p className="mt-0.5 max-w-2xl text-sm text-muted">
+              {allActivity
+                ? linked.length > 0
+                  ? `Ulangan akkauntlardagi barcha yechilgan masalalar (kursdagilari ham, boshqalari ham): ${linked
+                      .map((h) => `${PLATFORM_LABEL[h.platform]} — ${h.handle}`)
+                      .join(", ")}.`
+                  : "Hali handle ulanmagan."
+                : "Faqat saytdagi mavzularga qo'shilgan masalalar. Masalalar saytda emas, Codeforces, AtCoder va Kep.uz'da yechiladi — katak masala o'sha platformada birinchi marta qabul qilingan kunni ko'rsatadi."}
+            </p>
+            <p className="mt-2 text-sm text-muted">
               Oxirgi yil: <b className="text-fg">{activity.total}</b> ta masala · <b className="text-fg">{activity.activeDays}</b> faol kun ·
               joriy seriya <b className="text-fg">{activity.currentStreak}</b> kun · eng uzun seriya{" "}
               <b className="text-fg">{activity.longestStreak}</b> kun
             </p>
+            {activityPlatforms.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-3 text-sm">
+                {activityPlatforms.map((p) => (
+                  <span key={p} className="inline-flex items-center gap-1.5">
+                    <PlatformBadge platform={p} />
+                    <b>{activity.byPlatform[p] ?? 0}</b>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex rounded-lg bg-bg p-0.5 text-sm font-bold ring-1 ring-line">
             <ScopeLink href={`/admin/students/${id}`} active={!allActivity}>
