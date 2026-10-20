@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { formatDate, PlatformBadge, ProgressBar } from "@/components/ui";
 import { buildActivity } from "@/lib/activity";
 import { requireAdmin } from "@/lib/auth";
-import { PLATFORM_LABEL, platformOfKey } from "@/lib/problems";
+import * as codeforces from "@/lib/judges/codeforces";
 import { getCourse, getProblemsBySlug, type CourseChapter, type CourseTopic, type Difficulty, type Problem } from "@/lib/content";
 import { getUserHandles } from "@/lib/handles";
 import { getUserSolves } from "@/lib/progress";
@@ -23,24 +23,27 @@ type Ctx = { problems: Map<string, Problem[]>; solved: Map<string, Date> };
 const topicProblems = (t: CourseTopic, ctx: Ctx) => ctx.problems.get(t.slug) ?? [];
 const countDone = (ps: Problem[], ctx: Ctx) => ps.filter((p) => ctx.solved.has(p.problemKey)).length;
 
-/** problemKey → yechilgan vaqt xaritasini faollik xaritasi uchun platformali ro'yxatga aylantiradi. */
-const toActivitySolves = (solves: Map<string, Date>) =>
-  [...solves].flatMap(([key, at]) => {
-    const platform = platformOfKey(key);
-    return platform ? [{ at, platform }] : [];
-  });
-
 const DIFFICULTY: Record<Difficulty, { label: string; cls: string }> = {
   easy: { label: "Oson", cls: "text-ok" },
   medium: { label: "O'rta", cls: "text-warn" },
   hard: { label: "Qiyin", cls: "text-bad" },
 };
 
-export default async function StudentPage({ params, searchParams }: PageProps<"/admin/students/[id]">) {
+/** Codeforces faolligi; Codeforces ishlamasa sahifa baribir ochiladi. */
+async function getCfActivity(handle: string | undefined) {
+  if (!handle) return null;
+  try {
+    const { submissions, solvedLastYear } = await codeforces.fetchActivity(handle);
+    return { handle, activity: buildActivity(submissions), solvedLastYear, error: false };
+  } catch {
+    return { handle, activity: null, solvedLastYear: 0, error: true };
+  }
+}
+
+export default async function StudentPage({ params }: PageProps<"/admin/students/[id]">) {
   await requireAdmin();
   const id = Number((await params).id);
   if (!Number.isInteger(id)) notFound();
-  const allActivity = (await searchParams).faollik === "barchasi";
   const [student] = await db.select().from(users).where(and(eq(users.id, id), eq(users.role, "student")));
   if (!student) notFound();
 
@@ -64,11 +67,7 @@ export default async function StudentPage({ params, searchParams }: PageProps<"/
     return { difficulty: d, total: keys.length, done: keys.filter((k) => solved.has(k)).length };
   });
 
-  const activity = buildActivity(toActivitySolves(allActivity ? allSolves : solved));
-  // Ulangan platformalar va (handle uzilgan bo'lsa ham) oxirgi yilda yechimi bor platformalar.
-  const activityPlatforms = [
-    ...new Set([...linked.map((h) => h.platform), ...(Object.keys(activity.byPlatform) as (keyof typeof PLATFORM_LABEL)[])]),
-  ];
+  const cf = await getCfActivity(linked.find((h) => h.platform === "codeforces")?.handle);
   const recent = [...solved]
     .sort((a, b) => b[1].getTime() - a[1].getTime())
     .slice(0, 10)
@@ -123,45 +122,35 @@ export default async function StudentPage({ params, searchParams }: PageProps<"/
 
       <section className="card p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-extrabold">Faollik</h2>
-            <p className="mt-0.5 max-w-2xl text-sm text-muted">
-              {allActivity
-                ? linked.length > 0
-                  ? `Ulangan akkauntlardagi barcha yechilgan masalalar (kursdagilari ham, boshqalari ham): ${linked
-                      .map((h) => `${PLATFORM_LABEL[h.platform]} — ${h.handle}`)
-                      .join(", ")}.`
-                  : "Hali handle ulanmagan."
-                : "Faqat saytdagi mavzularga qo'shilgan masalalar. Masalalar saytda emas, Codeforces, AtCoder va Kep.uz'da yechiladi — katak masala o'sha platformada birinchi marta qabul qilingan kunni ko'rsatadi."}
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Oxirgi yil: <b className="text-fg">{activity.total}</b> ta masala · <b className="text-fg">{activity.activeDays}</b> faol kun ·
-              joriy seriya <b className="text-fg">{activity.currentStreak}</b> kun · eng uzun seriya{" "}
-              <b className="text-fg">{activity.longestStreak}</b> kun
-            </p>
-            {activityPlatforms.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-3 text-sm">
-                {activityPlatforms.map((p) => (
-                  <span key={p} className="inline-flex items-center gap-1.5">
-                    <PlatformBadge platform={p} />
-                    <b>{activity.byPlatform[p] ?? 0}</b>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex rounded-lg bg-bg p-0.5 text-sm font-bold ring-1 ring-line">
-            <ScopeLink href={`/admin/students/${id}`} active={!allActivity}>
-              Kurs masalalari
-            </ScopeLink>
-            <ScopeLink href={`/admin/students/${id}?faollik=barchasi`} active={allActivity}>
-              Barcha yechimlar
-            </ScopeLink>
-          </div>
+          <h2 className="text-xl font-extrabold">Codeforces faolligi</h2>
+          {cf && (
+            <a
+              href={`https://codeforces.com/profile/${cf.handle}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-muted hover:text-accent"
+            >
+              {cf.handle} ↗
+            </a>
+          )}
         </div>
-        <div className="mt-5">
-          <ActivityHeatmap activity={activity} />
-        </div>
+        {!cf ? (
+          <p className="mt-2 text-sm text-muted">Codeforces handle ulanmagan.</p>
+        ) : !cf.activity ? (
+          <p className="mt-2 text-sm text-bad">Codeforces&apos;dan ma&apos;lumot olib bo&apos;lmadi — birozdan keyin sahifani yangilang.</p>
+        ) : (
+          <>
+            <p className="mt-1 text-sm text-muted">
+              Oxirgi yil: <b className="text-fg">{cf.activity.total}</b> ta urinish · <b className="text-fg">{cf.solvedLastYear}</b> ta masala
+              yechilgan · <b className="text-fg">{cf.activity.activeDays}</b> faol kun · joriy seriya{" "}
+              <b className="text-fg">{cf.activity.currentStreak}</b> kun · eng uzun seriya{" "}
+              <b className="text-fg">{cf.activity.longestStreak}</b> kun
+            </p>
+            <div className="mt-5">
+              <ActivityHeatmap activity={cf.activity} />
+            </div>
+          </>
+        )}
       </section>
 
       <section className="space-y-6">
@@ -252,19 +241,6 @@ function Stat({ label, labelClass = "text-muted", children }: { label: string; l
       <span className={`text-sm font-semibold ${labelClass}`}>{label}</span>
       {children}
     </div>
-  );
-}
-
-function ScopeLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      replace
-      className={`rounded-md px-3 py-1.5 transition ${active ? "bg-surface-2 text-fg ring-1 ring-line-strong" : "text-muted hover:text-fg"}`}
-    >
-      {children}
-    </Link>
   );
 }
 

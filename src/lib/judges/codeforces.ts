@@ -58,6 +58,22 @@ export async function checkVerification(handle: string, challenge: string, since
   );
 }
 
+/**
+ * Codeforces profilidagi faollik xaritasi uchun barcha urinishlar vaqti
+ * va oxirgi yilda yechilgan (kamida bitta Accepted olgan) masalalar soni.
+ */
+export async function fetchActivity(handle: string, now = new Date()) {
+  const subs = await cf<CfSubmission[]>("user.status", { handle });
+  if (!subs) throw new JudgeError(`Codeforces: "${handle}" topilmadi`);
+  const yearAgo = now.getTime() / 1000 - 365 * 86_400;
+  const solvedLastYear = new Set(
+    subs
+      .filter((s) => s.verdict === "OK" && s.creationTimeSeconds >= yearAgo)
+      .map((s) => `${s.problem.contestId}${s.problem.index}`),
+  ).size;
+  return { submissions: subs.map((s) => new Date(s.creationTimeSeconds * 1000)), solvedLastYear };
+}
+
 /** Accepted yechimlar. Birinchi marta hammasi, keyin oxirgi 1000 ta urinish yuklanadi. */
 export async function fetchSolved(handle: string, cursor: number | null): Promise<FetchResult> {
   const params: Record<string, number | string> = { handle };

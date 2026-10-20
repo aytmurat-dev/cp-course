@@ -1,6 +1,4 @@
-import type { Platform } from "@/db/schema";
-
-/* Yechimlar faolligi: Codeforces/GitHub uslubidagi yillik xarita uchun kunlik hisob. */
+/* Faollik: Codeforces/GitHub uslubidagi yillik xarita uchun kunlik hisob. */
 
 const TZ_OFFSET_MS = 5 * 3600_000; // Asia/Tashkent (UTC+5, yozgi vaqt yo'q)
 const DAY_MS = 86_400_000;
@@ -11,33 +9,24 @@ const MONTHS = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "
 /** Toshkent vaqti bo'yicha kun: "2026-10-20". */
 export const dayKey = (d: Date) => new Date(d.getTime() + TZ_OFFSET_MS).toISOString().slice(0, 10);
 
-type PlatformCounts = Partial<Record<Platform, number>>;
-
-export type ActivitySolve = { at: Date; platform: Platform };
-export type ActivityDay = { date: string; count: number; byPlatform: PlatformCounts };
+export type ActivityDay = { date: string; count: number };
 
 export type Activity = {
   /** Ustunlar — haftalar (Dushanbadan Yakshanbagacha); bugundan keyingi kunlar null. */
   weeks: (ActivityDay | null)[][];
   months: { col: number; label: string }[];
   total: number;
-  /** Oxirgi yildagi yechimlar platformalar bo'yicha. */
-  byPlatform: PlatformCounts;
   activeDays: number;
   maxPerDay: number;
   currentStreak: number;
   longestStreak: number;
 };
 
-export function buildActivity(solves: ActivitySolve[], now = new Date()): Activity {
+export function buildActivity(dates: Date[], now = new Date()): Activity {
   const counts = new Map<string, number>();
-  const platformCounts = new Map<string, PlatformCounts>();
-  for (const { at, platform } of solves) {
-    const k = dayKey(at);
+  for (const d of dates) {
+    const k = dayKey(d);
     counts.set(k, (counts.get(k) ?? 0) + 1);
-    const byPlatform = platformCounts.get(k) ?? {};
-    byPlatform[platform] = (byPlatform[platform] ?? 0) + 1;
-    platformCounts.set(k, byPlatform);
   }
 
   const today = Date.parse(dayKey(now)); // mahalliy sananing UTC yarim tuni
@@ -46,7 +35,6 @@ export function buildActivity(solves: ActivitySolve[], now = new Date()): Activi
 
   const weeks: (ActivityDay | null)[][] = [];
   const months: Activity["months"] = [];
-  const byPlatform: PlatformCounts = {};
   let total = 0, activeDays = 0, maxPerDay = 0, longestStreak = 0, run = 0;
 
   for (let w = 0; w < ACTIVITY_WEEKS; w++) {
@@ -59,10 +47,8 @@ export function buildActivity(solves: ActivitySolve[], now = new Date()): Activi
       }
       const date = new Date(t).toISOString().slice(0, 10);
       const count = counts.get(date) ?? 0;
-      const dayPlatforms = platformCounts.get(date) ?? {};
-      week.push({ date, count, byPlatform: dayPlatforms });
+      week.push({ date, count });
       total += count;
-      for (const [p, n] of Object.entries(dayPlatforms) as [Platform, number][]) byPlatform[p] = (byPlatform[p] ?? 0) + n;
       if (count > 0) {
         activeDays++;
         maxPerDay = Math.max(maxPerDay, count);
@@ -84,5 +70,5 @@ export function buildActivity(solves: ActivitySolve[], now = new Date()): Activi
     t -= DAY_MS;
   }
 
-  return { weeks, months, total, byPlatform, activeDays, maxPerDay, currentStreak, longestStreak };
+  return { weeks, months, total, activeDays, maxPerDay, currentStreak, longestStreak };
 }
