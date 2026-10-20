@@ -106,7 +106,7 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         {byDifficulty.map((d) => (
           <Stat key={d.difficulty} label={DIFFICULTY[d.difficulty].label} labelClass={DIFFICULTY[d.difficulty].cls}>
             <span className="text-2xl font-extrabold">
@@ -114,10 +114,6 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
             </span>
           </Stat>
         ))}
-        <Stat label="Oxirgi yechim">
-          <span className="text-lg font-extrabold">{recent[0] ? formatDate(recent[0].at) : "—"}</span>
-          <span className="text-xs text-muted">Barcha platformalarda: {allSolves.size} ta masala</span>
-        </Stat>
       </div>
 
       <section className="card p-5">
@@ -235,7 +231,7 @@ export default async function StudentPage({ params }: PageProps<"/admin/students
   );
 }
 
-function Stat({ label, labelClass = "text-muted", children }: { label: string; labelClass?: string; children: React.ReactNode }) {
+function Stat({ label, labelClass, children }: { label: string; labelClass: string; children: React.ReactNode }) {
   return (
     <div className="card flex flex-col gap-1 p-4">
       <span className={`text-sm font-semibold ${labelClass}`}>{label}</span>
