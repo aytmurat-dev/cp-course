@@ -54,7 +54,7 @@ export default async function Home() {
           </dl>
         </section>
 
-        <section className="grid gap-4 pb-16 sm:grid-cols-3">
+        <section className="grid gap-4 pb-20 sm:grid-cols-3">
           {STEPS.map((s, i) => (
             <div key={s.title} className="card p-5">
               <div className="text-sm font-extrabold text-accent">0{i + 1}</div>
@@ -62,35 +62,6 @@ export default async function Home() {
               <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.text}</p>
             </div>
           ))}
-        </section>
-
-        <section className="pb-20">
-          <h2 className="text-2xl font-extrabold">Kurs dasturi</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {parts.map((part) => (
-              <div key={part.title} className="card p-5">
-                <h3 className="text-lg font-extrabold text-gradient">{part.title}</h3>
-                <ol className="mt-3 space-y-2 text-sm">
-                  {part.chapters.map((ch) => (
-                    <li key={ch.number}>
-                      <span className="font-bold">
-                        <span className="text-faint">{ch.number}.</span> {ch.title}
-                      </span>
-                      {!ch.single && (
-                        <ul className="mt-1 space-y-0.5 pl-6 text-muted">
-                          {ch.topics.map((t) => (
-                            <li key={t.slug}>
-                              <span className="text-faint">{t.number}</span> {t.title}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
-          </div>
         </section>
 
         <p className="border-t border-line py-8 text-center text-sm text-faint">
