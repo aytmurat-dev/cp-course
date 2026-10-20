@@ -34,7 +34,8 @@ export default async function TopicsPage() {
             <span className="text-gradient">Mavzular</span>
           </h1>
           <p className="mt-1 text-muted">
-            Salom, {user.name}! Jami {solved.size} / {total} masala yechilgan.
+            Salom, {user.name}!{" "}
+            {ctx.isAdmin ? `Kursda jami ${total} ta masala.` : `Jami ${solved.size} / ${total} masala yechilgan.`}
           </p>
         </div>
         {user.role === "student" && (
@@ -77,7 +78,13 @@ function Chapter({ chapter, ctx }: { chapter: CourseChapter; ctx: Ctx }) {
         <h3 className="min-w-0 flex-1 text-lg font-extrabold">{chapter.title}</h3>
         {total > 0 && (
           <span className="shrink-0 text-sm font-bold text-muted">
-            {done} <span className="font-normal text-faint">/ {total}</span>
+            {ctx.isAdmin ? (
+              <ProblemCount total={total} />
+            ) : (
+              <>
+                {done} <span className="font-normal text-faint">/ {total}</span>
+              </>
+            )}
           </span>
         )}
       </div>
@@ -111,7 +118,11 @@ function TopicRow({ topic, ctx, heading }: { topic: CourseTopic; ctx: Ctx; headi
         </span>
         {topic.content && <p className="mt-0.5 truncate text-sm text-muted">{topic.content.summary}</p>}
       </div>
-      {total > 0 ? (
+      {total > 0 && ctx.isAdmin ? (
+        <span className="shrink-0 text-sm font-bold text-muted">
+          <ProblemCount total={total} />
+        </span>
+      ) : total > 0 ? (
         <div className="w-24 shrink-0 text-right sm:w-32">
           <div className="text-sm font-bold">
             {done}
@@ -135,5 +146,14 @@ function TopicRow({ topic, ctx, heading }: { topic: CourseTopic; ctx: Ctx; headi
     >
       {inner}
     </Link>
+  );
+}
+
+// Admin masala yechmaydi — unga progress emas, masalalar soni ko'rsatiladi.
+function ProblemCount({ total }: { total: number }) {
+  return (
+    <>
+      {total} <span className="font-normal text-faint">ta masala</span>
+    </>
   );
 }
