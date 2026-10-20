@@ -40,12 +40,15 @@ export default async function AdminPage() {
               <th className="px-4 py-3 font-bold">Platformalar</th>
               <th className="px-4 py-3 font-bold">Progress</th>
               <th className="px-4 py-3 font-bold">Oxirgi sinxronlash</th>
+              <th className="w-8 px-4 py-3">
+                <span className="sr-only">Batafsil</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {students.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-muted">
+                <td colSpan={5} className="px-4 py-6 text-center text-muted">
                   Hali o&apos;quvchi yo&apos;q
                 </td>
               </tr>
@@ -54,9 +57,10 @@ export default async function AdminPage() {
               .map((s) => ({ ...s, solved: counts.get(s.id) ?? 0 }))
               .sort((a, b) => b.solved - a.solved)
               .map((s) => (
-                <tr key={s.id} className="border-b border-line last:border-0 hover:bg-surface-2">
+                <tr key={s.id} className="group relative border-b border-line last:border-0 hover:bg-surface-2">
                   <td className="px-4 py-3">
-                    <Link href={`/admin/students/${s.id}`} className="font-bold hover:text-accent">
+                    {/* after: — butun qator bosiladigan bo'ladi */}
+                    <Link href={`/admin/students/${s.id}`} className="font-bold after:absolute after:inset-0 group-hover:text-accent">
                       {s.name}
                     </Link>
                     <div className="text-faint">@{s.username}</div>
@@ -80,6 +84,9 @@ export default async function AdminPage() {
                     <ProgressBar value={s.solved} total={total} className="mt-1 w-28" />
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-muted">{formatDate(s.lastSyncedAt)}</td>
+                  <td className="px-4 py-3 text-lg text-faint group-hover:text-accent" aria-hidden>
+                    ›
+                  </td>
                 </tr>
               ))}
           </tbody>

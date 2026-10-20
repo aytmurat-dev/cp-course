@@ -1,10 +1,19 @@
 import type { Problem } from "@/db/schema";
 import { DifficultyLabel, formatDate, PlatformBadge, SolvedIcon } from "./ui";
 
-export function ProblemTable({ problems, solved }: { problems: Problem[]; solved: Map<string, Date> }) {
+type Props = {
+  problems: Problem[];
+  solved: Map<string, Date>;
+  /** Kartochka ramkasisiz (boshqa kartochka ichida). */
+  bare?: boolean;
+  /** Yechilgan sanani alohida ustunda ko'rsatish (admin uchun). */
+  showSolvedAt?: boolean;
+};
+
+export function ProblemTable({ problems, solved, bare, showSolvedAt }: Props) {
   if (problems.length === 0) return <p className="card p-5 text-muted">Bu mavzuga hali masala qo&apos;shilmagan.</p>;
   return (
-    <div className="card overflow-x-auto">
+    <div className={`overflow-x-auto ${bare ? "" : "card"}`}>
       <table className="w-full text-left">
         <thead className="border-b border-line text-xs uppercase tracking-wider text-faint">
           <tr>
@@ -15,6 +24,7 @@ export function ProblemTable({ problems, solved }: { problems: Problem[]; solved
             <th className="py-3 pr-4 font-bold">Masala</th>
             <th className="py-3 pr-4 font-bold">Platforma</th>
             <th className="py-3 pr-4 font-bold">Qiyinlik</th>
+            {showSolvedAt && <th className="py-3 pr-4 font-bold">Yechilgan</th>}
           </tr>
         </thead>
         <tbody>
@@ -41,6 +51,7 @@ export function ProblemTable({ problems, solved }: { problems: Problem[]; solved
                 <td className="whitespace-nowrap py-3 pr-4">
                   <DifficultyLabel difficulty={p.difficulty} rating={p.rating ?? undefined} />
                 </td>
+                {showSolvedAt && <td className="whitespace-nowrap py-3 pr-4 text-sm text-muted">{at ? formatDate(at) : "—"}</td>}
               </tr>
             );
           })}

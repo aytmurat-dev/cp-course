@@ -13,6 +13,12 @@ export async function getCourseSolves(userId: number) {
   return new Map(rows.map((r) => [r.key, r.at]));
 }
 
+/** O'quvchining barcha yechimlari (kursdan tashqaridagilari ham): problemKey → solvedAt. */
+export async function getUserSolves(userId: number) {
+  const rows = await db.select({ key: solves.problemKey, at: solves.solvedAt }).from(solves).where(eq(solves.userId, userId));
+  return new Map(rows.map((r) => [r.key, r.at]));
+}
+
 /** Har bir o'quvchi uchun kursdagi yechimlar soni. */
 export async function getCourseSolveCounts() {
   const rows = await db
