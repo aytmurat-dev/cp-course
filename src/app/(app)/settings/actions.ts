@@ -102,7 +102,7 @@ export async function confirmVerification(_: ActionState, form: FormData): Promi
         platform === "codeforces"
           ? "Compilation Error topilmadi. Yuborganingizdan keyin 10–20 soniya kutib, qayta tekshiring."
           : platform === "kep"
-            ? "Sintaktik xatolik topilmadi. Yuborganingizdan keyin 10–20 soniya kutib, qayta tekshiring."
+            ? "Compilation error (yoki Sintaktik xatolik) topilmadi. Yuborganingizdan keyin 10–20 soniya kutib, qayta tekshiring."
             : "Profilingizda kod topilmadi. Saqlaganingizga ishonch hosil qilib, qayta tekshiring.",
     };
   }

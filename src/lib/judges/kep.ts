@@ -8,7 +8,8 @@ type KepPage<T> = { page: number; pagesCount: number; data: T[] };
 type KepProblem = { id: number; title: string; difficulty: number; problemRating: number };
 
 const ACCEPTED = 1;
-const COMPILATION_ERROR = 11; // "Sintaktik xatolik"
+// Kompilyatsiya xatosi tilga qarab ikki xil: C++ va boshqalar — 8 ("Compilation error"), Python — 11 ("Sintaktik xatolik").
+const COMPILATION_ERRORS = new Set([8, 11]);
 
 export function problemUrl(id: string | number) {
   return `https://kep.uz/practice/problems/problem/${id}`;
@@ -32,20 +33,20 @@ export async function lookupHandle(handle: string) {
   return user?.username ?? null;
 }
 
-/** Tasdiqlash uchun "Sintaktik xatolik" yuboriladigan oson masalalar. */
+/** Tasdiqlash uchun kompilyatsiya xatosi yuboriladigan oson masalalar. */
 const VERIFY_PROBLEMS = ["1", "2", "4", "5"];
 
 export function pickVerifyProblem() {
   return VERIFY_PROBLEMS[Math.floor(Math.random() * VERIFY_PROBLEMS.length)];
 }
 
-/** Tasdiqlash boshlangandan keyin shu masalaga "Sintaktik xatolik" yuborilganmi? */
+/** Tasdiqlash boshlangandan keyin shu masalaga kompilyatsiya xatosi beradigan kod yuborilganmi? */
 export async function checkVerification(handle: string, challenge: string, since: Date) {
-  const qs = new URLSearchParams({ username: handle, problemId: challenge, verdict: String(COMPILATION_ERROR), pageSize: "20" });
+  const qs = new URLSearchParams({ username: handle, problemId: challenge, pageSize: "20" });
   const res = await fetchJson<KepPage<KepAttempt>>(`${API}/attempts/?${qs}`);
   const sinceMs = since.getTime() - 60_000;
   return res.data.some(
-    (a) => a.verdict === COMPILATION_ERROR && String(a.problemId) === challenge && new Date(a.created).getTime() >= sinceMs,
+    (a) => COMPILATION_ERRORS.has(a.verdict) && String(a.problemId) === challenge && new Date(a.created).getTime() >= sinceMs,
   );
 }
 

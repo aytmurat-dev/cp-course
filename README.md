@@ -13,7 +13,7 @@ Competitive programming kursi uchun sayt: mavzular, saralangan masalalar va Code
 - **Handle ulash (egalik tasdiqlanadi):**
   - Codeforces — ko'rsatilgan masalaga 15 daqiqa ichida *Compilation Error* yuborish;
   - AtCoder — profildagi *Affiliation* maydoniga kod yozish;
-  - Kep.uz — ko'rsatilgan masalaga 15 daqiqa ichida *Sintaktik xatolik* beradigan kod yuborish.
+  - Kep.uz — ko'rsatilgan masalaga 15 daqiqa ichida *Compilation error* / *Sintaktik xatolik* beradigan kod yuborish.
 - **Sinxronizatsiya:** sahifa ochilganda (ma'lumot 10 daqiqadan eski bo'lsa), "Yangilash" tugmasi orqali va har kuni Vercel Cron bilan.
 - **Admin panel** — o'quvchilar ro'yxati va progressi, har bir o'quvchining mavzular bo'yicha yechgan masalalari, parolni tiklash, handle uzish, o'chirish.
 
