@@ -1,114 +1,92 @@
 ---
-summary: "Funksiya o'zini o'zi chaqirishi: asos holati, rekursiv qadam va chaqiruvlar steki."
+summary: "Kichikroq masala orqali javob topish, rekursiv chaqiruvlardan qaytish va stek sarfini baholash."
 prerequisites: [brute-force]
 ---
 
 ## Kirish
 
-Ba'zi masalalarni sikl bilan yozish juda qiyin. Lekin ularga "katta masala — xuddi shu masala, faqat kichikroq" deb qarasak, yechim bir necha qatorga tushadi. Funksiyaning o'zini o'zi chaqirishi **rekursiya (recursion)** deyiladi. Rekursiya backtracking, graf bo'ylab yurishlar va dinamik dasturlashning poydevori. Bu darsdan keyin siz rekursiv funksiya yoza olasiz, uning to'xtash shartini topasiz va chaqiruvlar sonini hisoblay olasiz.
+4096 sonining raqamlari yig'indisini topmoqchimiz. Oxirgi raqam 6 ekanini bilsak, qolgan ish — 409 sonining raqamlari yig'indisini topish. Kichraygan sonda ham ayni savol takrorlanadi. Shu darsda siz bunday bog'lanishni funksiyaga aylantirasiz, chaqiruvlar qayerda to'xtashi va javob qanday qaytishini kuzatasiz.
 
 ## Muammo
 
-**Hanoi minoralari.** Uchta qoziq bor: 1, 2 va 3. 1-qoziqda $n$ ta disk turibdi: pastda eng kattasi, tepada eng kichigi. Barcha disklarni 3-qoziqqa o'tkazish kerak. Qoidalar:
+Manfiy bo'lmagan $n$ butun son berilgan. Uning o'nlik yozuvidagi raqamlar yig'indisini chiqaring.
 
-- bir yurishda faqat bitta diskni, eng tepadagisini olish mumkin;
-- katta diskni kichik disk ustiga qo'yib bo'lmaydi.
+- **Kirish:** bitta butun son $n$.
+- **Chiqish:** raqamlar yig'indisi.
+- **Cheklovlar:** $0 \le n \le 10^{18}$.
+- Vaqt chegarasi: 1 soniya. Xotira chegarasi: 256 MB.
 
-**Kirish:** bitta son $n$ ($1 \le n \le 20$).
-**Chiqish:** eng kam yurishlar soni $k$, keyin $k$ ta qatorda yurishlar: `a b` — diskni $a$ qoziqdan $b$ qoziqqa o'tkazish.
+Kirish:
 
 ```text
-Kirish:     Chiqish:
-2           3
-            1 2
-            1 3
-            2 3
+4096
 ```
 
-Birinchi urinish — kichik $n$ uchun yurishlarni qo'lda topib, dasturga yozib qo'yish:
+Chiqish:
 
-```cpp
-#include <bits/stdc++.h>
-using namespace std;
-
-int main() {
-    int n;
-    cin >> n;
-    if (n == 1) {
-        cout << "1\n1 3\n";
-    } else if (n == 2) {
-        cout << "3\n1 2\n1 3\n2 3\n";
-    } else if (n == 3) {
-        cout << "7\n1 3\n1 2\n3 2\n1 3\n2 1\n2 3\n1 3\n";
-    }
-    // n = 4, 5, ..., 20 uchun-chi?
-}
+```text
+19
 ```
 
-Bu yo'l tezda sinadi. Yurishlar soni har safar deyarli ikki barobar ortadi: 1, 3, 7, 15, … $n = 20$ da $1\,048\,575$ ta yurish kerak — ularni qo'lda yozib bo'lmaydi. Oddiy sikl ham yordam bermaydi: yurishlarda ko'zga tashlanadigan sodda naqsh yo'q. Bizga istalgan $n$ uchun yurishlarni o'zi "ishlab chiqaradigan" usul kerak.
+Chunki $4+0+9+6=19$. Buni sikl bilan ham yechish mumkin: oxirgi raqamni yig'indiga qo'shib, sondan olib tashlaymiz. Bu darsda xuddi shu ishni kichikroq son uchun javob qaytaradigan funksiya orqali ifodalaymiz. Maqsad — rekursiya qanday ishlashini ko'rish; bu masalada sikl ham yaxshi yechim.
 
 ## G'oya
 
-### Kichik misoldan boshlaylik
+### Javobni kichikroq masalaga bog'lash
 
-$4! = 4 \cdot 3 \cdot 2 \cdot 1 = 24$ ni hisoblaylik. E'tibor bering: $3 \cdot 2 \cdot 1$ — bu $3!$ ning o'zi. Demak, $4! = 4 \cdot 3!$. Xuddi shunday $3! = 3 \cdot 2!$, $2! = 2 \cdot 1!$, $1! = 1$.
+C++ da `4096 % 10` natijasi 6, `4096 / 10` natijasi esa 409 bo'ladi. Butun sonlarni bo'lishda kasr qismi tashlab yuboriladi. Demak, `% 10` bilan oxirgi raqamni olamiz, `/ 10` bilan uni olib tashlaymiz.
 
-| $n$ | $n!$ | qanday topildi |
-|---|---|---|
-| 1 | 1 | to'g'ridan-to'g'ri |
-| 2 | 2 | $2 \cdot 1!$ |
-| 3 | 6 | $3 \cdot 2!$ |
-| 4 | 24 | $4 \cdot 3!$ |
+Raqamlar yig'indisini qaytaradigan funksiyani `digitSum` deb ataymiz. `digitSum(409)` natijasi 13 bo'lsa, `digitSum(4096)` natijasi $6+13=19$ bo'lishi kerak.
 
-Umumiy holda $n! = n \cdot (n-1)!$. Buni kodga to'g'ridan-to'g'ri ko'chiramiz:
-
-```cpp
-long long fact(int n) {
-    if (n <= 1) return 1;        // asos holati
-    return n * fact(n - 1);      // rekursiv qadam
-}
-```
-
-Funksiya ikki qismdan iborat. **Asos holati (base case)** — javobi darhol ma'lum bo'lgan, funksiya o'zini chaqirmaydigan holat. **Rekursiv qadam (recursive step)** — funksiya o'zini kichikroq argument bilan chaqiradigan qism. `long long` tanlanganiga e'tibor bering: $13! \approx 6 \cdot 10^9$, u `int` ga sig'maydi.
-
-Asosiy qoida: **har bir rekursiv funksiyada asos holati bo'lishi va har bir chaqiruv unga yaqinlashishi shart.**
-
-### Chaqiruvlar steki
-
-`fact(4)` ishlaganda nima bo'ladi? U `fact(3)` ni chaqiradi va javobni kutib turadi. O'z navbatida `fact(3)` ham kutadi va hokazo. Kompyuter hali tugamagan chaqiruvlarni **chaqiruvlar steki (call stack)** da saqlaydi — bu xotiradagi joy bo'lib, unda har bir tugallanmagan chaqiruvning o'zgaruvchilari turadi.
+**Sonning raqamlari yig'indisi — uning oxirgi raqami va qolgan son raqamlari yig'indisining yig'indisi.** Buni quyidagicha yozamiz:
 
 ```text
-fact(4) → 4 * fact(3)              kutmoqda
-  fact(3) → 3 * fact(2)            kutmoqda
-    fact(2) → 2 * fact(1)          kutmoqda
-      fact(1) → 1                  asos holati
-    fact(2) = 2 * 1 = 2
-  fact(3) = 3 * 2 = 6
-fact(4) = 4 * 6 = 24
+digitSum(4096) = 6 + digitSum(409)
+digitSum(409)  = 9 + digitSum(40)
+digitSum(40)   = 0 + digitSum(4)
+digitSum(4)    = 4 + digitSum(0)
 ```
 
-Jarayon ikki bosqichdan iborat: avval asos holatigacha "tushamiz", keyin javoblar bilan yuqoriga "qaytamiz". Stekda bir vaqtda turgan chaqiruvlarning eng ko'p soni **rekursiya chuqurligi (recursion depth)** deyiladi. `fact(4)` uchun u 4 ga teng.
+Funksiyaning o'zini o'zi chaqirishi **rekursiya (recursion)** deyiladi. Bu yerda `digitSum` o'zidan kichikroq son uchun yana `digitSum` ni chaqiradi.
+
+### Qayerda to'xtaymiz?
+
+0 sonining raqamlari yig'indisi 0. Bu javobni yana funksiya chaqirmasdan qaytaramiz. **Asos holati (base case)** — javobi bevosita qaytariladigan, yangi rekursiv chaqiruv kerak bo'lmagan holat.
+
+Qolgan sonlarda oxirgi raqamni olib, funksiyani qolgan qism uchun chaqiramiz. Bu **rekursiv qadam (recursive step)** — javobni kichikroq masalaning javobidan quradigan qism.
 
 > [!NOTE]
-> To'xtang va o'ylang: agar asos holati `if (n == 1)` bo'lsa, `fact(0)` chaqirilganda nima bo'ladi?
+> To'xtang va o'ylang: `n == 0` tekshiruvini yozmasak, chaqiruvlar qayergacha davom etadi?
 
-$n = 0$ birga teng emas, shuning uchun `fact(-1)`, keyin `fact(-2)` chaqiriladi… Argument asos holatidan uzoqlashib boradi va funksiya hech qachon to'xtamaydi. Stek to'lib, dastur qulaydi. Bu xato **stekning to'lib ketishi (stack overflow)** deyiladi. Shuning uchun biz `n <= 1` shartini yozdik.
+`digitSum(0)` ham `digitSum(0 / 10)`, ya'ni yana `digitSum(0)` ni chaqiradi. Argument o'zgarmaydi va hech bir chaqiruv javob qaytarishga yetib bormaydi. Demak, faqat sonni kichraytirish yetmaydi: to'xtash holati ham zarur.
 
-### Rekursiv ishonch
+Musbat $n$ uchun `n / 10` doim $n$ dan kichik. Har safar oxirgi raqam olib tashlangani uchun bir payt 0 ga yetamiz. Masala faqat manfiy bo'lmagan sonlarni qabul qiladi; funksiyaning ishlashini ham shu sohada asoslaymiz.
 
-Rekursiv funksiya yozganda barcha chaqiruvlarni boshda kuzatish shart emas. Biz shunchaki **`fact(n - 1)` to'g'ri javob qaytaradi deb ishonamiz** va undan foydalanamiz. Bu domino toshlariga o'xshaydi: birinchi tosh yiqilsa (asos holati) va har bir tosh keyingisini yiqitsa (rekursiv qadam), barcha toshlar yiqiladi. Aynan shu sabab rekursiya doim to'g'ri ishlaydi.
+### Chaqirish va qaytish
 
-### Hanoi minoralariga qo'llaymiz
+`digitSum(4096)` natijani darhol bilmaydi: avval `digitSum(409)` tugashi kerak. U tugamaguncha tashqi chaqiruv kutadi. Ichki chaqiruv tugagach, tashqi chaqiruv ishini qolgan joyidan davom ettiradi.
 
-Faraz qilaylik, bizda `hanoi(k, from, to, via)` funksiyasi bor. U $k$ ta diskni `from` qoziqdan `to` qoziqqa, `via` qoziqdan yordamchi sifatida foydalanib o'tkazadi. $n$ ta diskni 1 dan 3 ga o'tkazish uchun uch qadam yetarli:
+```text
+digitSum(4096)  6 + ? ni kutadi
+  digitSum(409) 9 + ? ni kutadi
+    digitSum(40) 0 + ? ni kutadi
+      digitSum(4) 4 + ? ni kutadi
+        digitSum(0) → 0
+      digitSum(4) → 4 + 0 = 4
+    digitSum(40) → 0 + 4 = 4
+  digitSum(409) → 9 + 4 = 13
+digitSum(4096) → 6 + 13 = 19
+```
 
-1. Yuqoridagi $n-1$ ta diskni 1 dan 2 ga o'tkazamiz (3 — yordamchi). Bu rekursiv chaqiruv.
-2. Eng katta diskni 1 dan 3 ga o'tkazamiz. Bu bitta yurish.
-3. $n-1$ ta diskni 2 dan 3 ga o'tkazamiz (1 — yordamchi). Yana rekursiv chaqiruv.
+Bu chaqiruvlarning har biri o'zining `n` qiymatiga ega. Ichki chaqiruvda `n=409` bo'lishi tashqi chaqiruvdagi `n=4096` ni o'zgartirmaydi. Bu kodda parametr qiymat bo'yicha uzatiladi.
 
-Nega bu qoidalarni buzmaydi? Eng katta disk doim eng pastda turadi va uning ustiga istalgan diskni qo'yish mumkin. Shuning uchun 1- va 3-qadamlarda u "yo'qdek" bo'ladi. Asos holati: $k = 0$ — o'tkaziladigan disk yo'q, hech narsa qilmaymiz.
+Kompyuter tugamagan chaqiruvlarning davom etish joyi va mahalliy ma'lumotlarini **chaqiruvlar steki (call stack)** orqali saqlaydi. Oxirgi boshlangan chaqiruv birinchi tugaydi. Bir vaqtda faol turgan rekursiv chaqiruvlarning eng katta sonini shu darsda **rekursiya chuqurligi (recursion depth)** deb hisoblaymiz. Yuqoridagi misolda `digitSum(0)` ham qo'shilganda chuqurlik 5.
 
-Yurishlar sonini $T(n)$ deb belgilaylik. Uch qadamdan $T(n) = 2T(n-1) + 1$ va $T(0) = 0$ kelib chiqadi. Qiymatni kichikroq argumentdagi qiymatlar orqali ifodalovchi bunday formula **rekursiv munosabat (recurrence relation)** deyiladi. Hisoblaymiz: $1, 3, 7, 15, \dots$, ya'ni $T(n) = 2^n - 1$.
+### Nega javob to'g'ri?
+
+0 uchun funksiya to'g'ri javob — 0 ni qaytaradi. Endi kichikroq sonning raqamlari yig'indisi to'g'ri hisoblangan deb olaylik. Uning oldiga emas, oxiriga qo'shilgan raqamni yig'indiga qo'shsak, butun sonning raqamlari yig'indisi chiqadi.
+
+Bizning funksiya aynan shu ishni qiladi: `n % 10` ni `digitSum(n / 10)` natijasiga qo'shadi. Har bir musbat son kichrayib asos holatiga yetgani uchun hisob qaytishda ham to'g'ri davom etadi. Bu yerda to'g'rilik uch narsaga tayanadi: asos holati, kichikroq masalaga o'tish va javoblarni to'g'ri birlashtirish.
 
 ## Amalga oshirish
 
@@ -116,201 +94,158 @@ Yurishlar sonini $T(n)$ deb belgilaylik. Uch qadamdan $T(n) = 2T(n-1) + 1$ va $T
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<pair<int, int>> moves;
+int digitSum(long long n) {
+    // Asos holati: boshqa raqam qolmadi.
+    if (n == 0) return 0;
 
-// k ta diskni from qoziqdan to qoziqqa, via qoziq orqali o'tkazadi
-void hanoi(int k, int from, int to, int via) {
-    // asos holati: o'tkaziladigan disk yo'q
-    if (k == 0) return;
-    // 1) yuqoridagi k-1 diskni yordamchi qoziqqa
-    hanoi(k - 1, from, via, to);
-    // 2) eng katta diskni maqsad qoziqqa
-    moves.push_back({from, to});
-    // 3) k-1 diskni yordamchidan maqsad qoziqqa
-    hanoi(k - 1, via, to, from);
+    int last = n % 10;
+    // Kichikroq sonning javobini kutamiz.
+    int rest = digitSum(n / 10);
+    return last + rest;
 }
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int n;
+    long long n;
     cin >> n;
-
-    hanoi(n, 1, 3, 2);
-
-    // yurishlar soni va yurishlarning o'zi
-    cout << moves.size() << "\n";
-    for (auto [a, b] : moves) {
-        cout << a << " " << b << "\n";
-    }
+    cout << digitSum(n) << '\n';
+    return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- Asos holati funksiyaning birinchi qatorida: $k = 0$ bo'lsa, darhol qaytamiz.
-- Har bir chaqiruvda $k$ bittaga kamayadi, ya'ni asos holatiga yaqinlashamiz.
-- 1-qadamda `to` va `via` o'rin almashadi, 3-qadamda esa `from` va `via`.
-- Yurishlarni `vector` ga yig'amiz, chunki avval ularning sonini chiqarish kerak. Sonni `(1 << n) - 1` formulasi bilan ham chiqarish mumkin edi.
+- `n` uchun `long long` kerak: kiruvchi son $10^{18}$ gacha boradi.
+- Javob uchun `int` yetadi. Ko'pi bilan 19 ta raqam bor; hatto har birini 9 deb baholasak ham yig'indi 171 dan oshmaydi.
+- `rest` ichki chaqiruv qaytargan natijani saqlaydi. Uning qiymati olinmaguncha keyingi `return` bajarilmaydi.
+- `return` faqat joriy chaqiruvni tugatadi. Uni chaqirgan funksiya o'z ishini davom ettiradi.
 
 ## Misol
 
-$n = 3$ uchun dasturni qadamma-qadam bajaraylik. Disklarni o'lchami bo'yicha 1 (kichik), 2, 3 (katta) deb belgilaymiz. Qoziqdagi disklar pastdan yuqoriga yozilgan.
+Kirishdagi 4096 soni uchun qaytish bosqichini jadvalda kuzataylik. `last` va `rest` har bir chaqiruvning o'ziga tegishli.
 
-Avval chaqiruvlar daraxtini ko'raylik ($k = 0$ chaqiruvlari tushirib qoldirilgan):
+| Tugayotgan chaqiruv | `last` | Ichki chaqiruv qaytargan `rest` | Qaytadigan qiymat |
+|---|---|---|---|
+| `digitSum(0)` | Hisoblanmaydi | Chaqiruv yo'q | 0 |
+| `digitSum(4)` | 4 | 0 | 4 |
+| `digitSum(40)` | 0 | 4 | 4 |
+| `digitSum(409)` | 9 | 4 | 13 |
+| `digitSum(4096)` | 6 | 13 | 19 |
 
-```text
-hanoi(3,1,3,2)
-├── hanoi(2,1,2,3)
-│   ├── hanoi(1,1,3,2) → 1 3
-│   ├── 1 2
-│   └── hanoi(1,3,2,1) → 3 2
-├── 1 3
-└── hanoi(2,2,3,1)
-    ├── hanoi(1,2,1,3) → 2 1
-    ├── 2 3
-    └── hanoi(1,1,3,2) → 1 3
-```
-
-Endi qoziqlar holatini kuzatamiz:
-
-| # | Yurishni bajargan chaqiruv | Yurish | Disk | 1-qoziq | 2-qoziq | 3-qoziq |
-|---|---|---|---|---|---|---|
-| 0 | — | — | — | 3 2 1 | | |
-| 1 | `hanoi(1,1,3,2)` | 1 → 3 | 1 | 3 2 | | 1 |
-| 2 | `hanoi(2,1,2,3)` | 1 → 2 | 2 | 3 | 2 | 1 |
-| 3 | `hanoi(1,3,2,1)` | 3 → 2 | 1 | 3 | 2 1 | |
-| 4 | `hanoi(3,1,3,2)` | 1 → 3 | 3 | | 2 1 | 3 |
-| 5 | `hanoi(1,2,1,3)` | 2 → 1 | 1 | 1 | 2 | 3 |
-| 6 | `hanoi(2,2,3,1)` | 2 → 3 | 2 | 1 | | 3 2 |
-| 7 | `hanoi(1,1,3,2)` | 1 → 3 | 1 | | | 3 2 1 |
-
-Hech qaysi qadamda katta disk kichigining ustiga tushmadi. Yurishlar soni $7 = 2^3 - 1$. Muammodagi $n = 2$ testi uchun dastur `3`, `1 2`, `1 3`, `2 3` chiqaradi — kutilgan javob bilan bir xil.
+Oxirgi 19 qiymati `main` ga qaytadi va ekranga chiqariladi. O'rtadagi 0 raqami ham yo'qolmagan: u yig'indiga 0 qo'shgan. Kirishning o'zi 0 bo'lsa, funksiya darhol 0 qaytaradi.
 
 ## Murakkablik
 
-Rekursiv funksiyaning ish vaqti = **chaqiruvlar soni × bitta chaqiruvdagi ish**. `fact(n)` da $n$ ta chaqiruv, har biri $O(1)$ — jami $O(n)$.
+Sonning raqamlari sonini $d$ deb olaylik. Musbat son uchun $d$ ta raqamli chaqiruv va bitta asos holati bor. Har birida, ichki chaqiruv sarfini alohida hisoblaganda, o'zgarmas miqdorda ish bajariladi. Vaqt $O(d)$, stek xotirasi ham $O(d)$.
 
-`hanoi(k)` o'zini ikki marta chaqiradi, shuning uchun chaqiruvlar soni har darajada ikki barobar ortadi. Jami $2^{n+1} - 1$ chaqiruv va $2^n - 1$ yurish bo'ladi. $n = 20$ da bu taxminan $2 \cdot 10^6$ chaqiruv — 1 soniyadagi $10^8$ amal chegarasidan ancha kam.
+Bizning cheklovlarda musbat son ko'pi bilan 19 raqamli. Demak, asos holati bilan ko'pi bilan 20 ta chaqiruv faol turadi. $n=0$ uchun bitta chaqiruv yetadi.
 
-- **Vaqt:** $O(2^n)$.
-- **Xotira:** stek chuqurligi $n + 1$, ya'ni $O(n)$. Yurishlar ro'yxati esa $O(2^n)$ joy oladi.
-
-Stek hajmi cheklangan: ko'p tizimlarda u bir necha megabayt. Chuqurlik $10^5$ atrofida odatda xavfsiz, lekin $10^7$ chuqurlikdagi rekursiya dasturni qulatishi mumkin.
+Oldingi darsdagi murakkablik bahosini qo'llashda **jami chaqiruvlar soni** va **bir vaqtdagi chaqiruvlar soni**ni ajrating. Birinchisi vaqtni, ikkinchisi stek sarfini baholashga yordam beradi. Agar har bir chaqiruv katta massiv yaratsa, uning xotirasini ham qo'shish kerak.
 
 ## Variantlar
 
-### Qiymat qaytaruvchi rekursiya
+### Amalni chaqiruvdan oldin yoki keyin bajarish
 
-Sonning raqamlari yig'indisi: oxirgi raqam + qolgan qismning raqamlari yig'indisi. Masalan, $4096$ uchun $6 + S(409) = 6 + 9 + S(40) = \dots = 19$.
+123 sonining raqamlarini chapdan o'ngga chiqarish uchun avval 12 ning raqamlarini chiqaramiz, keyin 3 ni. Bunda chiqarish amali rekursiv chaqiruvdan keyin turadi. Quyidagi funksiya $0\le n\le10^{18}$ uchun ishlaydi:
 
 ```cpp
-int digitSum(long long n) {
-    if (n == 0) return 0;
-    return n % 10 + digitSum(n / 10);
+void printDigits(long long n) {
+    if (n >= 10) printDigits(n / 10);
+    cout << n % 10 << ' ';
 }
 ```
 
-Qachon kerak: masalani "kichik bo'lak + qolgan qism uchun xuddi shu masala" ko'rinishida yozish mumkin bo'lganda.
+`printDigits(123)` avval `printDigits(12)`, u esa `printDigits(1)` ni chaqiradi. So'ng 1, 2, 3 shu tartibda chiqadi. `printDigits(0)` esa 0 chiqaradi: asos holati har doim alohida `return` bilan yozilishi shart emas.
 
-### Amal chaqiruvdan oldin yoki keyin
+`cout` ni `if` dan oldinga ko'chirsak, 3, 2, 1 chiqadi. Demak, chaqiruvning oldidagi ish ichkariga kirishda, keyingisi esa qaytishda bajariladi. Bu funksiya qiymat qaytarmaydi, chiqarish amalini bajaradi.
 
-Amal rekursiv chaqiruvdan keyin bajarilsa, natija teskari tartibda chiqadi. Quyidagi funksiya sonning raqamlarini to'g'ri tartibda, bo'sh joy bilan chiqaradi: `printDigits(123)` → `1 2 3`.
+### Bir chaqiruv ichida ikkita kichik masala
+
+Hanoi minoralarida uchta qoziq bor. Birinchi qoziqdagi disklar pastdan yuqoriga kattadan kichikka joylashgan. Ularni uchinchi qoziqqa ko'chiramiz: faqat tepadagi disk olinadi va katta disk kichik disk ustiga qo'yilmaydi.
+
+Ikki diskda uch yurish yetadi: kichigini 1 dan 2 ga, kattasini 1 dan 3 ga, kichigini 2 dan 3 ga ko'chiramiz. Uch diskda esa katta diskka tegishdan oldin uning ustidagi ikkita diskni yordamchi qoziqqa o'tkazish kerak.
+
+Shundan umumiy reja keladi: yuqoridagi $k-1$ diskni yordamchi qoziqqa o'tkazamiz, eng kattasini maqsad qoziqqa ko'chiramiz, keyin $k-1$ diskni uning ustiga o'tkazamiz. Quyidagi funksiya shu yurishlarni chiqaradi; disklar sonini kichik, masalan $0\le k\le15$ deb olamiz.
 
 ```cpp
-void printDigits(int n) {
-    if (n >= 10) printDigits(n / 10);  // avval qolgan raqamlar
-    cout << n % 10 << " ";            // keyin oxirgi raqam
+void hanoi(int k, int from, int to, int via) {
+    if (k == 0) return;
+
+    hanoi(k - 1, from, via, to);
+    cout << from << ' ' << to << '\n';
+    hanoi(k - 1, via, to, from);
 }
 ```
 
-Agar `cout` qatorini chaqiruvdan oldinga qo'ysak, `3 2 1` chiqadi.
+`hanoi(2, 1, 3, 2)` quyidagini chiqaradi:
 
-### Ikki marta chaqiruv va takroriy hisoblar
-
-Fibonachchi sonlari: $F(n) = F(n-1) + F(n-2)$, $F(0) = 0$, $F(1) = 1$.
-
-```cpp
-long long fib(int n) {
-    if (n <= 1) return n;
-    return fib(n - 1) + fib(n - 2);
-}
+```text
+1 2
+1 3
+2 3
 ```
 
-Kod to'g'ri, lekin sekin: `fib(5)` ichida `fib(3)` ikki marta, `fib(2)` uch marta hisoblanadi. $n = 50$ da chaqiruvlar soni $4 \cdot 10^{10}$ dan oshadi. Bu muammoni "Memoizatsiyali rekursiya" darsida hal qilamiz.
+Birinchi ichki chaqiruv **to'liq tugagach**, o'rtadagi yurish chiqariladi. Shundan keyingina ikkinchi chaqiruv boshlanadi. Ikki shox bir vaqtda bajarilmaydi. Yuqoridagi disklar kichik bo'lgani uchun ularni eng katta disk ustiga qo'yish qoidani buzmaydi; $k=0$ holatida ko'chirish kerak emas.
+
+Yurishlar soni 0 diskda 0, 1 diskda 1, 2 diskda 3, 3 diskda 7. Har safar oldingi sondan ikki baravar ko'p va yana bitta yurish bajariladi: $M(k)=2M(k-1)+1$. Kichikroq qiymatlar orqali berilgan bunday bog'lanish **rekursiv munosabat (recurrence relation)** deyiladi. Undan $M(k)=2^k-1$ kelib chiqadi.
+
+Bu kodda asos holatlari bilan jami $2^{k+1}-1$ ta chaqiruv bor, vaqt $O(2^k)$. Ammo bir vaqtda ko'pi bilan $k+1$ ta `hanoi` chaqiruvi faol: stek $O(k)$. Yurishlarni ro'yxatga yig'may, darhol chiqarayotganimiz uchun ularni saqlashga qo'shimcha joy ketmaydi.
 
 ## Ko'p uchraydigan xatolar
 
-Birinchi va eng ko'p uchraydigan xato — asos holati barcha kirishlarni qamrab olmaydi.
+### Kichrayish bilan to'xtashni bir xil deb o'ylash
 
-> [!WARNING] Asos holatiga yetib bo'lmaydi
-> ```cpp
-> if (n == 1) return 1;
-> return n * fact(n - 1);   // fact(0) cheksiz chaqiruvga olib keladi
-> ```
-> $n = 0$ dan argument faqat kamayadi va 1 ga hech qachon teng bo'lmaydi. To'g'risi: `if (n <= 1) return 1;`
+Argument kamayishi asos holatiga yetishni kafolatlamaydi. Masalan, faqat `n == 0` da to'xtab, har safar `n - 2` ni chaqirsak, 5 dan $5,3,1,-1,\dots$ ketma-ketligi hosil bo'ladi. To'xtash sharti bilan qadamni birga tekshiring. Shartni shunchaki `n <= 0` ga almashtirishdan oldin manfiy holat uchun qanday javob kerakligini aniqlang.
 
-Ikkinchi xato — argument kamaymaydi.
+### O'sha argumentni yana uzatish
 
-> [!WARNING] `n--` argumentni kamaytirmaydi
-> ```cpp
-> return n * fact(n--);     // fact(n) qayta chaqiriladi
-> ```
-> `n--` avval eski qiymatni beradi, keyin kamaytiradi. Natijada funksiya o'zini o'sha $n$ bilan chaqiradi va stek to'lib ketadi. To'g'risi: `fact(n - 1)`.
+`digitSum(n)` ichida yana `digitSum(n)` chaqirilsa, masala kichraymaydi. To'g'ri qadam — `digitSum(n / 10)`. Shuningdek, `f(n--)` eski qiymatni uzatadi; kichraygan argument kerak bo'lsa, uni aniq `f(n - 1)` deb yozing.
 
-Uchinchi xato — natija hisoblanadi, lekin qaytarilmaydi.
+### Hisoblangan natijani qaytarmaslik
 
-> [!WARNING] `return` unutilgan
-> ```cpp
-> if (n <= 1) return 1;
-> n * fact(n - 1);          // natija yo'qoladi
-> ```
-> Funksiya oxirida `return` bo'lmasa, tasodifiy qiymat qaytadi. To'g'risi: `return n * fact(n - 1);`
+`last + rest;` ifodasi natijani hisoblaydi, ammo chaqiruvchiga bermaydi. Qiymat qaytaruvchi funksiyada `return last + rest;` kerak. C++ da bunday funksiyaning oxiriga qiymat qaytarmasdan yetish noto'g'ri ishlashga olib keladi.
 
-To'rtinchi xato — juda chuqur rekursiya.
+### Chuqurlikni tekshirmaslik
 
-> [!WARNING] Sikl o'rniga chuqur rekursiya
-> ```cpp
-> long long sum(int i) {    // n = 10^7 bo'lsa, chuqurlik 10^7
->     if (i == n) return 0;
->     return a[i] + sum(i + 1);
-> }
-> ```
-> Har bir chaqiruv stekda joy oladi va dastur qulashi mumkin. Oddiy yig'indini sikl bilan hisoblang; rekursiyani chuqurlik kichik bo'lganda ishlating.
+> [!WARNING]
+> Stek uchun ajratilgan xotira cheklangan. Chaqiruvlar unga sig'may qolishi **stekning to'lib ketishi (stack overflow)** deyiladi. Barcha muhitlar uchun xavfsiz bitta chuqurlik yo'q: u stek hajmi va har bir chaqiruvdagi ma'lumotga bog'liq.
+
+Masalan, millionta massiv elementini bittadan rekursiv qo'shish millionga yaqin chuqurlik talab qiladi. Bunday oddiy hisobda sikl qulayroq. Bizning raqamlar yig'indisi misolimizda esa chuqurlik ko'pi bilan 20. Dastur rekursiyani avtomatik siklga aylantiradi deb hisoblamang.
 
 ## Xulosa
 
-- Rekursiv funksiya ikki qismdan iborat: asos holati va rekursiv qadam.
-- Har bir chaqiruv asos holatiga yaqinlashishi shart, aks holda stek to'lib ketadi.
-- Funksiya yozganda kichikroq chaqiruv to'g'ri ishlaydi deb ishoning — butun daraxtni kuzatish shart emas.
-- Ish vaqti = chaqiruvlar soni × bitta chaqiruvdagi ish; xotira = rekursiya chuqurligi.
-- Bir nechta rekursiv chaqiruv chaqiruvlar sonini tez oshiradi: $2^n$ yoki undan ham ko'p.
+- Funksiya nimani qaytarishini yoki qanday amal bajarishini oldindan aniq ayting.
+- Asos holatini belgilang va har bir chaqiruv shu holatga yetishini tekshiring.
+- Ichki chaqiruv tugagach, tashqi chaqiruv qolgan ishini davom ettiradi.
+- Vaqt uchun jami ishni, stek uchun bir vaqtdagi chaqiruvlar va ulardagi ma'lumotni hisoblang.
 
-**Masalada rekursiyani qanday tanib olish mumkin:** shartda "har bir qism xuddi shunday tuzilgan" degan ma'no bor; javob kichikroq $n$ dagi javob orqali ifodalanadi; $n$ kichik (masalan, $n \le 20$), javobda esa $2^n$ ta element bor.
+**Qachon rekursiyani o'ylab ko'rish kerak?** Katta masalani xuddi shu turdagi kichikroq masalalarga ajratish mumkin bo'lsa. Keyingi backtracking darsida bu xususiyatdan tanlovlarni qadamma-qadam qurishda foydalanamiz.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| Rekursiya | recursion | Funksiyaning o'zini o'zi chaqirishi. |
-| Asos holati | base case | Javobi darhol ma'lum bo'lgan, funksiya o'zini chaqirmaydigan holat. |
-| Rekursiv qadam | recursive step | Funksiya o'zini kichikroq argument bilan chaqiradigan qism. |
-| Chaqiruvlar steki | call stack | Hali tugamagan chaqiruvlar va ularning o'zgaruvchilari saqlanadigan xotira. |
-| Rekursiya chuqurligi | recursion depth | Stekda bir vaqtda turgan chaqiruvlarning eng ko'p soni. |
-| Stekning to'lib ketishi | stack overflow | Chaqiruvlar juda ko'payib, stekka sig'may qolishi va dasturning qulashi. |
-| Rekursiv munosabat | recurrence relation | Qiymatni kichikroq argumentdagi qiymatlar orqali ifodalovchi formula. |
+| Rekursiya | Recursion | Funksiyaning o'zini o'zi chaqirishi. |
+| Asos holati | Base case | Yangi rekursiv chaqiruvsiz hal qilinadigan holat. |
+| Rekursiv qadam | Recursive step | Javobni kichikroq masalaning javobidan qurish qismi. |
+| Chaqiruvlar steki | Call stack | Tugamagan chaqiruvlarning davom etish joyi va mahalliy ma'lumotlari saqlanadigan tuzilma. |
+| Rekursiya chuqurligi | Recursion depth | Bir vaqtda faol turgan rekursiv chaqiruvlarning eng katta soni. |
+| Rekursiv munosabat | Recurrence relation | Qiymatni kichikroq holatlarning qiymatlari orqali ifodalovchi bog'lanish. |
+| Stekning to'lib ketishi | Stack overflow | Chaqiruvlar uchun kerakli xotiraning ajratilgan stekka sig'may qolishi. |
 
-> [!TIP] O'zingizni tekshiring
-> 1. `int f(int n) { if (n == 0) return 0; return f(n - 2) + 1; }` uchun `f(5)` nima qaytaradi?
-> 2. $n = 10$ disk uchun Hanoi minoralarida nechta yurish kerak?
-> 3. `fact(5)` chaqirilganda rekursiya chuqurligi nechaga teng (asos holati `n <= 1`)?
->
-> <details>
-> <summary>Javoblar</summary>
->
-> 1. Hech narsa qaytarmaydi: $5, 3, 1, -1, \dots$ — argument 0 dan "sakrab o'tadi", stek to'lib ketadi. Asos holatini `n <= 0` qilish kerak.
-> 2. $2^{10} - 1 = 1023$ ta yurish.
-> 3. 5: `fact(5)`, `fact(4)`, `fact(3)`, `fact(2)`, `fact(1)`.
->
-> </details>
+### O'zingizni tekshiring
+
+1. `digitSum(1000)` qanday javob qaytaradi? Asos holati bilan nechta chaqiruv bajariladi?
+2. Ichki `digitSum(40)` chaqiruvi tashqi `digitSum(409)` ning `n` qiymatini 40 ga almashtiradimi?
+3. `printDigits(507)` nimani chiqaradi? `cout` rekursiv chaqiruvdan oldinga o'tkazilsa-chi?
+4. `hanoi(3, 1, 3, 2)` uchun yurishlar soni, jami chaqiruvlar soni va eng katta chuqurlik nechta?
+
+<details>
+<summary>Javoblarni ko'rish</summary>
+
+1. Javob 1. Chaqiruvlar: 1000, 100, 10, 1, 0 — jami 5 ta.
+2. Yo'q. Bu kodda har bir chaqiruv o'zining qiymat bo'yicha uzatilgan parametriga ega. Ichki chaqiruv qaytgach, tashqisida `n` hamon 409.
+3. Avvalgi kod `5 0 7` chiqaradi. `cout` oldinga o'tsa, `7 0 5` chiqadi.
+4. 7 ta yurish, asos holatlari bilan 15 ta chaqiruv. Eng katta chuqurlik 4: $k=3,2,1,0$ holatlari bir vaqtda faol bo'ladi.
+
+</details>
