@@ -8,9 +8,11 @@ type Props = {
   bare?: boolean;
   /** Yechilgan sanani alohida ustunda ko'rsatish (admin uchun). */
   showSolvedAt?: boolean;
+  /** Filtrlangan ro'yxatda asl tartib raqamlari: problem.id → raqam. */
+  numbers?: Map<number, number>;
 };
 
-export function ProblemTable({ problems, solved, bare, showSolvedAt }: Props) {
+export function ProblemTable({ problems, solved, bare, showSolvedAt, numbers }: Props) {
   if (problems.length === 0) return <p className="card p-5 text-muted">Bu mavzuga hali masala qo&apos;shilmagan.</p>;
   return (
     <div className={`overflow-x-auto ${bare ? "" : "card"}`}>
@@ -35,7 +37,7 @@ export function ProblemTable({ problems, solved, bare, showSolvedAt }: Props) {
                 <td className="px-4 py-3" title={at ? `Yechilgan: ${formatDate(at)}` : undefined}>
                   <SolvedIcon solved={!!at} />
                 </td>
-                <td className="py-3 text-sm text-faint">{i + 1}</td>
+                <td className="py-3 text-sm text-faint">{numbers?.get(p.id) ?? i + 1}</td>
                 <td className="py-3 pr-4">
                   <a href={p.url} target="_blank" rel="noreferrer" className="font-semibold hover:text-accent">
                     {p.title}

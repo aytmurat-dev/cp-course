@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Markdown } from "@/components/markdown";
-import { ProblemTable } from "@/components/problem-table";
+import { ProblemList } from "@/components/problem-list";
 import { SyncStatus } from "@/components/sync-status";
 import { formatDate, ProgressBar } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -17,7 +17,9 @@ export async function generateMetadata({ params }: PageProps<"/topics/[slug]">):
   return { title: topic ? `${topic.number}. ${topic.title}` : "Mavzu topilmadi" };
 }
 
-export default async function TopicPage({ params }: PageProps<"/topics/[slug]">) {
+type Tab = "theory" | "problems";
+
+export default async function TopicPage({ params, searchParams }: PageProps<"/topics/[slug]">) {
   const { slug } = await params;
   const topic = getCourseTopic(slug);
   if (!topic) notFound();
@@ -32,6 +34,8 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
   const [solved, linked] = await Promise.all([getCourseSolves(user.id), getUserHandles(user.id)]);
   const done = problems.filter((p) => solved.has(p.problemKey)).length;
   const content = topic.content;
+  // Matni yozilmagan mavzu darhol masalalar bilan ochiladi.
+  const tab: Tab = !content || (await searchParams).tab === "masalalar" ? "problems" : "theory";
 
   // Oldingi/keyingi — o'quvchiga ochiq mavzular orasida.
   const all = getCourseTopics();
@@ -77,39 +81,51 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
         )}
       </header>
 
-      <div className="mt-10">
-        {content ? (
-          <Markdown>{content.body}</Markdown>
-        ) : (
-          <p className="card p-5 text-muted">
-            Mavzu matni hali yozilmagan.
-            {isAdmin && (
-              <>
-                {" "}
-                Uni <code className="font-mono text-fg">content/topics/{slug}.md</code> fayliga qo&apos;shing.
-              </>
-            )}
-          </p>
-        )}
-      </div>
+      <Tabs slug={slug} tab={tab} hasContent={!!content} done={done} total={problems.length} showProgress={!isAdmin} />
 
-      <section id="masalalar" className="mt-16 scroll-mt-20">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-extrabold">Masalalar</h2>
-            {problems.length > 0 && (
-              <div className="mt-2 flex items-center gap-3 text-sm text-muted">
-                <ProgressBar value={done} total={problems.length} className="w-32" />
-                {done} / {problems.length} yechilgan
+      {tab === "theory" ? (
+        <div className="mt-8">
+          <Markdown>{content!.body}</Markdown>
+          {problems.length > 0 && (
+            <Link
+              href={`/topics/${slug}?tab=masalalar`}
+              className="card mt-14 flex items-center justify-between gap-4 p-5 transition hover:border-line-strong"
+            >
+              <div>
+                <p className="font-extrabold">Nazariyani o&apos;qib bo&apos;ldingizmi?</p>
+                <p className="mt-0.5 text-sm text-muted">Endi masalalarni yeching — {problems.length} ta masala sizni kutmoqda.</p>
               </div>
-            )}
-          </div>
-          {user.role === "student" && problems.length > 0 && (
-            <SyncStatus stale={isStale(user.lastSyncedAt)} hasHandles={linked.length > 0} lastSynced={formatDate(user.lastSyncedAt)} />
+              <span className="shrink-0 rounded-lg bg-gradient-to-r from-accent to-accent-2 px-4 py-2 text-sm font-bold text-[#0b0b12]">
+                Masalalarga o&apos;tish →
+              </span>
+            </Link>
           )}
         </div>
-        {isAdmin ? <AdminProblems slug={slug} problems={problems} /> : <ProblemTable problems={problems} solved={solved} />}
-      </section>
+      ) : (
+        <section className="mt-8">
+          {!content && (
+            <p className="card mb-6 p-5 text-muted">
+              Mavzu matni hali yozilmagan.
+              {isAdmin && (
+                <>
+                  {" "}
+                  Uni <code className="font-mono text-fg">content/topics/{slug}.md</code> fayliga qo&apos;shing.
+                </>
+              )}
+            </p>
+          )}
+          {user.role === "student" && problems.length > 0 && (
+            <div className="mb-4 flex justify-end">
+              <SyncStatus stale={isStale(user.lastSyncedAt)} hasHandles={linked.length > 0} lastSynced={formatDate(user.lastSyncedAt)} />
+            </div>
+          )}
+          {isAdmin ? (
+            <AdminProblems slug={slug} problems={problems} />
+          ) : (
+            <ProblemList problems={problems} solved={solved} showUnsolved />
+          )}
+        </section>
+      )}
 
       <nav className="mt-14 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">
         {prev ? (
@@ -132,5 +148,38 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
         )}
       </nav>
     </article>
+  );
+}
+
+function Tabs(props: { slug: string; tab: Tab; hasContent: boolean; done: number; total: number; showProgress: boolean }) {
+  const { slug, tab, hasContent, done, total, showProgress } = props;
+  const cls = (active: boolean) =>
+    `-mb-px flex items-center gap-2 border-b-2 px-1 pb-3 pt-4 text-sm font-bold transition sm:text-base ${
+      active ? "border-accent text-fg" : "border-transparent text-muted hover:text-fg"
+    }`;
+  return (
+    // Sahifa sarlavhasi (h-14) ostida yopishib turadi — uzun matn o'rtasidan ham masalalarga bir bosishda o'tiladi.
+    <nav className="sticky top-14 z-10 -mx-4 mt-8 border-b border-line bg-bg/85 px-4 backdrop-blur" aria-label="Mavzu bo'limlari">
+      <div className="flex items-center gap-6">
+        {hasContent && (
+          <Link href={`/topics/${slug}`} className={cls(tab === "theory")} aria-current={tab === "theory" ? "page" : undefined}>
+            Nazariya
+          </Link>
+        )}
+        <Link
+          href={`/topics/${slug}?tab=masalalar`}
+          className={cls(tab === "problems")}
+          aria-current={tab === "problems" ? "page" : undefined}
+        >
+          Masalalar
+          <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-bold text-muted ring-1 ring-line">
+            {showProgress && total > 0 ? `${done} / ${total}` : total}
+          </span>
+        </Link>
+        {showProgress && total > 0 && (
+          <ProgressBar value={done} total={total} className="ml-auto hidden w-32 sm:block" />
+        )}
+      </div>
+    </nav>
   );
 }
