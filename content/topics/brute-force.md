@@ -1,118 +1,71 @@
 ---
-summary: "Barcha variantlarni sinab chiqish usuli va dastur vaqtga sig'ishini kod yozishdan oldin hisoblash."
+summary: "Barcha juftliklarni takrorsiz tekshirish va yechimning vaqt hamda xotira sarfini oldindan baholash."
 prerequisites: []
 ---
 
 ## Kirish
 
-Har qanday masalani yechishning eng oddiy yo'li — barcha mumkin bo'lgan variantlarni birma-bir tekshirib chiqish. Bu usul **brute force** deyiladi. U olimpiada masalalarining katta qismida birinchi qadam bo'ladi, ba'zan esa yagona kerakli yechim.
-
-Bu darsdan keyin siz brute force yechim yoza olasiz va kod yozishdan oldin u 1 soniyaga sig'ish-sig'masligini hisoblay olasiz.
+Stolda 1, 4, 2, 3 yozilgan to'rtta kartochka bor. Yig'indisi 5 bo'ladigan ikkita kartochkani necha xil tanlash mumkin? Kartochkalar oz bo'lsa, barcha juftliklarni tekshirib javob topamiz. Bu darsda siz shu usulni kodga aylantirasiz va kartochkalar ko'payganda tekshiruvlar soni qanday o'sishini baholaysiz.
 
 ## Muammo
 
-**Masala.** $n$ ta butun sondan iborat $a_1, a_2, \dots, a_n$ massiv berilgan. Massivning ketma-ket turgan elementlaridan iborat bo'sh bo'lmagan bo'lagi **qism massiv (subarray)** deyiladi. Yig'indisi eng katta bo'lgan qism massivni topib, uning yig'indisini chiqaring.
+Sizga $n$ ta butun sondan iborat massiv va $k$ soni beriladi. Turli o'rinlarda turgan, yig'indisi $k$ ga teng elementlar juftliklari sonini toping. Juftlikdagi tartib muhim emas: birinchi va ikkinchi elementni tanlash bilan ikkinchi va birinchini tanlash bitta juftlik hisoblanadi.
 
-- **Kirish:** birinchi qatorda $n$, ikkinchi qatorda $a_1, \dots, a_n$.
-- **Chiqish:** bitta son — eng katta yig'indi.
-- **Cheklovlar (constraints):** $1 \le n \le 5000$, $-10^9 \le a_i \le 10^9$. Vaqt — 1 soniya.
+Bir xil qiymatli elementlar turli o'rinlarda tursa, ular alohida elementlar. Masalan, $[2, 2, 2]$ massivida yig'indisi 4 bo'lgan uchta juftlik bor: o'rinlari $(1, 2)$, $(1, 3)$ va $(2, 3)$.
 
-| Kirish | Chiqish |
-|---|---|
-| `6`<br>`2 -5 3 4 -1 2` | `8` |
+- **Kirish:** birinchi qatorda $n$ va $k$, ikkinchi qatorda massivning $n$ ta elementi.
+- **Chiqish:** shartni qanoatlantiradigan juftliklar soni.
+- **Cheklovlar (constraints)** — kirish qiymatlarining ruxsat etilgan chegaralari: $1 \le n \le 5000$, $-10^9 \le a_i \le 10^9$, $-2 \cdot 10^9 \le k \le 2 \cdot 10^9$.
+- Vaqt chegarasi: 2 soniya. Xotira chegarasi: 256 MB.
 
-Javob $8$ ga teng: bu $[3, 4, -1, 2]$ qism massivning yig'indisi.
+Kirish:
 
-Eng birinchi xayolga keladigan yechim: barcha $(l, r)$ juftliklarni olamiz va har biri uchun $a_l + \dots + a_r$ ni alohida hisoblaymiz.
-
-```cpp
-#include <bits/stdc++.h>
-using namespace std;
-
-int main() {
-    int n;
-    cin >> n;
-    vector<long long> a(n + 1);
-    for (int i = 1; i <= n; i++) cin >> a[i];
-
-    long long best = LLONG_MIN;
-    for (int l = 1; l <= n; l++)
-        for (int r = l; r <= n; r++) {
-            long long sum = 0;
-            for (int i = l; i <= r; i++) sum += a[i];
-            best = max(best, sum);
-        }
-    cout << best << "\n";
-}
+```text
+4 5
+1 4 2 3
 ```
 
-Kod to'g'ri ishlaydi. Lekin u qancha vaqt ishlaydi? Keling, sanab ko'raylik. $n = 6$ da $(l, r)$ juftliklar soni $6 + 5 + 4 + 3 + 2 + 1 = 21$ ta. Umuman olganda ular $\frac{n(n+1)}{2}$ ta, $n = 5000$ da esa taxminan $1{,}25 \cdot 10^7$ ta.
+Chiqish:
 
-Har bir juftlik uchun ichki sikl o'rtacha $n/3$ marta aylanadi. Jami taxminan $\frac{n^3}{6} \approx 2 \cdot 10^{10}$ amal. Kompyuter 1 soniyada taxminan $10^8$ ta oddiy amal bajaradi. Demak, bu dastur **200 soniya** ishlaydi. Dastur berilgan vaqtga sig'magandagi tekshiruv natijasi **vaqt chegarasidan oshish (Time Limit Exceeded, TLE)** deyiladi — bu yechim shunday natija oladi.
+```text
+2
+```
+
+Mos juftliklar — qiymatlari 1 va 4 bo'lgan elementlar hamda qiymatlari 2 va 3 bo'lgan elementlar.
+
+Eng sodda reja: birinchi elementni tanlaymiz, unga sherik bo'ladigan elementlarni tekshiramiz. Keyin keyingi elementga o'tamiz. Bu masalada shu rejaning o'zi yetarli; uni amalga oshirishdan oldin bir juftlikni ikki marta sanamaslik yo'lini aniqlaymiz.
 
 ## G'oya
 
-Bu bo'limda ikki narsani o'rganamiz: dastur tezligini oldindan qanday baholash va yuqoridagi yechimni qanday tezlashtirish.
+### Har bir juftlikni bir marta ko'rish
 
-### 1-qadam. Amallarni sanash
+Kartochkalar misoliga qaytaylik. 1 yozilgan kartochkani 4, 2, 3 bilan tekshiramiz. Keyin 4 yozilgan kartochkani faqat undan keyingi 2 va 3 bilan tekshiramiz. Uni 1 bilan yana tekshirish shart emas — bu juftlikni oldin ko'rdik.
 
-Yuqorida biz aniq formula chiqardik: taxminan $\frac{n^3}{6}$ amal. Amalda bunday aniqlik kerak emas. $n$ katta bo'lganda $\frac{1}{6}$ kabi ko'paytuvchi yoki qo'shimcha $+n$ natijani deyarli o'zgartirmaydi. Hal qiluvchi narsa — $n$ ning **qaysi darajasi** qatnashgani.
+**Har bir elementni faqat o'zidan keyingi elementlar bilan juftlaymiz.** Shunda element o'zi bilan tanlanmaydi va bir juftlik takrorlanmaydi.
 
-Shuning uchun **Big-O belgilash (Big-O notation)** ishlatiladi. Qoidasi oddiy: eng tez o'sadigan hadni qoldiramiz, o'zgarmas ko'paytuvchilarni tashlaymiz.
+Barcha mumkin bo'lgan variantlarni birma-bir tekshirish usuli **to'liq tanlash (brute force)** deyiladi. Bizda variant — ikkita turli o'rin. Uni tekshirish — shu o'rinlardagi qiymatlarni qo'shib, $k$ bilan solishtirish.
 
-| Aniq hisob | Big-O |
-|---|---|
-| $\frac{n^3}{6} + \frac{n^2}{2}$ | $O(n^3)$ |
-| $\frac{n(n+1)}{2}$ | $O(n^2)$ |
-| $3n + 5$ | $O(n)$ |
-| $20$ | $O(1)$ |
+Kodda o'rinlarni 0 dan boshlab raqamlaymiz: birinchi element `a[0]`, oxirgisi `a[n - 1]`. Birinchi o'rinni $i$, ikkinchisini $j$ deb belgilasak, faqat $i < j$ bo'lgan juftliklar kerak.
 
-Dastur bajaradigan amallar soni uning **vaqt murakkabligi (time complexity)** deyiladi. Bizning birinchi yechimimiz — $O(n^3)$.
-
-### 2-qadam. Turli murakkabliklar qanchalik farq qiladi
-
-Raqamlarga qarang:
-
-| $n$ | $\log_2 n$ | $n$ | $n \log_2 n$ | $n^2$ | $n^3$ | $2^n$ |
-|---|---|---|---|---|---|---|
-| $10$ | $3$ | $10$ | $33$ | $100$ | $1000$ | $1024$ |
-| $1000$ | $10$ | $10^3$ | $10^4$ | $10^6$ | $10^9$ | $\approx 10^{301}$ |
-| $10^5$ | $17$ | $10^5$ | $1{,}7 \cdot 10^6$ | $10^{10}$ | $10^{15}$ | — |
-
-$n = 10$ da hamma yechim bir zumda ishlaydi. $n = 10^5$ da esa $O(n^2)$ yechim 100 soniya oladi, $O(n \log n)$ esa sezilmaydi.
-
-### 3-qadam. Cheklovlarni o'qish
-
-Shu jadvaldan olimpiadachining eng muhim qurollaridan biri kelib chiqadi. Murakkablikka $n$ ning chegarasini qo'yamiz va natija $10^8$ dan oshmasligini talab qilamiz.
-
-| $n$ ning chegarasi | Sig'adigan murakkablik |
-|---|---|
-| $n \le 10$ | $O(n!)$ |
-| $n \le 20$ | $O(2^n \cdot n)$ |
-| $n \le 500$ | $O(n^3)$ |
-| $n \le 5000$ | $O(n^2)$ |
-| $n \le 2 \cdot 10^5$ | $O(n \log n)$ |
-| $n \le 10^7$ | $O(n)$ |
-| $n \le 10^{18}$ | $O(\log n)$ yoki $O(1)$ |
-
-**Masalani o'qiganda avval cheklovlarga qarang: ular kerakli yechim murakkabligini aytib turadi.** Bizda $n \le 5000$, demak $O(n^2)$ yechim kutilmoqda.
+1. Javob hisoblagichini noldan boshlaymiz.
+2. $i$ ni 0 dan $n-1$ gacha tanlaymiz.
+3. Har bir $i$ uchun $j$ ni $i+1$ dan $n-1$ gacha tanlaymiz.
+4. $a_i + a_j = k$ bo'lsa, hisoblagichga bir qo'shamiz.
 
 > [!NOTE]
-> To'xtang va o'ylang: $O(n^3)$ yechimdagi qaysi ish ortiqcha? Bitta $l$ uchun $r = 4$ va $r = 5$ dagi yig'indilarni solishtiring.
+> To'xtang va o'ylang: $[2, 2, 2]$ massivida ikkinchi siklni $i+1$ o'rniga $i$ dan boshlasak, nima o'zgaradi?
 
-### 4-qadam. Ortiqcha ishni olib tashlash
+Har bir element o'zi bilan ham juftlanadi. Uchta haqiqiy juftlikka yana uchta noto'g'ri juftlik qo'shilib, javob 6 bo'ladi. Demak, `j = i + 1` masalaning ikki xil element tanlash talabini bajaradi.
 
-$l = 3$ ni olaylik. $r = 4$ da $a_3 + a_4$ ni hisobladik. $r = 5$ da esa $a_3 + a_4 + a_5$ ni **noldan** qayta hisoblayapmiz. Vaholanki, u oldingi yig'indiga bitta $a_5$ qo'shilganiga teng.
+### Nega javob to'g'ri?
 
-**Asosiy kuzatish: $l$ o'zgarmasa, $\text{sum}(l, r) = \text{sum}(l, r-1) + a_r$, ya'ni yangi yig'indi bitta qo'shish bilan topiladi.**
+Istalgan ikkita turli o'rinni olaylik. Ularning biri chaproqda, ikkinchisi o'ngroqda turadi. Tashqi sikl chapdagi o'ringa kelganda, ichki sikl o'ngdagi o'ringa albatta yetib boradi. Demak, hech bir juftlik qolib ketmaydi.
 
-Demak, ichki $i$ sikli kerak emas. $l$ ni tanlaymiz, `sum = 0` qilamiz, $r$ ni $l$ dan $n$ gacha oshirib, har safar `sum += a[r]` qilamiz. Juftliklar soni o'zgarmadi — $\frac{n(n+1)}{2}$, lekin har biri endi $O(1)$ vaqt oladi. Jami $O(n^2)$.
-
-Nega bu doim to'g'ri? Biz baribir **barcha** $(l, r)$ juftliklarni ko'rib chiqyapmiz, hech birini tashlab ketmayapmiz. Faqat har bir yig'indini qayta hisoblash o'rniga oldingisidan foydalanyapmiz. Bu hamon brute force — shunchaki aqlliroq brute force.
+Ichki sikl faqat o'ngga yuradi, shuning uchun ayni juftlik teskari tartibda qayta ko'rilmaydi. Hisoblagich esa faqat yig'indi $k$ ga teng bo'lganda oshadi. Shu sababli barcha kerakli juftliklar aynan bir martadan sanaladi.
 
 ## Amalga oshirish
 
-Massiv 1-indeksli: $a_1, \dots, a_n$.
+Quyidagi C++17 dastur yuqoridagi to'rtta qadamni bajaradi. Qiymatlar va yig'indi bilan hisoblash uchun `long long` ishlatamiz.
 
 ```cpp
 #include <bits/stdc++.h>
@@ -122,157 +75,166 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // Ma'lumotlarni o'qiymiz (1-indeksli)
     int n;
-    cin >> n;
-    vector<long long> a(n + 1);
-    for (int i = 1; i <= n; i++) cin >> a[i];
+    long long k;
+    cin >> n >> k;
 
-    // Javobni eng kichik qiymat bilan boshlaymiz
-    long long best = LLONG_MIN;
+    vector<long long> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
 
-    // Har bir chap chegara l uchun
-    for (int l = 1; l <= n; l++) {
-        // Har bir yangi l da yig'indi noldan boshlanadi
-        long long sum = 0;
-        // O'ng chegarani surib, yig'indiga bitta element qo'shamiz
-        for (int r = l; r <= n; r++) {
-            sum += a[r];
-            best = max(best, sum);
+    long long count = 0;
+    for (int i = 0; i < n; i++) {
+        // Faqat o'ngdagi elementlar: har bir juftlik bir marta.
+        for (int j = i + 1; j < n; j++) {
+            if (a[i] + a[j] == k) {
+                count++;
+            }
         }
     }
 
-    // Javobni chiqaramiz
-    cout << best << "\n";
+    cout << count << '\n';
     return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- `long long` — yig'indi $5000 \cdot 10^9 = 5 \cdot 10^{12}$ gacha yetadi, `int` esa faqat $\approx 2{,}1 \cdot 10^9$ gacha sig'adi.
-- `best = LLONG_MIN` — barcha sonlar manfiy bo'lsa ham javob to'g'ri chiqadi.
-- `sum = 0` aynan $l$ siklining **ichida** turibdi: har bir yangi chap chegara uchun yig'indi qaytadan boshlanadi.
+- `j = i + 1` o'zini o'zi tanlash va takror sanashning oldini oladi.
+- `j < n` 0 dan boshlangan indekslashga mos: `a[n]` degan element yo'q.
+- $n=1$ bo'lsa, ichki sikl ishlamaydi. Javob 0 bo'ladi, alohida shart yozish kerak emas.
 
 ## Misol
 
-Testni qo'lda bajaraylik: $a = [2, -5, 3, 4, -1, 2]$. Har bir katakda — $r$ qadamidagi `sum` qiymati.
+$a = [1, 4, 2, 3]$ va $k=5$ uchun dastur bajaradigan barcha tekshiruvlarni yozamiz. Jadvaldagi indekslar koddagidek 0 dan boshlanadi.
 
-| $l$ \ $r$ | 1 | 2 | 3 | 4 | 5 | 6 | Qatordagi eng katta |
-|---|---|---|---|---|---|---|---|
-| 1 | 2 | −3 | 0 | 4 | 3 | 5 | 5 |
-| 2 | | −5 | −2 | 2 | 1 | 3 | 3 |
-| 3 | | | 3 | 7 | 6 | **8** | 8 |
-| 4 | | | | 4 | 3 | 5 | 5 |
-| 5 | | | | | −1 | 1 | 1 |
-| 6 | | | | | | 2 | 2 |
+| $i$ | $j$ | $a_i + a_j$ | Yig'indi 5 ga tengmi? | Tekshiruvdan keyingi `count` |
+|---|---|---|---|---|
+| 0 | 1 | $1+4=5$ | Ha | 1 |
+| 0 | 2 | $1+2=3$ | Yo'q | 1 |
+| 0 | 3 | $1+3=4$ | Yo'q | 1 |
+| 1 | 2 | $4+2=6$ | Yo'q | 1 |
+| 1 | 3 | $4+3=7$ | Yo'q | 1 |
+| 2 | 3 | $2+3=5$ | Ha | 2 |
 
-Har bir qatorda keyingi son oldingisiga bitta $a_r$ qo'shilishidan hosil bo'ladi. Masalan, 3-qatorda: $3 \to 3 + 4 = 7 \to 7 - 1 = 6 \to 6 + 2 = 8$. Eng katta qiymat $8$, u $l = 3$, $r = 6$ da. Javob $8$ — kutilgan natija bilan mos keldi.
+$i=3$ bo'lganda o'ngda element qolmaydi. Jami oltita juftlik tekshirildi, ulardan ikkitasi mos keldi. Dastur 2 chiqaradi.
 
 ## Murakkablik
 
-- **Vaqt:** $O(n^2)$. Ichki sikl jami $\frac{n(n+1)}{2} \approx 1{,}25 \cdot 10^7$ marta ishlaydi — bu $10^8$ dan ancha kam, taxminan 0,1 soniya.
-- **Xotira:** $O(n)$ — faqat massivning o'zi. Dastur egallaydigan xotira hajmining $n$ ga bog'liqligi **xotira murakkabligi (space complexity)** deyiladi. $5000$ ta `long long` atigi 40 KB egallaydi.
+### Tekshiruvlar sonidan Big-O ga
 
-Xotirani ham baholash foydali: odatda chegara 256 MB. $10^6$ ta `int` — 4 MB, $10^6$ ta `long long` — 8 MB. $10^4 \times 10^4$ o'lchamli `int` jadval esa 400 MB — u sig'maydi.
+To'rtta elementda $3+2+1=6$ ta juftlikni tekshirdik. Beshta elementda $4+3+2+1=10$ ta tekshiruv bo'ladi. Umuman, $n$ ta element uchun bu son:
 
-## Variantlar
+$$
+\frac{n(n-1)}{2} = \frac{n^2-n}{2}.
+$$
 
-### Juftliklarni tekshirish
+Har bir juftlikda bitta yig'indi va taqqoslash bor. Bu yerda "tekshiruv" kompyuterning bitta buyrug'i degani emas, lekin ish hajmini baholash uchun qulay birlik.
 
-**Qachon kerak:** "shunday $i < j$ juftliklar sonini toping…" turidagi masalalarda, $n \le 5000$ bo'lsa. Ikkita ichma-ich sikl yetarli:
+Kirish hajmi oshganda bajariladigan ish miqdori qanday o'sishi **vaqt murakkabligi (time complexity)** deyiladi. Juftliklar sonida $n^2$ hadi ustun: $n$ katta bo'lganda uni ikki baravar oshirish ishni taxminan to'rt baravar oshiradi.
 
-```cpp
-long long cnt = 0;
-for (int i = 1; i <= n; i++)
-    for (int j = i + 1; j <= n; j++)
-        if (a[i] + a[j] == k) cnt++;
-```
+**Big-O belgilash (Big-O notation)** o'sish uchun yuqori chegara beradi: yetarlicha katta $n$ da ish miqdori ko'rsatilgan funksiyaning biror o'zgarmas karrasidan oshmaydi. Biz odatda algoritm o'sishini yaqindan ifodalovchi bahoni tanlaymiz. Shu algoritm uchun $O(n^2)$ deb yozamiz.
 
-### Javobning o'zini tanlash
+Quyidagi kabi yig'indi va darajali ifodalarda eng tez o'sadigan hadni qoldirib, o'zgarmas ko'paytuvchini olib tashlash mumkin:
 
-**Qachon kerak:** javob kichik oraliqda yotganda, masalan $1 \le x \le 10^6$. Har bir $x$ ni sinab, uni $O(1)$ yoki $O(\log n)$ vaqtda tekshiramiz. Bu yerda massiv elementlari emas, **mumkin bo'lgan javoblar** tanlanadi.
+| Ish miqdori | Odatda yoziladigan baho | Misol |
+|---|---|---|
+| $7$ | $O(1)$ | Tayyor massivning bitta elementini olish |
+| $3n+2$ | $O(n)$ | Massivni bir marta ko'rib chiqish |
+| $(n^2-n)/2$ | $O(n^2)$ | Barcha juftliklarni tekshirish |
+| $n^3$ | $O(n^3)$ | Har biri $n$ marta ishlaydigan uchta ichma-ich sikl |
 
-### Qism to'plamlar va permutatsiyalar
+$O(1)$ aynan bitta amal degani emas; ish miqdori $n$ oshishiga bog'liq emasligini bildiradi. $O(n)$ bo'lgan ikkita dastur ham amalda turli tezlikda ishlashi mumkin.
 
-**Qachon kerak:** $n \le 20$ (qism to'plamlar, $2^n$ ta) yoki $n \le 10$ (permutatsiyalar, $n!$ ta). Bu brute force'ning eng kuchli ko'rinishi, uni keyingi darsda batafsil ko'ramiz.
+### Cheklovlarda tekshirish
+
+Bizning masalada eng katta $n=5000$. Shunda $5000 \cdot 4999 / 2 = 12\,497\,500$ ta juftlik tekshiriladi. Har bir tekshiruv sodda bo'lgani uchun bu yechimni berilgan vaqt chegarasida sinab ko'rish asosli.
+
+$n=200\,000$ bo'lsa, tekshiruvlar soni $19\,999\,900\,000$ taga yetadi. Xuddi shu kod odatiy bir necha soniyalik chegaralar uchun juda ko'p ish bajaradi. Demak, brute force'ning yaroqliligi masala cheklovlariga bog'liq.
+
+> [!IMPORTANT]
+> $10^8$ ta sodda amal/soniya — faqat qo'pol mo'ljal. Protsessor, kompilyator va sikl ichidagi ish natijaga ta'sir qiladi. Shu songa bo'lib aniq vaqt aytmang; chegaraga yaqin yechimni o'lchab ko'rish kerak.
+
+Quyidagi jadval turli o'sishlarni taqqoslashga yordam beradi. Bu "albatta vaqtga sig'adi" jadvali emas.
+
+| Ish miqdori modeli | Misol hajm | Taxminiy miqdor |
+|---|---|---|
+| $n$ | $10^6$ | $10^6$ |
+| $n\log_2 n$ | $2\cdot10^5$ | $3{,}5\cdot10^6$ |
+| $n^2$ | $5000$ | $2{,}5\cdot10^7$ |
+| $n^3$ | $500$ | $1{,}25\cdot10^8$ |
+| $2^n$ | $20$ | $1\,048\,576$ |
+| $n!$ | $10$ | $3\,628\,800$ |
+
+Masalan, $8\to4\to2\to1$ ketma-ketligida sonni uch marta ikkiga bo'ldik: $\log_2 8=3$. **Ikkilik logarifm (binary logarithm)** — 2 ni qaysi darajaga ko'targanda berilgan son chiqishini ko'rsatadi. Sonni qayta-qayta ikkiga bo'ladigan algoritmlarda shu o'sish uchraydi.
+
+Yana bir misol: $4!=1\cdot2\cdot3\cdot4=24$. **Faktorial (factorial)** — 1 dan berilgan musbat butun songacha bo'lgan sonlarning ko'paytmasi. Bu o'sishlar boshqa darslarda uchraydi; hozir ularning miqyosi turlicha ekanini ko'rish yetarli.
+
+Agar har bir variantni tekshirishning o'zi $n$ qadam olsa, variantlar sonini yana $n$ ga ko'paytiramiz. Masalan, $2^n$ ta variantning har biriga $n$ qadam sarflansa, vaqt $O(n2^n)$ bo'ladi. Bir nechta test bo'lsa, ularning jami ishini ham hisobga olish kerak.
+
+### Xotirani hisoblash
+
+Dastur $n$ ta elementli massiv saqlaydi. Elementlar ikki baravar ko'paysa, massiv uchun kerakli xotira ham ikki baravar oshadi. Kirish hajmi oshganda ishlatiladigan xotira qanday o'sishi **xotira murakkabligi (space complexity)** deyiladi.
+
+Bizda jami xotira $O(n)$. Massivdan tashqari bir nechta o'zgaruvchi bor — qo'shimcha xotira $O(1)$. Odatdagi musobaqa muhitida `long long` 8 bayt egallaydi. $5000$ ta elementning o'zi $40\,000$ bayt, taxminan 40 KB bo'ladi. Juftliklarni alohida saqlamaymiz: tekshiramiz va keyingisiga o'tamiz.
 
 ## Ko'p uchraydigan xatolar
 
-### Yig'indi uchun `int`
+### Bir juftlikni ikki marta sanash
+
+`j = 0` dan boshlash $(0,1)$ va $(1,0)$ ni alohida tekshiradi, o'zini o'zi tanlashga ham yo'l ochadi. Javobni shunchaki ikkiga bo'lish ikkinchi muammoni tuzatmaydi. To'g'risi — boshidanoq `j = i + 1` ishlatish.
+
+### Qiymatlar bilan o'rinlarni adashtirish
+
+Massivni `set` ga aylantirsak, $[2,2,2]$ dagi uchta elementdan bitta qiymat qoladi. Natijada uchta haqiqiy juftlik yo'qoladi. Bu masalada o'rinlar turlicha bo'lishi kerak; qiymatlar teng bo'lishi mumkin.
+
+### Son turi chegarasini tekshirmaslik
+
+Odatdagi 32 bitli `int` ning eng katta qiymati $2\,147\,483\,647$. Masalan, $2\cdot10^9+2\cdot10^9=4\cdot10^9$ unga sig'maydi. Hisob natijasi tanlangan son turiga sig'masligi **to'lib ketish (overflow)** deyiladi. Bizning masalamizning ayni cheklovlarida yig'indi va javob `int` ga sig'adi, lekin cheklovlar kengaysa, bu holat o'zgaradi.
 
 > [!WARNING]
-> ```cpp
-> int sum = 0;
-> ```
-> $5 \cdot 10^{12}$ `int` ga sig'maydi va **to'lib ketish (overflow)** yuz beradi: yig'indi manfiy yoki tasodifiy songa aylanadi. To'g'risi: `long long sum = 0;`. Qoida: yig'indi yoki ko'paytma $2 \cdot 10^9$ dan oshishi mumkin bo'lsa — `long long`.
+> `int` elementlar uchun `long long sum = a[i] + a[j];` yozish qo'shishdagi to'lib ketishdan himoya qilmaydi: qo'shish avval `int` da bajariladi. `1LL * a[i] + a[j]` yozing yoki bizning koddagidek elementlarni `long long` da saqlang. C++ da ishorali butun sonning to'lib ketishi ishonchli natija bermaydi.
 
-### Javobni noldan boshlash
+### Sikllarni faqat sanab xulosa qilish
 
-> [!WARNING]
-> ```cpp
-> long long best = 0;
-> ```
-> $a = [-3, -1, -2]$ uchun bu kod $0$ chiqaradi. Lekin qism massiv bo'sh bo'lmasligi kerak, to'g'ri javob $-1$. To'g'risi: `long long best = LLONG_MIN;` yoki `best = a[1];`.
-
-### `sum = 0` noto'g'ri joyda
-
-> [!WARNING]
-> ```cpp
-> long long sum = 0;
-> for (int l = 1; l <= n; l++)
->     for (int r = l; r <= n; r++) { sum += a[r]; ... }
-> ```
-> Yig'indi bir $l$ dan keyingisiga o'tib qoladi va mutlaqo noto'g'ri qiymatlar chiqadi. `sum = 0` har bir yangi $l$ da, ya'ni tashqi sikl ichida yozilishi shart.
-
-### Chegaralarni aralashtirish
-
-> [!WARNING]
-> ```cpp
-> for (int r = l; r < n; r++)
-> ```
-> Massiv 1-indeksli bo'lsa, bu sikl $a_n$ ni hech qachon qo'shmaydi. Ko'pchilik 0-indeksli odat bilan `r < n` deb yozadi. To'g'risi: 1-indeksda `r <= n`, 0-indeksda `r < n`. Bitta kodda faqat bitta indekslashni ishlating.
-
-### Hisoblamasdan yozish
-
-> [!WARNING]
-> $n \le 2 \cdot 10^5$ bo'lganda $O(n^2)$ yechim yozish: $4 \cdot 10^{10}$ amal, 400 soniya. Kod yozishdan oldin murakkablikni chegaraga qo'yib, $10^8$ bilan solishtiring.
+Ketma-ket turgan ikkita $n$ qadamli sikl jami $2n$ qadam, ya'ni $O(n)$ vaqt oladi. Ichma-ich sikllarda esa ichki sikl necha marta qayta bajarilishini hisoblaymiz. Tashqi sikl $n$, ichki sikl doim 10 marta ishlasa, $10n$ qadam — bu ham $O(n)$.
 
 ## Xulosa
 
-- Brute force — barcha variantlarni tekshirish. U doim to'g'ri, savol faqat vaqtga sig'ishida.
-- Big-O amallar soni $n$ ga qarab qanday o'sishini ko'rsatadi. O'zgarmas ko'paytuvchilar tashlanadi.
-- 1 soniyada $\approx 10^8$ oddiy amal. Murakkablikka $n$ ni qo'ying va shu son bilan solishtiring.
-- Oldingi natijadan foydalanib, ortiqcha qayta hisoblashni olib tashlang: $O(n^3) \to O(n^2)$.
-- Katta yig'indilar uchun `long long` ishlating, javobni esa to'g'ri boshlang'ich qiymat bilan boshlang.
+- Brute force yozishda variant nimadan iboratligini va uni qanday tekshirishni aniq belgilang.
+- To'g'rilik uchun barcha kerakli variantlar ko'rilishini, ortiqchasi sanalmasligini asoslang.
+- Vaqtni baholashda variantlar soni bilan bitta variantni tekshirish ishini birga hisoblang.
+- Big-O o'sishni ifodalaydi. Amaliy yaroqlilikni baholash uchun cheklovlar, son turlari va xotirani ham tekshiring.
 
-**Masalada brute force'ni qanday tanib olish mumkin:** $n$ kichik ($n \le 20$, $n \le 500$, $n \le 5000$); shartda "barcha juftliklar", "barcha qism massivlar", "har bir variant uchun" kabi so'zlar bor; javob kichik oraliqda yotadi. Har qanday masalada esa brute force — sekinroq, lekin ishonchli yechim. U tezroq yechimni tekshirish uchun juda foydali.
+**Qachon bu usulni o'ylab ko'rish kerak?** Mumkin bo'lgan tanlovlar soni oz bo'lsa yoki ularni tekshirish arzon bo'lsa. "Barcha juftliklar" kabi talablar yaxshi ishora, ammo oxirgi qarorni hisob-kitob beradi. Keyingi darsda tanlov ikki element bilan cheklanmagan holatlarni ko'ramiz.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| Brute force | Brute force | Barcha mumkin bo'lgan variantlarni birma-bir tekshirib, to'g'risini topish usuli. |
-| Qism massiv | Subarray | Massivning ketma-ket turgan elementlaridan iborat bo'sh bo'lmagan bo'lagi. |
-| Cheklovlar | Constraints | Masala shartida berilgan kiruvchi qiymatlar chegaralari va vaqt/xotira limiti. |
-| Vaqt chegarasidan oshish | Time Limit Exceeded (TLE) | Dastur berilgan vaqt ichida ishini tugata olmaganda chiqadigan natija. |
-| Vaqt murakkabligi | Time complexity | Dastur bajaradigan amallar sonining $n$ ga qarab o'sishi. |
-| Big-O belgilash | Big-O notation | Murakkablikni faqat eng tez o'suvchi had orqali, o'zgarmas ko'paytuvchilarsiz yozish usuli. |
-| Xotira murakkabligi | Space complexity | Dastur egallaydigan xotira hajmining $n$ ga qarab o'sishi. |
-| To'lib ketish | Overflow | Natija o'zgaruvchi turi sig'dira oladigan eng katta qiymatdan oshib, noto'g'ri songa aylanishi. |
-| 1-indekslash | 1-based indexing | Massiv elementlarini $0$ dan emas, $1$ dan boshlab raqamlash. |
+| Cheklovlar | Constraints | Kirish qiymatlarining masalada ruxsat etilgan chegaralari. |
+| To'liq tanlash | Brute force | Barcha mumkin bo'lgan variantlarni birma-bir tekshirish usuli. |
+| Vaqt murakkabligi | Time complexity | Kirish hajmiga qarab bajariladigan ish miqdorining o'sishi. |
+| Big-O belgilash | Big-O notation | Yetarlicha katta kirishlarda o'sishning yuqori chegarasini ifodalovchi belgilash. |
+| Ikkilik logarifm | Binary logarithm | 2 ni qaysi darajaga ko'targanda berilgan son chiqishini ko'rsatadi; $\log_2 8=3$. |
+| Faktorial | Factorial | 1 dan berilgan musbat butun songacha bo'lgan sonlarning ko'paytmasi. |
+| Xotira murakkabligi | Space complexity | Kirish hajmiga qarab ishlatiladigan xotiraning o'sishi. |
+| To'lib ketish | Overflow | Hisob natijasi tanlangan son turining chegarasidan chiqishi. |
 
-> [!TIP]
-> **O'zingizni tekshiring**
-> 1. $n \le 300$ berilgan. $O(n^3)$ yechim 1 soniyaga sig'adimi?
-> 2. Ikki sikl: tashqisi $i = 1..n$, ichkisi $j = 1..100$. Murakkablik qanday?
-> 3. $n \le 10^5$ da barcha qism massivlarni ko'rib chiqish mumkinmi?
+### O'zingizni tekshiring
+
+Javoblarni ochishdan oldin har birini o'zingiz asoslang.
+
+1. $a=[0,0,0,0]$, $k=0$ bo'lsa, dastur nima chiqaradi? Nega?
+2. Bitta sikl $n$ marta, undan keyingi sikl $n^2$ marta ishlaydi. Jami vaqt murakkabligi qanday?
+3. $n=500$ uchun $O(n^3)$ bahodan dastur 1 soniyaga sig'ishini qat'iy aytish mumkinmi?
+4. Dastur mos juftliklar soni o'rniga kamida bitta mos juftlik borligini aniqlashi kerak bo'lsa, qayerda ertaroq to'xtash mumkin? Eng yomon holatdagi vaqt o'zgaradimi?
 
 <details>
-<summary>Javoblar</summary>
+<summary>Javoblarni ko'rish</summary>
 
-1. Ha: $300^3 = 2{,}7 \cdot 10^7 < 10^8$.
-2. $O(n)$: ichki sikl $n$ ga bog'liq emas, u o'zgarmas $100$ ko'paytuvchi. Lekin $n = 10^7$ da bu $10^9$ amal bo'ladi — o'zgarmas son ham ba'zan muhim.
-3. Yo'q: qism massivlar $\approx 5 \cdot 10^9$ ta, ularni hatto $O(1)$ dan tekshirish ham sig'maydi. Bu masalaning $O(n)$ yechimini prefiks yig'indi mavzusida ko'ramiz.
+1. 6 chiqaradi: $4\cdot3/2=6$ ta turli o'rinlar juftligi bor. Qiymatlar tengligi elementlarni birlashtirmaydi.
+2. $O(n^2)$: ishlar qo'shiladi, $n+n^2$ ichida kvadrat had ustun.
+3. Yo'q. $500^3=125\,000\,000$ — ish miqyosi uchun mo'ljal. Aniq vaqt sikl ichidagi amallar va ishlash muhitiga ham bog'liq.
+4. Birinchi mos juftlik topilganda to'xtash mumkin. Lekin mos juftlik umuman bo'lmasa, hammasi tekshiriladi; eng yomon holatda vaqt hamon $O(n^2)$.
 
 </details>
