@@ -1,83 +1,89 @@
 ---
-summary: "Barcha qism to'plamlar va permutatsiyalarni tartib bilan sanab chiqib, eng yaxshi javobni topish."
+summary: "Qism to'plamlar va permutatsiyalarni to'liq sanash, har birini tekshirish va eng yaxshi javobni tanlash."
 prerequisites: [brute-force]
 ---
 
 ## Kirish
 
-**To'liq qidiruv (complete search)** — masalaning barcha mumkin variantlarini birma-bir ko'rib chiqib, eng yaxshisini tanlash. Ko'p masalalarda variantlar ikki xil ko'rinishda bo'ladi. Birinchisi — elementlardan bir qismini tanlash. Berilgan elementlardan istalgan miqdorda (hatto hech birini yoki hammasini) tanlab olingan to'plam **qism to'plam (subset)** deyiladi. Ikkinchisi — elementlarni qandaydir tartibda joylashtirish (permutatsiyalar).
-
-Bu usul $n$ kichik bo'lgan masalalarda uchraydi: $n \le 20$ yoki $n \le 10$. Shu darsdan keyin siz istalgan $n$ uchun barcha qism to'plamlarni va barcha permutatsiyalarni xatosiz sanab chiqa olasiz.
+Uchta kitobdan istalganlarini safarga olish mumkin. Masalan, faqat birinchisini yoki birinchi va uchinchisini tanlaysiz. Endi uchala kitobni javonga terish kerak bo'lsa, ularning tartibi ham muhim bo'ladi. Bu darsda siz tanlash va tartiblash o'rtasidagi farqni ajratasiz, ikkala holatda ham barcha variantlarni sanaydigan dastur yozasiz.
 
 ## Muammo
 
-**Olmalarni bo'lish.** Sizda $n$ ta olma bor, $i$-olmaning og'irligi $p_i$. Olmalarni ikki guruhga bo'lish kerak (guruhlardan biri bo'sh bo'lishi ham mumkin). Guruhlar og'irliklari orasidagi farq iloji boricha kichik bo'lsin.
+Sizda og'irliklari 3, 2 va 7 bo'lgan uchta yuk bor. Ularni ikki guruhga bo'lish kerak. Birinchi guruhga 3 va 2 ni, ikkinchisiga 7 ni qo'ysak, guruhlar og'irligi 5 va 7 bo'ladi. Ular orasidagi farq 2; bundan kichik farq olish mumkinmi?
 
-- **Kirish:** birinchi qatorda $n$, ikkinchi qatorda $p_1, p_2, \dots, p_n$.
-- **Chiqish:** guruhlar og'irliklari farqining eng kichik qiymati.
-- **Cheklovlar:** $1 \le n \le 20$, $1 \le p_i \le 10^9$. Vaqt — 1 soniya.
+Masalaning umumiy ko'rinishi: $n$ ta yukning og'irliklari $p_0, p_1, \dots, p_{n-1}$ berilgan. Har bir yukni aynan bitta guruhga joylashtiring. Guruhlar jami og'irliklari orasidagi farqning eng kichik qiymatini toping. Guruhlardan biri bo'sh bo'lishi mumkin.
 
-| Kirish | Chiqish |
-|---|---|
-| `5`<br>`3 2 7 4 1` | `1` |
+- **Kirish:** birinchi qatorda $n$, ikkinchi qatorda $n$ ta og'irlik.
+- **Chiqish:** mumkin bo'lgan eng kichik farq.
+- **Cheklovlar:** $1 \le n \le 20$, $1 \le p_i \le 10^9$.
+- Vaqt chegarasi: 2 soniya. Xotira chegarasi: 256 MB.
 
-Masalan, $\{7, 1\}$ guruhining og'irligi $8$, $\{3, 2, 4\}$ guruhiniki esa $9$. Farq $1$.
+Kirish:
 
-Keling, avval $n = 3$ bo'lgan holni yechaylik. Har bir olma birinchi guruhga ($1$) yoki ikkinchi guruhga ($0$) tushadi. Har bir olma uchun bitta sikl yozamiz:
-
-```cpp
-long long best = LLONG_MAX;
-for (int g0 = 0; g0 <= 1; g0++)
-    for (int g1 = 0; g1 <= 1; g1++)
-        for (int g2 = 0; g2 <= 1; g2++) {
-            long long sum1 = g0 * p[0] + g1 * p[1] + g2 * p[2];
-            long long sum2 = total - sum1;
-            best = min(best, llabs(sum1 - sum2));
-        }
+```text
+3
+3 2 7
 ```
 
-Bu kod $2 \cdot 2 \cdot 2 = 8$ ta bo'linishni ko'rib chiqadi va to'g'ri ishlaydi. Lekin $n = 20$ bo'lsa-chi? Unda 20 ta ichma-ich sikl kerak. $n$ esa kirishda beriladi, ya'ni oldindan noma'lum. **Bu yerda muammo tezlikda emas, kodni yozib bo'lmasligida.** Variantlar soni $2^{20} = 1\,048\,576$ — kompyuter uchun bu juda kam. Bizga faqat ichma-ich sikllarsiz, istalgan $n$ uchun ishlaydigan sanash usuli kerak.
+Chiqish:
+
+```text
+2
+```
+
+"Brute force va Big-O" darsida barcha juftliklarni ko'rdik. Bu safar birinchi guruhga ikkita yuk tushishi shart emas: hech biri, bittasi yoki bir nechtasi tushishi mumkin. Demak, ikkita indeks tanlaydigan sikllar yetmaydi. Har bir yuk uchun alohida "olamiz yoki olmaymiz" qarori kerak.
 
 ## G'oya
 
-**Har bir bo'linishni $n$ ta raqamdan iborat 0/1 satr deb qaraymiz va bu satrni hisoblagich kabi bittalab oshirib boramiz.**
+### Tanlovni 0 va 1 bilan yozish
 
-Keling, $n = 3$ uchun barcha 8 ta satrni yozaylik. $i$-raqam $1$ bo'lsa, $i$-olma birinchi guruhda:
+Yuklarning tartibini $[3,2,7]$ deb belgilaymiz. `101` yozuvi birinchi va uchinchi yukni birinchi guruhga olishni bildiradi. Ikkinchi yuk ikkinchi guruhga tushadi. Bu yerda raqamlarning qiymatini ikkilik son sifatida hisoblash shart emas — ular faqat tanlov belgilari.
 
-| № | Satr | Birinchi guruhdagi olmalar |
-|---|---|---|
-| 1 | `000` | hech qaysi |
-| 2 | `001` | 3-olma |
-| 3 | `010` | 2-olma |
-| 4 | `011` | 2- va 3-olma |
-| 5 | `100` | 1-olma |
-| 6 | `101` | 1- va 3-olma |
-| 7 | `110` | 1- va 2-olma |
-| 8 | `111` | hammasi |
+Berilgan elementlardan ayrimlarini tanlash natijasi **qism to'plam (subset)** deyiladi. Hech birini tanlamaslik ham, hammasini tanlash ham mumkin. Biz yuklarni o'rinlari orqali farqlaymiz: og'irligi teng ikki yuk ham ikkita alohida tanlovdir.
 
-Bu ro'yxat mashinadagi yo'l hisoblagichiga (odometrga) o'xshaydi. Faqat har bir g'ildirakda ikkita raqam bor: $0$ va $1$. Eng o'ng g'ildirak har qadamda aylanadi. U $1$ dan $0$ ga o'tganda chapdagi qo'shni g'ildirakni ham bir qadam suradi.
+**Birinchi guruhga qaysi yuklar kirishini bilsak, ikkinchi guruh ham to'liq aniqlanadi.** Shuning uchun ikki guruhni alohida sanamaymiz. `chosen[i]` birinchi guruhga $i$-yuk kirsa 1, aks holda 0 bo'ladi.
 
-Bundan keyingi satrni olish qoidasi kelib chiqadi:
+Uchta yuk uchun tanlovlar quyidagicha:
 
-1. O'ngdan chapga qarab birinchi $0$ ni qidiramiz.
-2. Yo'lda uchragan barcha $1$ larni $0$ ga aylantiramiz.
-3. Topilgan $0$ ni $1$ ga aylantiramiz.
-4. Agar $0$ umuman topilmasa, satr `111...1` bo'lgan bo'ladi. Demak, barcha variantlar ko'rib chiqildi.
+```text
+000 → 001 → 010 → 011 → 100 → 101 → 110 → 111
+```
 
-Qoidani `011` satrida tekshiramiz. O'ngdan ikkita $1$ ni o'tamiz va ularni $0$ qilamiz. Keyin $0$ ni topib, $1$ qilamiz. Natija `100` — jadvaldagi 5-satrning o'zi.
+Har bir yangi yuk oldingi har bir variantni ikkiga ajratadi: uni olmaymiz yoki olamiz. Bitta yukda 2 ta, ikkita yukda 4 ta, uchtada 8 ta variant bor. Umuman, $n$ ta yuk uchun $2^n$ ta tanlov chiqadi.
+
+### Keyingi tanlovga o'tish
+
+`011` dan `100` ga qanday o'tamiz? O'ngdagi 1 ni 0 qilamiz. Uning chapidagi 1 ni ham 0 qilamiz. Keyingi 0 ni 1 qilamiz va to'xtaymiz.
+
+Bu hisoblagichga o'xshaydi: raqam eng katta qiymatiga yetganda nollanadi va uning chapidagi raqam oshadi. Faqat bizda raqamlar 0 va 1 dan iborat.
+
+1. `chosen` massivini nollar bilan boshlaymiz va joriy tanlovni tekshiramiz.
+2. O'ngdan yurib, ketma-ket uchragan 1 larni 0 qilamiz.
+3. Birinchi uchragan 0 ni 1 qilib, yangi tanlovni tekshirishga qaytamiz.
+4. Chap chetdan chiqib ketsak, oxirgi tanlov ham tekshirilgan bo'ladi — tugatamiz.
 
 > [!NOTE]
-> To'xtang va o'ylang: $n = 4$ bo'lsa, `0111` dan keyin qaysi satr keladi? `1111` dan keyin-chi?
+> To'xtang va o'ylang: `101` dan keyin nima keladi? `111` dan keyin-chi?
 
-`0111` dan keyin `1000` keladi: o'ngdagi uchta $1$ nolga aylanadi, chapdagi $0$ esa birga. `1111` da esa $0$ yo'q, demak sanash shu yerda tugaydi.
+`101` dan keyin `110` keladi. `111` da esa almashtirilmagan 0 qolmaydi, shuning uchun sanash tugaydi. Oxirgi variantni ham tekshirish uchun keyingi tanlovga o'tishni hisoblashdan keyin bajaramiz.
 
-Nega bu usul hech bir variantni o'tkazib yubormaydi? Har bir qadam hisoblagichni aynan bittaga oshiradi. Hisoblagich `00...0` dan boshlanib, `11...1` da tugaydi. Bu ikki satr orasida hech qaysi satr ikki marta uchramaydi va hech biri tushib qolmaydi. Har bir raqamda 2 ta tanlov bor, shuning uchun jami $2^n$ ta satr chiqadi.
+### Har bir tanlovdan javob olish
 
-Har bir satr uchun birinchi guruh og'irligini $sum_1$ deb hisoblaymiz. Ikkinchi guruh og'irligi $sum_2 = total - sum_1$, bu yerda $total$ — barcha olmalar og'irligi. Javob — barcha satrlar ichida $|sum_1 - sum_2|$ ning eng kichigi.
+Bizning misolda umumiy og'irlik $3+2+7=12$. `101` tanlovida birinchi guruh $3+7=10$, ikkinchisi $12-10=2$ bo'ladi. Farq 8. `110` tanlovida esa guruhlar 5 va 7, farq 2.
+
+Umumiy og'irlikni $T$, birinchi guruhnikini $S$ deb olsak, ikkinchi guruhniki $T-S$. Farq $|S-(T-S)|$ ga teng. **Mutlaq qiymat (absolute value)** sonning ishorasiz kattaligi: masalan, $|-8|=8$. Shuning uchun guruhlarni qaysi tartibda ayirishimiz natijani o'zgartirmaydi.
+
+### Nega hech bir variant qolib ketmaydi?
+
+Avval oxirgi belgi 0 bo'lgan tanlov, keyin u 1 bo'lgan tanlov keladi. Bu ikkisi tugagach, chapdagi belgilar keyingi holatga o'tadi va oxirgi belgi yana 0 dan boshlanadi. Xuddi shu qoida barcha o'rinlarda ishlaydi. Natijada har bir 0/1 tanlov bir marta olinadi.
+
+Har bir bo'linish shu tanlovlardan biriga mos keladi. Dastur har birida to'g'ri farqni hisoblab, eng kichigini saqlaydi. Demak, oxirida eng yaxshi bo'linishning farqi qoladi.
+
+Guruhlar o'rnini almashtirish bir xil farq beradi: masalan, `001` va `110`. Eng kichik qiymatni izlashda ularni qayta tekshirish javobni buzmaydi. Lekin turli bo'linishlarni **sanash** masalasida bunday takrorlarni alohida hisobga olish kerak.
 
 ## Amalga oshirish
 
-Massiv bu yerda 0-indeksli: olmalar $p_0, \dots, p_{n-1}$.
+Indekslar 0 dan boshlanadi. `chosen` ham, og'irliklar massivi ham bir xil indekslashdan foydalanadi.
 
 ```cpp
 #include <bits/stdc++.h>
@@ -87,7 +93,6 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // Kirishni o'qiymiz va umumiy og'irlikni hisoblaymiz
     int n;
     cin >> n;
     vector<long long> p(n);
@@ -97,192 +102,172 @@ int main() {
         total += p[i];
     }
 
-    // group[i] == 1 bo'lsa, i-olma birinchi guruhda
-    vector<int> group(n, 0);
+    vector<int> chosen(n, 0);
     long long best = total;
 
     while (true) {
-        // Joriy bo'linishda guruhlar og'irligini hisoblaymiz
-        long long sum1 = 0;
+        // Joriy tanlovdagi birinchi guruh og'irligi.
+        long long first = 0;
         for (int i = 0; i < n; i++) {
-            if (group[i] == 1) sum1 += p[i];
+            if (chosen[i] == 1) first += p[i];
         }
-        long long sum2 = total - sum1;
-        best = min(best, llabs(sum1 - sum2));
+        long long second = total - first;
+        best = min(best, abs(first - second));
 
-        // Hisoblagichni bittaga oshiramiz: o'ngdagi 1 larni 0 qilamiz
+        // Keyingi tanlov: o'ngdagi 1 larni 0 qilamiz.
         int pos = n - 1;
-        while (pos >= 0 && group[pos] == 1) {
-            group[pos] = 0;
+        while (pos >= 0 && chosen[pos] == 1) {
+            chosen[pos] = 0;
             pos--;
         }
-
-        // 0 topilmadi: barcha variantlar ko'rib chiqildi
         if (pos < 0) break;
-        group[pos] = 1;
+        chosen[pos] = 1;
     }
 
-    cout << best << "\n";
+    cout << best << '\n';
     return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- `best` boshida `total` ga teng. Bu barcha olmalar bitta guruhda bo'lgan holat, undan katta farq bo'lmaydi.
-- Og'irliklar `long long` da saqlanadi: $20 \cdot 10^9 = 2 \cdot 10^{10}$ soni `int` ga sig'maydi.
-- Ichki `while` — hisoblagichning o'zi. Undagi `pos >= 0` sharti birinchi turadi, aks holda `group[-1]` ga murojaat bo'ladi.
-- Tashqi sikl roppa-rosa $2^n$ marta aylanadi va `11...1` satrdan keyin to'xtaydi.
+- `best = total` — hamma yuk bir guruhda bo'lgan haqiqiy bo'linishning farqi.
+- `long long` kerak: jami og'irlik $20\cdot10^9=2\cdot10^{10}$ gacha yetadi.
+- Avval joriy tanlov tekshiriladi, keyin hisoblagich o'zgaradi. Shunda `000...0` ham qolib ketmaydi.
+- `pos >= 0` birinchi tekshiriladi: `pos` manfiy bo'lsa, `chosen[pos]` o'qilmaydi.
 
 ## Misol
 
-Testni olaylik: $p = [3, 2, 7, 4, 1]$, $total = 17$. Hisoblagichning birinchi 8 qadami:
+$p=[3,2,7]$, umumiy og'irlik 12. Jadval hisoblagichning barcha sakkiz holatini ko'rsatadi.
 
-| Qadam | `group` | Birinchi guruhdagi og'irliklar | $sum_1$ | $sum_2$ | $\lvert sum_1 - sum_2 \rvert$ | `best` |
-|---|---|---|---|---|---|---|
-| 1 | `00000` | — | 0 | 17 | 17 | 17 |
-| 2 | `00001` | 1 | 1 | 16 | 15 | 15 |
-| 3 | `00010` | 4 | 4 | 13 | 9 | 9 |
-| 4 | `00011` | 4, 1 | 5 | 12 | 7 | 7 |
-| 5 | `00100` | 7 | 7 | 10 | 3 | 3 |
-| 6 | `00101` | 7, 1 | 8 | 9 | **1** | **1** |
-| 7 | `00110` | 7, 4 | 11 | 6 | 5 | 1 |
-| 8 | `00111` | 7, 4, 1 | 12 | 5 | 7 | 1 |
+| `chosen` | Birinchi guruh | $S$ | $T-S$ | Farq | `best` |
+|---|---|---|---|---|---|
+| `000` | Bo'sh | 0 | 12 | 12 | 12 |
+| `001` | 7 | 7 | 5 | 2 | 2 |
+| `010` | 2 | 2 | 10 | 8 | 2 |
+| `011` | 2, 7 | 9 | 3 | 6 | 2 |
+| `100` | 3 | 3 | 9 | 6 | 2 |
+| `101` | 3, 7 | 10 | 2 | 8 | 2 |
+| `110` | 3, 2 | 5 | 7 | 2 | 2 |
+| `111` | 3, 2, 7 | 12 | 0 | 12 | 2 |
 
-6-qadamda `best = 1` bo'ldi. Qolgan 24 qadamda u kamaymaydi. Sababi oddiy: $total = 17$ toq son, shuning uchun ikki guruh hech qachon teng bo'lolmaydi va farq kamida $1$. Dastur `1` chiqaradi — bu kutilgan javob.
+Hech bir holatda farq 2 dan kamaymadi. Dastur 2 chiqaradi; bu Muammo bo'limidagi javob bilan mos.
 
 ## Murakkablik
 
-Hisoblagich $2^n$ ta satrni ko'rib chiqadi. Har bir satr uchun $sum_1$ ni $O(n)$ da hisoblaymiz. Jami vaqt murakkabligi $O(n \cdot 2^n)$.
+$2^n$ ta tanlovning har birida $n$ ta belgini ko'ramiz. Hisoblagichni o'zgartirish ham ko'pi bilan $n$ qadam oladi. Jami vaqt $O(n2^n)$, xotira $O(n)$: barcha tanlovlarni saqlamaymiz, faqat joriysini saqlaymiz.
 
-$n = 20$ da bu $20 \cdot 1\,048\,576 \approx 2 \cdot 10^7$ amal. 1 soniyada $\approx 10^8$ amal bajarilishini eslasak, bemalol ulguramiz. $n = 30$ da esa $30 \cdot 2^{30} \approx 3 \cdot 10^{10}$ amal — bu 1 soniyaga sig'maydi. Shuning uchun **qism to'plamlar bo'yicha qidiruvning chegarasi taxminan $n \le 20$**.
-
-Xotira $O(n)$: faqat `p` va `group` massivlari saqlanadi.
+$n=20$ da $2^{20}=1\,048\,576$ ta tanlov bor. Faqat og'irliklarni tekshirishning o'zi $20\cdot2^{20}=20\,971\,520$ ta element ko'rish demakdir. $n=30$ da esa bu miqdor $32$ milliarddan oshadi. "Brute force va Big-O" darsidagi kabi, variantlar sonini ularni tekshirish xarajatiga ko'paytiramiz; aniq soniyalarni esa faqat shu hisobdan aytmaymiz.
 
 ## Variantlar
 
-### Permutatsiyalar: tartib muhim bo'lganda
+### Tartib muhim bo'lsa: permutatsiyalar
 
-Ba'zi masalalarda elementlarni tanlash emas, ularni tartiblash kerak: navbat, yo'nalish, joylashtirish. Elementlarning mumkin bo'lgan har bir tartibi **permutatsiya (permutation)** deyiladi. Bunday masalalarda barcha permutatsiyalarni ko'rib chiqamiz.
+Uchta kitobni A, B, C deb belgilaylik. Ularni javonga `A B C` yoki `B A C` tartibida terish — ikki xil variant. Elementlarning har birini aynan bir marta ishlatadigan tartib **permutatsiya (permutation)** deyiladi.
 
-$1, 2, 3$ sonlarining permutatsiyalari 6 ta. Ularni lug'aviy tartibda yozamiz. **Lug'aviy tartib (lexicographic order)** — ketma-ketliklarni lug'atdagi so'zlar kabi solishtirish: birinchi farq qiladigan o'rindagi kichik element qaysi ketma-ketlikda bo'lsa, o'sha oldin turadi.
+Birinchi o'ringa uchta kitobdan birini, ikkinchisiga qolgan ikkitadan birini qo'yamiz. Oxirgisiga bitta kitob qoladi: $3\cdot2\cdot1=6$ ta tartib. Umuman, $n$ ta turli element uchun $n!$ ta permutatsiya bor. Faktorial bilan oldingi darsda tanishganmiz.
 
-| № | 1 | 2 | 3 | 4 | 5 | 6 |
-|---|---|---|---|---|---|---|
-| Permutatsiya | `1 2 3` | `1 3 2` | `2 1 3` | `2 3 1` | `3 1 2` | `3 2 1` |
+STL'dagi `next_permutation` joriy ketma-ketlikni **lug'aviy tartibdagi (lexicographic order)** keyingisiga o'zgartiradi. Bu tartibda ketma-ketliklar birinchi farq qiladigan element bo'yicha solishtiriladi: masalan, `1 3 2` ketma-ketligi `2 1 3` dan oldin keladi, chunki birinchi o'rinda $1<2$.
 
-STL'dagi `next_permutation` massivni shu ro'yxatdagi keyingi permutatsiyaga aylantiradi. Agar massiv oxirgi permutatsiya bo'lsa (`3 2 1`), u `false` qaytaradi. Shuning uchun **sanash saralangan massivdan boshlanishi shart**.
+| Qadam | Joriy permutatsiya | Keyingi holat |
+|---|---|---|
+| 1 | `1 2 3` | `1 3 2` |
+| 2 | `1 3 2` | `2 1 3` |
+| 3 | `2 1 3` | `2 3 1` |
+| 4 | `2 3 1` | `3 1 2` |
+| 5 | `3 1 2` | `3 2 1` |
+| 6 | `3 2 1` | Tugaydi; funksiya `false` qaytaradi |
 
-Permutatsiyalar soni $n!$ ga teng va juda tez o'sadi:
+Oxirgi holatda funksiya ketma-ketlikni eng kichik tartibga qaytaradi. Barcha variantlarni olish uchun saralangan holatdan boshlaymiz va birinchi holatni ham tekshiramiz.
 
-| $n$ | 5 | 8 | 10 | 11 | 12 |
-|---|---|---|---|---|---|
-| $n!$ | 120 | 40 320 | 3 628 800 | 39 916 800 | 479 001 600 |
-
-Har bir permutatsiyani $O(n)$ da tekshirsak, $n = 10$ da $\approx 3{,}6 \cdot 10^7$ amal bo'ladi — ulguramiz. $n = 12$ da esa $\approx 5{,}7 \cdot 10^9$ — ulgurmaymiz. Demak, permutatsiyalar bo'yicha qidiruvning chegarasi taxminan $n \le 10$.
-
-Misol masala: $n \le 9$ ta shahar va ular orasidagi masofalar `d[i][j]` berilgan. Barcha shaharlarni bir martadan aylanib, boshlang'ich shaharga qaytadigan eng qisqa yo'lni toping. Bu mashhur **kommivoyajer masalasi (Travelling Salesman Problem, TSP)** — katta $n$ uchun uning tez yechimi ma'lum emas, kichik $n$ uchun esa to'liq qidiruv yetarli.
-
-```cpp
-vector<int> order(n);
-for (int i = 0; i < n; i++) order[i] = i;  // saralangan holatdan boshlaymiz
-
-long long best = LLONG_MAX;
-do {
-    // Shaharlarni order tartibida aylanamiz
-    long long len = 0;
-    for (int i = 0; i + 1 < n; i++) len += d[order[i]][order[i + 1]];
-    len += d[order[n - 1]][order[0]];  // boshlang'ich shaharga qaytamiz
-    best = min(best, len);
-} while (next_permutation(order.begin(), order.end()));
-```
-
-Bu yerda `do-while` ishlatilgan: birinchi permutatsiya `next_permutation` chaqirilishidan oldin tekshiriladi.
-
-### Har bir element uchun $k$ ta tanlov
-
-Ba'zan har bir element uchun ikkita emas, ko'proq tanlov bo'ladi. Masalan, olmalarni uchta guruhga bo'lish kerak. Unda hisoblagichning har bir g'ildiragida $0, 1, \dots, k-1$ raqamlari bo'ladi. Kodda faqat ikki joy o'zgaradi:
+Masalan, 1 dan $n$ gacha sonlarni shunday joylashtirish kerakki, yonma-yon sonlar farqining mutlaq qiymati kamida 2 bo'lsin. Shunday tartiblar sonini topamiz, $1\le n\le9$. Bu endi alohida mashq: quyidagi to'liq dastur faqat $n$ ni o'qiydi.
 
 ```cpp
-while (pos >= 0 && group[pos] == k - 1) {  // eng katta raqamni 0 qilamiz
-    group[pos] = 0;
-    pos--;
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+    vector<int> order(n);
+    for (int i = 0; i < n; i++) order[i] = i + 1;
+
+    long long count = 0;
+    do {
+        // Joriy tartibdagi barcha qo'shnilarni tekshiramiz.
+        bool valid = true;
+        for (int i = 0; i + 1 < n; i++) {
+            if (abs(order[i] - order[i + 1]) < 2) {
+                valid = false;
+                break;
+            }
+        }
+        if (valid) count++;
+    } while (next_permutation(order.begin(), order.end()));
+
+    cout << count << '\n';
+    return 0;
 }
-if (pos < 0) break;
-group[pos]++;  // keyingi raqamga o'tamiz
 ```
 
-Variantlar soni $k^n$. Masalan, $k = 3$, $n = 12$ da $3^{12} = 531\,441$ ta variant.
+$n=4$ da mos tartiblar `2 4 1 3` va `3 1 4 2`; javob 2. $n=1$ da tekshiriladigan qo'shnilar yo'q, yagona tartib shartga mos va javob 1.
 
-Keyingi mavzularda qism to'plamlarni sanashning yana ikki usulini ko'ramiz: rekursiya bilan ("Backtracking" darsida) va bitlar bilan ("Bitmask bilan qism to'plamlarni sanash" darsida). G'oya o'sha-o'sha: har bir element uchun "olamiz yoki olmaymiz".
+Har bir tartibni tekshirish va keyingisiga o'tish ko'pi bilan $O(n)$ vaqt oladi. Jami vaqt $O(n\cdot n!)$, xotira $O(n)$. $n=9$ da $9!=362\,880$, lekin $n=12$ da $12!=479\,001\,600$. Hatto tekshirish xarajatini qo'shmasdan ham o'sish juda tezligini ko'ramiz.
+
+> [!IMPORTANT]
+> Qism to'plamda "qaysilarini olamiz?", permutatsiyada "qaysi tartibda joylaymiz?" deb so'raymiz. $2^n$ va $n!$ bir xil variantlarni sanamaydi.
 
 ## Ko'p uchraydigan xatolar
 
-### Saralanmagan massivdan boshlash
+### Hisoblagichni noto'g'ri tekshirish
 
-> [!WARNING]
-> ```cpp
-> vector<int> a = {3, 1, 2};
-> do { /* ... */ } while (next_permutation(a.begin(), a.end()));
-> ```
-> `next_permutation` joriy tartibdan keyingilarini beradi. `3 1 2` dan oldingi permutatsiyalar (`1 2 3`, `1 3 2`, `2 1 3`, `2 3 1`) umuman ko'rilmaydi. To'g'risi — avval saralash: `sort(a.begin(), a.end());`
+`while (chosen[pos] == 1 && pos >= 0)` yozilsa, `pos=-1` da mavjud bo'lmagan element o'qiladi. Bu **massiv chegarasidan chiqish (out of bounds)** — massivning ruxsat etilmagan indeksiga murojaat qilish. Chegarani oldin tekshiring: `pos >= 0 && chosen[pos] == 1`.
 
-### `do-while` o'rniga `while`
+### Bo'sh tanlovni sababsiz tashlab ketish
 
-> [!WARNING]
-> ```cpp
-> while (next_permutation(a.begin(), a.end())) { /* ... */ }
-> ```
-> Bu holda birinchi permutatsiya (saralangan massiv) tekshirilmay qoladi. Ko'pincha javob aynan o'sha permutatsiyada bo'ladi. To'g'risi — `do { ... } while (next_permutation(...));`
+Bu masalada guruh bo'sh bo'lishi mumkin. Ayniqsa $n=1$ da javob aynan yagona yukning og'irligi bo'ladi. Boshqa masalada ikkala guruh bo'sh bo'lmasligi talab qilinsa, mos kelmagan tanlovlarni alohida chiqarib tashlash kerak. Sanash tartibi bilan masala shartiga moslikni ajrating.
 
-### Hisoblagich shartida tartib
+### Permutatsiyani o'zgartirib, keyin tekshirish
 
-> [!WARNING]
-> ```cpp
-> while (group[pos] == 1 && pos >= 0) { ... }
-> ```
-> `pos = -1` bo'lganda avval `group[-1]` o'qiladi. Massivda mavjud bo'lmagan indeksga murojaat qilish **massiv chegarasidan chiqish (out of bounds)** deyiladi: dastur noto'g'ri ishlashi yoki qulashi mumkin. To'g'risi — chegarani birinchi tekshirish: `while (pos >= 0 && group[pos] == 1)`.
+`while (next_permutation(...))` tananing birinchi bajarilishidan oldin tartibni o'zgartiradi. Natijada boshlang'ich permutatsiya tekshirilmaydi. `do-while` bilan avval tekshiring, keyin o'zgartiring. Boshlang'ich massivni esa saralang; aks holda undan oldingi tartiblar qolib ketadi.
 
-### `int` da to'lib ketish
+### Teng qiymatli elementlarni chalkashtirish
 
-> [!WARNING]
-> ```cpp
-> int sum1 = 0;  // p_i <= 1e9, n = 20
-> ```
-> 20 ta olma og'irligi $2 \cdot 10^{10}$ gacha yetadi, `int` esa taxminan $2{,}1 \cdot 10^9$ gacha sig'adi. Natijada to'lib ketish bo'ladi va javob noto'g'ri chiqadi. To'g'risi — `long long sum1 = 0;`
+`[1,1,2]` qiymatlari uchun `next_permutation` uchta turli qiymatlar ketma-ketligini beradi: `112`, `121`, `211`. Agar ikkita 1 aslida alohida odamlar yoki buyumlar bo'lsa, ularning o'rnini almashtirish ham boshqa variant bo'lishi mumkin. Bunday holatda qiymatlarni emas, turli indekslarni tartiblang.
 
 ## Xulosa
 
-- To'liq qidiruv barcha variantlarni ko'rib chiqadi, shuning uchun u doim to'g'ri javob beradi. Faqat variantlar soni vaqtga sig'ishi kerak.
-- Qism to'plamlar soni $2^n$: bunday qidiruv $n \le 20$ gacha ishlaydi.
-- Permutatsiyalar soni $n!$: bunday qidiruv $n \le 10$ gacha ishlaydi. `next_permutation` saralangan massivdan va `do-while` bilan ishlatiladi.
-- Qism to'plamlarni 0/1 hisoblagich bilan ichma-ich sikllarsiz, istalgan $n$ uchun sanash mumkin.
+- Variantni avval aniq tasvirlang: qism to'plam uchun har bir elementni olish yoki olmaslikni belgilaymiz.
+- 0/1 hisoblagich bilan $2^n$ ta tanlovni rekursiya va bit amallarisiz sanash mumkin.
+- Tartib muhim bo'lsa, permutatsiyalarni tekshiramiz; turli elementlarda ular $n!$ ta.
+- To'liq sanashning o'zi yetmaydi: shartni to'g'ri tekshirish va javobni to'g'ri yangilash ham kerak.
 
-**Masalada bu texnikani qanday tanib olish mumkin:** $n$ juda kichik ($n \le 20$ yoki $n \le 10$), shartda "bir nechtasini tanlang", "ikki guruhga bo'ling", "qaysi tartibda", "barcha usullar orasida eng yaxshisi" kabi so'zlar bor.
+**Qachon qo'llash mumkin?** Elementlar soni kichik bo'lsa, avval variantlar sonini hisoblang. So'ng har birini tekshirish qancha ish olishini baholang. Rekursiya, backtracking va bitmask darslarida tanlovlarni sanashning boshqa usullarini ko'ramiz.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| To'liq qidiruv | Complete search | Masalaning barcha mumkin variantlarini ko'rib chiqib, eng yaxshisini tanlash. |
-| Qism to'plam | Subset | Berilgan elementlardan istalgan miqdorda (bo'sh yoki to'liq ham) tanlab olingan to'plam. $n$ ta elementning $2^n$ ta qism to'plami bor. |
-| Permutatsiya | Permutation | Elementlarning mumkin bo'lgan bitta tartibi. $n$ ta turli elementning $n!$ ta permutatsiyasi bor. |
-| Faktorial | Factorial | $n! = 1 \cdot 2 \cdot \ldots \cdot n$ — $n$ ta elementni tartiblash usullari soni. |
-| Lug'aviy tartib | Lexicographic order | Ketma-ketliklarni lug'atdagi so'zlar kabi, birinchi farq qiladigan element bo'yicha solishtirish. |
-| Kommivoyajer masalasi | Travelling Salesman Problem (TSP) | Barcha shaharlarni bir martadan aylanib, boshiga qaytadigan eng qisqa yo'lni topish masalasi. |
-| Massiv chegarasidan chiqish | Out of bounds | Massivda mavjud bo'lmagan indeksdagi elementga murojaat qilish. |
+| Qism to'plam | Subset | Berilgan elementlardan tanlab olingan qism; bo'sh tanlov ham mumkin. |
+| Mutlaq qiymat | Absolute value | Sonning ishorasiz kattaligi. |
+| Permutatsiya | Permutation | Har bir element aynan bir marta qatnashadigan tartib. |
+| Lug'aviy tartib | Lexicographic order | Ketma-ketliklarni birinchi farq qiladigan element bo'yicha solishtirish tartibi. |
+| Massiv chegarasidan chiqish | Out of bounds | Massivda ruxsat etilmagan indeksga murojaat qilish. |
 
-> [!TIP]
-> **O'zingizni tekshiring**
-> 1. $n = 15$ bo'lsa, qism to'plamlar bo'yicha qidiruv nechta variantni ko'rib chiqadi?
-> 2. $n = 13$ bo'lsa, permutatsiyalar bo'yicha qidiruv 1 soniyaga sig'adimi?
-> 3. `group = 10111` bo'lsa, hisoblagichdan keyin qanday satr chiqadi?
+### O'zingizni tekshiring
+
+1. `chosen = 10111` bo'lsa, keyingi tanlov qanday? Beshta elementda jami nechta tanlov bor?
+2. Og'irliklar $[5,5]$ bo'lsa, eng kichik farq qancha? Birinchi guruhga faqat bitta yukni olishning nechta usuli bor?
+3. $n=20$ da permutatsiyalarni sanashni ham qism to'plamlar kabi bemalol ishlatish mumkinmi?
+4. `[1,1,2]` qiymatlarini va ularning uchta turli indeksini tartiblashda variantlar soni nega farq qiladi?
 
 <details>
-<summary>Javoblar</summary>
+<summary>Javoblarni ko'rish</summary>
 
-1. $2^{15} = 32\,768$ ta variant.
-2. Yo'q: $13! \approx 6{,}2 \cdot 10^9$, bu $10^8$ dan ancha ko'p.
-3. `11000`: o'ngdagi uchta $1$ nolga aylanadi, ulardan chapdagi $0$ esa $1$ ga.
+1. `11000`; $2^5=32$ ta tanlov bor.
+2. Farq 0. Bitta yukni olishning ikki usuli bor: birinchi yoki ikkinchi yuk tanlanadi.
+3. Yo'q. $2^{20}=1\,048\,576$, lekin $20!\approx2{,}43\cdot10^{18}$. Variantlar soni mutlaqo boshqa miqyosda.
+4. Qiymatlar bo'yicha uchta turli ketma-ketlik bor. Indekslar turli bo'lgani uchun ularning $3!=6$ ta tartibi bor; teng qiymatli elementlar o'rnini almashtirish ham alohida hisoblanadi.
 
 </details>
