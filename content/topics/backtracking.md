@@ -1,294 +1,249 @@
 ---
-summary: "Yechimni qadamma-qadam quradigan va noto'g'ri yo'lni darhol tashlab, orqaga qaytadigan qidiruv usuli."
+summary: "Yechimni qadamma-qadam qurish, natija bermaydigan davomlarni kesish va tanlovdan keyin holatni tiklash."
 prerequisites: [recursion, complete-search]
 ---
 
 ## Kirish
 
-To'liq qidiruvda biz barcha variantlarni oxirigacha quramiz va faqat keyin tekshiramiz. Ko'p masalalarda esa variant yarim yo'lda ham "buzilgan"ligi ko'rinib turadi. **Backtracking** — yechimni bo'lakma-bo'lak quradigan va xato bo'lak qo'yilishi bilan shu yo'lni tashlab, orqaga qaytadigan usul.
-
-Bu usul farzinlarni joylashtirish, sudoku, labirint, berilgan yig'indili kombinatsiyalarni topish kabi masalalarda uchraydi. Shu darsdan keyin siz to'liq qidiruvni keraksiz shoxlarsiz, bir necha ming marta tezroq yozishni o'rganasiz.
+1, 2, 3, 4 sonlarini bir qatorga joylashtiraylik. Yonma-yon sonlarning farqi kamida 2 bo'lishi kerak bo'lsa, `1 2` deb boshlangan tartibni davom ettirishdan foyda yo'q. Qolgan sonlarni qayerga qo'ymaylik, boshidagi qo'shnilar shartni buzib turaveradi. Bu darsda siz shunday holatlarni erta to'xtatish va oldingi tanlovga qaytib, boshqasini sinashni o'rganasiz.
 
 ## Muammo
 
-$n \times n$ shaxmat taxtasiga $n$ ta farzinni (ferz) shunday qo'yish kerakki, hech qaysi ikkitasi bir-birini urmasin. Farzin o'z qatori, ustuni va ikkala diagonali bo'ylab uradi. Nechta usul borligini toping.
+1 dan $n$ gacha bo'lgan sonlarni har biri aynan bir marta qatnashadigan qilib joylashtiring. Har bir yonma-yon juftlik farqining mutlaq qiymati kamida 2 bo'lsin. Shunday tartiblar sonini toping.
 
-- **Kirish:** bitta son $n$ ($1 \le n \le 12$).
-- **Chiqish:** joylashtirishlar soni.
+- **Kirish:** bitta butun son $n$.
+- **Chiqish:** shartga mos tartiblar soni.
+- **Cheklovlar:** $1\le n\le9$.
+- Vaqt chegarasi: 2 soniya. Xotira chegarasi: 256 MB.
 
-**Test:** $n = 4$ bo'lsa, javob $2$. Mana ikkala joylashtirish (`Q` — farzin):
+Kirish:
 
 ```text
-. Q . .      . . Q .
-. . . Q      Q . . .
-Q . . .      . . . Q
-. . Q .      . Q . .
+4
 ```
 
-Har bir qatorda aynan bitta farzin bo'ladi, aks holda ikkitasi bir qatorda turib, bir-birini uradi. Demak, har bir qator uchun ustun tanlash yetarli.
+Chiqish:
 
-Eng sodda yechim: oldingi darsdagi to'liq qidiruv bilan barcha $n^n$ ta tanlovni quramiz, oxirida tekshiramiz.
-
-```cpp
-int n, cnt = 0, col[13];          // col[r] — r-qatordagi farzin ustuni
-
-bool good() {                     // oxirida butun taxtani tekshirish
-    for (int i = 1; i <= n; i++)
-        for (int j = i + 1; j <= n; j++)
-            if (col[i] == col[j] || abs(col[i] - col[j]) == j - i) return false;
-    return true;
-}
-
-void gen(int r) {
-    if (r > n) { if (good()) cnt++; return; }
-    for (int c = 1; c <= n; c++) { col[r] = c; gen(r + 1); }
-}
+```text
+2
 ```
 
-Hisoblab ko'raylik. $n = 12$ da $12^{12} \approx 8.9 \cdot 10^{12}$ ta tanlov bor, har birini tekshirish yana $\approx 66$ juft. Bu $10^{14}$ dan ortiq amal — 1 soniyada $\approx 10^8$ amal bajarilishini eslasak, bir necha kun ishlaydi.
+Mos tartiblar `2 4 1 3` va `3 1 4 2`. Ularning har birida qo'shnilar farqi 2 yoki 3. Bitta elementli tartibda qo'shnilar yo'q, shuning uchun $n=1$ uchun javob 1.
+
+"To'liq qidiruv" darsida shu masalani `next_permutation` orqali yechganmiz: avval butun tartibni olamiz, keyin qo'shnilarini tekshiramiz. $n=4$ da 24 ta, $n=9$ da $362\,880$ ta tartib bor. Har birini tekshirish bilan vaqt $O(n\cdot n!)$ bo'ladi. Bu cheklovlarda o'sha yechim ham yaroqli; endi to'liq tartibni qurmasdan oldin keraksiz ishni aniqlashni o'rganamiz.
 
 ## G'oya
 
-Sodda yechimning xatosi oddiy. Birinchi ikki farzinni bir ustunga qo'ydik deylik. Qolgan 10 ta qatorni qanday to'ldirmaylik, javob baribir noto'g'ri. Lekin sodda kod shu $12^{10}$ ta keraksiz variantni ham birma-bir quradi.
+### Qisman yechimdan boshlash
 
-**Asosiy kuzatish: agar qisman qurilgan yechim allaqachon shartni buzsa, uni davom ettirishning ma'nosi yo'q — darhol orqaga qaytamiz.**
+Hozircha `2 4` ni joylashtirdik deylik. Qolgan sonlar 1 va 3. Oxirgi 4 yoniga 1 ni qo'yish mumkin, chunki farq 3. Ammo 3 ni qo'yib bo'lmaydi: farq 1.
 
-Bu yerda **qisman yechim (partial solution)** — yechimning hozircha qurilgan qismi. Masalan, faqat 1- va 2-qatorlarga farzin qo'yilgan holat.
+Hali tugallanmagan `2 4` kabi ketma-ketlik **qisman yechim (partial solution)** deyiladi. Uni dasturda `path` massivida saqlaymiz. Qaysi sonlar olinganini `used` massivida belgilaymiz.
 
-Backtracking har bir qadamda to'rt ish qiladi:
+Yechimni tanlovlar orqali qurish, bir davomni tekshirgach oldingi holatga qaytib boshqa davomni sinash usuli **backtracking** deyiladi. Rekursiya keyingi o'rinlarni to'ldiradi; qaytish esa boshqa tanlovga o'tishga imkon beradi.
 
-1. **Tanlash.** Joriy qator uchun navbatdagi ustunni olamiz.
-2. **Tekshirish.** Bu farzin oldingilar bilan to'qnashmasligini tekshiramiz. To'qnashsa — bu ustunni tashlab, keyingisiga o'tamiz.
-3. **Chuqurlashish.** Tekshiruvdan o'tsa, farzinni qo'yamiz va keyingi qatorga rekursiv o'tamiz.
-4. **Bekor qilish.** Rekursiyadan qaytgach, farzinni olib tashlaymiz. Shunda taxta keyingi ustunni sinash uchun avvalgi holatiga qaytadi.
+**Yangi sonni qo'shishdan oldin u oxirgi son bilan shartni buzmasligini tekshiramiz.** Oldin qo'yilgan qo'shnilarni qayta tekshirish kerak emas: ular avvalgi qadamlarda tekshirilgan.
 
-Yuqoridagi 4-qadam — usulning nomi shundan: biz "orqaga qaytamiz" (back-track). Taxta holatini oldingi ko'rinishiga qaytarish **holatni tiklash (undo)** deyiladi.
+### Nima uchun ertaroq to'xtash mumkin?
 
-Barcha tanlovlarni daraxt ko'rinishida tasavvur qilish qulay. Har bir uch — qisman yechim, undan chiquvchi shoxlar — keyingi qatordagi tanlovlar. Bu **qidiruv daraxti (search tree)** deyiladi. $n = 4$ uchun uning boshlanishi:
+`1 2` boshidagi farq 1. Keyin 3 va 4 ni qo'shish bu farqni o'zgartirmaydi. Demak, bu boshlanishdan hech qanday to'g'ri javob chiqmaydi. Natija bermasligi asoslangan davomni tekshirmaslik **kesish (pruning)** deyiladi.
+
+Barcha tanlovlarni shoxlangan sxemada tasvirlash mumkin. Har bir tugun — joriy ketma-ketlik, undan chiquvchi shox — keyingi sonni qo'shish. Bu **qidiruv daraxti (search tree)** deyiladi. Quyida faqat `2` dan boshlangan qismi ko'rsatilgan:
 
 ```text
-                    (bo'sh)
-          /        |        |        \
-       r1=1      r1=2     r1=3     r1=4
-       /  \        |
-   r2=3   r2=4   r2=4
-    ✗      |       |
-         r3=2    r3=1
-          ✗        |
-                 r4=3  ✓ yechim
+[2]
+├── 1: farq 1 → qo'shmaymiz
+├── 2: ishlatilgan → qo'shmaymiz
+├── 3: farq 1 → qo'shmaymiz
+└── 4 → [2, 4]
+    ├── 1 → [2, 4, 1]
+    │   └── 3 → [2, 4, 1, 3] → bitta yechim
+    └── 3: farq 1 → qo'shmaymiz
 ```
 
-`✗` belgisi — bu uchdan pastga hech qanday davom yo'q. Daraxtning shu qismini butunlay tashlab yuborish **kesish (pruning)** deyiladi. Kesish qanchalik erta bo'lsa, shuncha ko'p ish tejaladi.
+Sxemaning keyingi qatorlarida ishlatilgan sonlarni qayta sanamadik. Dastur esa har safar 1 dan $n$ gacha nomzodlarni ko'radi va `used` orqali ularni o'tkazib yuboradi.
+
+### Tanlashdan keyin holatni tiklash
+
+`path = [2,4]` holatida 1 ni sinaymiz. `path` oxiriga 1 qo'shamiz va `used[1]` ni belgilaymiz. Ichki chaqiruv shu tanlov bilan mumkin bo'lgan davomlarni tekshiradi.
+
+U qaytganda boshqa nomzodni sinashimiz kerak. Buning uchun qo'shilgan 1 ni olib tashlaymiz va `used[1]` belgisini o'chiramiz. O'zgartirilgan ma'lumotni avvalgi ko'rinishiga qaytarish **holatni tiklash (undo)** deyiladi.
 
 > [!NOTE]
-> To'xtang va o'ylang: yangi farzin qo'yilganda u oldingi barcha farzinlar bilan to'qnashmasligini tekshirish uchun har safar $O(n)$ tsikl kerakmi?
+> To'xtang va o'ylang: `path` dan 1 ni o'chirib, `used[1]` ni o'chirmasak, keyingi shoxlarda nima bo'ladi?
 
-Yo'q, uni $O(1)$ da qilish mumkin. Kichik misolni ko'raylik: $(1, 1)$ va $(3, 3)$ kataklar bir diagonalda yotadi, ikkalasida ham $r - c = 0$. $(1, 4)$ va $(3, 2)$ esa teskari diagonalda, ikkalasida $r + c = 5$. Demak, har bir diagonal bitta son bilan aniqlanadi:
+1 ketma-ketlikda bo'lmasa ham band deb hisoblanadi. Dastur keyingi tartiblarga uni qo'sha olmaydi va ayrim yechimlar yo'qoladi. Shuning uchun tanlov o'zgartirgan ikkala ma'lumot ham tiklanishi kerak.
 
-| Yo'nalish | Bir chiziqda nima o'zgarmaydi | Qiymatlar oralig'i |
-|---|---|---|
-| Ustun | $c$ | $1 \dots n$ |
-| Bosh diagonal ↘ | $r - c$ | $-(n-1) \dots n-1$ |
-| Teskari diagonal ↙ | $r + c$ | $2 \dots 2n$ |
+"Rekursiya asoslari" darsida `n` qiymat bo'yicha uzatilgani uchun har bir chaqiruvda alohida edi. Bu safar `path` va `used` barcha chaqiruvlar uchun umumiy. Funksiyadan qaytish ularni avtomatik tiklamaydi.
 
-Uchta mantiqiy massiv tutamiz: band ustunlar, band ↘ diagonallar, band ↙ diagonallar. $r - c$ manfiy bo'lishi mumkin, shuning uchun indeksga $n$ qo'shamiz: $r - c + n$.
+### Nega barcha kerakli tartiblar sanaladi?
 
-Nega bu usul hech bir yechimni o'tkazib yubormaydi? Biz faqat aniq noto'g'ri bo'lgan qisman yechimlarni tashlaymiz. To'g'ri yechimning har bir boshlang'ich qismi ham shartni buzmaydi, demak u hech qachon kesilmaydi va oxirigacha quriladi.
+Har bir chaqiruv boshida `path` ichidagi sonlar turli va barcha qo'shnilar shartga mos. Yangi son ishlatilmaganini hamda oxirgi son bilan farqini tekshirish shu xususiyatlarni saqlaydi. Ketma-ketlik uzunligi $n$ ga yetganda haqiqiy yechim hosil bo'ladi.
+
+Istalgan to'g'ri tartibni olaylik. Undagi navbatdagi son ishlatilmagan bo'ladi va qo'shnilik tekshiruvidan o'tadi. Demak, dastur shu yo'lni kesmaydi va oxirigacha quradi. Har bir tartibning tanlovlar ketma-ketligi yagona, shuning uchun u bir marta sanaladi.
 
 ## Amalga oshirish
 
-Qatorlar va ustunlar 1 dan $n$ gacha raqamlangan.
+`search()` funksiyasi joriy `path` ning barcha mos davomlarini sanaydi. `used[x]` 1 bo'lsa, $x$ soni hozir ketma-ketlikda bor.
 
 ```cpp
 #include <bits/stdc++.h>
 using namespace std;
 
 int n;
-long long cnt = 0;
-bool colUsed[15], diag1[30], diag2[30];   // ustun, r-c+n, r+c
+vector<int> path;
+vector<int> used;
+long long answer = 0;
 
-void solve(int r) {
-    // barcha qatorlar to'ldi — bitta yechim topildi
-    if (r > n) {
-        cnt++;
+void search() {
+    if (static_cast<int>(path.size()) == n) {
+        answer++;
         return;
     }
-    for (int c = 1; c <= n; c++) {
-        // tekshirish: ustun yoki diagonal band bo'lsa — kesamiz
-        if (colUsed[c] || diag1[r - c + n] || diag2[r + c]) continue;
-        // tanlash: farzinni qo'yamiz
-        colUsed[c] = diag1[r - c + n] = diag2[r + c] = true;
-        // chuqurlashish: keyingi qator
-        solve(r + 1);
-        // bekor qilish: farzinni olib tashlaymiz
-        colUsed[c] = diag1[r - c + n] = diag2[r + c] = false;
+
+    for (int x = 1; x <= n; x++) {
+        if (used[x]) continue;
+        if (!path.empty() && abs(path.back() - x) < 2) continue;
+
+        // Tanlaymiz: x ni joriy ketma-ketlikka qo'shamiz.
+        path.push_back(x);
+        used[x] = 1;
+
+        search();
+
+        // Qaytgach, shu tanlov o'zgartirgan holatni tiklaymiz.
+        used[x] = 0;
+        path.pop_back();
     }
 }
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
+
     cin >> n;
-    solve(1);
-    cout << cnt << "\n";
+    used.assign(n + 1, 0);
+    path.reserve(n);
+
+    search();
+    cout << answer << '\n';
     return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- `continue` — kesishning o'zi. To'qnashuv bo'lsa, rekursiya chaqirilmaydi va daraxtning butun shoxi tashlanadi.
-- "Qo'yish" va "olib tashlash" qatorlari bir-birining aynan ko'zgusi. Ular doim juft bo'lishi shart.
-- `diag1` indeksi $r - c + n$ eng ko'pi $2n - 1$ ga, `diag2` indeksi $r + c$ eng ko'pi $2n$ ga yetadi. Shuning uchun massiv o'lchami $2n$ dan katta olingan.
-- Holat global massivlarda saqlanadi. Har chaqiruvda nusxa olinmaydi, shuning uchun xotira tejaladi.
+- `path.empty()` bo'lsa, birinchi son uchun qo'shnilik tekshiruvi kerak emas. `path.back()` faqat massiv bo'sh bo'lmaganda o'qiladi.
+- `used` o'lchami $n+1$: unda 1 dan $n$ gacha bo'lgan sonlarni indeks sifatida ishlatyapmiz.
+- Har bir ichki chaqiruv oldidan uzunlik birga oshadi. Ko'pi bilan $n$ ta son qo'yilgach asos holatiga yetamiz.
+- `answer` tiklanmaydi: u barcha shoxlarda topilgan yechimlarning umumiy soni. Faqat joriy tanlovga tegishli `path` va `used` tiklanadi.
 
 ## Misol
 
-$n = 4$ uchun kod ishini kuzataylik. Ustunda `qo'yilgan` — hozir taxtada turgan farzinlarning ustunlari (1-qatordan boshlab).
+$n=4$ uchun dastur nomzodlarni kichikdan kattaga sinaydi. Quyidagi jadval `2` dan boshlangan shoxdagi barcha holat o'zgarishlarini ko'rsatadi. Tekshiruvdan o'tmagan nomzodlar holatni o'zgartirmaydi.
 
-| Qadam | Qator $r$ | Ustun $c$ | Natija | Qo'yilgan |
+| Qadam | Amal | `path` | Band sonlar | `answer` |
 |---|---|---|---|---|
-| 1 | 1 | 1 | qo'yamiz | 1 |
-| 2 | 2 | 1, 2 | ustun band, diagonal band | 1 |
-| 3 | 2 | 3 | qo'yamiz | 1 3 |
-| 4 | 3 | 1, 2, 3, 4 | hammasi band → orqaga | 1 3 |
-| 5 | 2 | 3 | olib tashlaymiz | 1 |
-| 6 | 2 | 4 | qo'yamiz | 1 4 |
-| 7 | 3 | 1 | ustun band | 1 4 |
-| 8 | 3 | 2 | qo'yamiz | 1 4 2 |
-| 9 | 4 | 1, 2, 3, 4 | hammasi band → orqaga | 1 4 2 |
-| 10 | 3 | 3, 4 | diagonal band, ustun band → orqaga | 1 4 |
-| 11 | 2 | — | ustunlar tugadi → orqaga | 1 |
-| 12 | 1 | 2 | qo'yamiz | 2 |
-| 13 | 2 | 1, 2, 3 | diagonal, ustun, diagonal band | 2 |
-| 14 | 2 | 4 | qo'yamiz | 2 4 |
-| 15 | 3 | 1 | qo'yamiz | 2 4 1 |
-| 16 | 4 | 1, 2 | ustun band | 2 4 1 |
-| 17 | 4 | 3 | qo'yamiz, $r = 5 > n$ → `cnt = 1` | 2 4 1 3 |
+| 1 | 2 ni tanlaymiz | `[2]` | 2 | 0 |
+| 2 | 1 va 3 mos emas; 4 ni tanlaymiz | `[2,4]` | 2, 4 | 0 |
+| 3 | 1 ni tanlaymiz | `[2,4,1]` | 1, 2, 4 | 0 |
+| 4 | 3 ni tanlaymiz | `[2,4,1,3]` | 1, 2, 3, 4 | 0 |
+| 5 | Uzunlik 4: javobni oshiramiz | `[2,4,1,3]` | 1, 2, 3, 4 | 1 |
+| 6 | Qaytib, 3 ni olib tashlaymiz | `[2,4,1]` | 1, 2, 4 | 1 |
+| 7 | Boshqa davom yo'q; 1 ni olib tashlaymiz | `[2,4]` | 2, 4 | 1 |
+| 8 | 3 ham mos emas; 4 ni olib tashlaymiz | `[2]` | 2 | 1 |
+| 9 | Shox tugadi; 2 ni olib tashlaymiz | `[]` | Yo'q | 1 |
 
-Shu tarzda davom etsak, 1-qatorda 3-ustundan boshlangan shox ikkinchi yechimni beradi: `3 1 4 2`. 1-qatordagi 4-ustundan esa birorta ham yechim chiqmaydi. Natija: `cnt = 2`, testdagi javob bilan mos.
+Bu shoxdan oldin 1 bilan boshlangan davomlar tekshirilgan, ularda yechim yo'q. Keyin 3 bilan boshlangan shox `3 1 4 2` yechimini beradi. 4 bilan boshlangan shoxda yechim topilmaydi. Natijada `answer = 2` bo'ladi.
 
-E'tibor bering: 4-qadamda 3-qatorda hech qanday ustun to'g'ri kelmadi. Shu sababli 4-qatorni umuman ko'rmadik — sodda yechim `1 3` bilan boshlanadigan $4 \cdot 4 = 16$ ta keraksiz to'liq variantni qurib, keyin tekshirgan bo'lardi.
+9-qadamda ketma-ketlik yana bo'sh, barcha belgilar o'chirilgan. Lekin topilgan birinchi yechim hisoblagichda qolgan. Holatni tiklash bilan natijani yo'qotmaslik orasidagi farq shu.
 
 ## Murakkablik
 
-Backtracking'ning aniq murakkabligini formula bilan yozish qiyin, chunki u qancha shox kesilishiga bog'liq. Eng yomon chegara — kesishsiz qidiruv daraxti: $O(n^n)$. Har bir qatorda faqat bo'sh ustunlarni hisoblasak, $O(n!)$ ga tushadi. Amalda esa bundan ancha kam.
+Kesish qidiruvni kamaytirishi mumkin, ammo u har qanday masalani tez qilib bermaydi. Ish hajmi nechta qisman ketma-ketlikka kirishimizga bog'liq. Har bir tugallanmagan holatda kod $n$ ta nomzodni tekshiradi.
 
-Yuqoridagi kodda `for` ichidagi tekshiruvlar sonini o'lchab ko'raylik:
+Qo'shnilik shartini vaqtincha olib tashlasak, uzunligi 0 bo'lgan bitta holat, uzunligi 1 bo'lgan $n$ ta, uzunligi 2 bo'lgan $n(n-1)$ ta holat bor. To'liq ketma-ketliklar soni $n!$. Barcha uzunliklardagi holatlar yig'indisi $n!$ ning o'zgarmas karrasi bilan chegaralanadi. Shuning uchun kod uchun xavfsiz yuqori baho **$O(n\cdot n!)$** bo'ladi.
 
-| $n$ | Yechimlar soni | Tekshiruvlar soni | $n^n$ (sodda yechim) |
-|---|---|---|---|
-| 4 | 2 | 60 | 256 |
-| 8 | 92 | 15 720 | $\approx 1.7 \cdot 10^7$ |
-| 12 | 14 200 | $\approx 10^7$ | $\approx 8.9 \cdot 10^{12}$ |
+$n=9$ da kesishsiz barcha uzunliklar bo'yicha $986\,410$ ta holat bor. Har biriga 9 ta tekshiruv deb ortig'i bilan baholasak, $8\,877\,690$ chiqadi. Aslida to'liq holatlarda sikl ishlamaydi va qo'shnilik sharti ko'p shoxlarni kesadi. Bu aniq soniya emas, ish hajmini baholashdir.
 
-$n = 12$ da $10^7$ ta tekshiruv — $10^8$ dan ancha kam, dastur 0.1 soniyaga ham bormaydi. Har bir tekshiruv $O(1)$, chunki uchta massivga murojaat qilamiz.
-
-Xotira: $O(n)$ — uchta massiv va rekursiya chuqurligi $n$ ga teng.
+`path` va `used` $O(n)$ joy oladi. Bo'sh boshlang'ich holat va to'liq holat bilan birga rekursiya chuqurligi ko'pi bilan $n+1$. Har chaqiruvdagi mahalliy ma'lumot o'zgarmas hajmli, jami xotira $O(n)$.
 
 ## Variantlar
 
-### Birinchi yechim bilan to'xtash
+### Faqat bitta yechim kerak bo'lsa
 
-Ba'zan barcha yechimlar emas, bittasi kerak bo'ladi. Funksiya `bool` qaytaradi: yechim topilsa `true`, va chaqiruvchi darhol undan chiqadi.
+Barcha tartiblarni sanash o'rniga bittasini topish talab qilinishi mumkin. Unda to'liq `path` ni alohida javob massiviga nusxalaymiz va funksiya `true` qaytaradi. Chaqiruvchi ham qidiruvni to'xtatadi, ammo umumiy holatni avval tiklaydi:
 
 ```cpp
-bool solve(int r) {
-    if (r > n) return true;
-    for (int c = 1; c <= n; c++) {
-        if (colUsed[c] || diag1[r - c + n] || diag2[r + c]) continue;
-        colUsed[c] = diag1[r - c + n] = diag2[r + c] = true;
-        pos[r] = c;                         // yechimni eslab qolamiz
-        if (solve(r + 1)) return true;      // topildi — qolganini qidirmaymiz
-        colUsed[c] = diag1[r - c + n] = diag2[r + c] = false;
-    }
-    return false;
-}
+// findOne() bool qaytaradigan variantdagi rekursiv qadam.
+path.push_back(x);
+used[x] = 1;
+bool found = findOne();
+used[x] = 0;
+path.pop_back();
+if (found) return true;
 ```
+
+Bu parcha to'liq dastur emas, qaytish tartibini ko'rsatadi. Javob nusxasi alohida saqlangani uchun `path` ni tiklash uni yo'qotmaydi. Barcha yechimlarni sanash vazifasida esa birinchisidan keyin to'xtash mumkin emas.
 
 ### Yig'indi bo'yicha kesish
 
-Masala: $n$ ta musbat sondan yig'indisi aynan $S$ bo'lgan barcha qism to'plamlarni toping. Agar joriy yig'indi $S$ dan oshib ketsa, keyingi musbat sonlar uni faqat oshiradi. Demak, bu shoxni kesamiz. Sonlarni avval o'sish tartibida saralasak, `break` bilan butun tsikldan ham chiqish mumkin.
+Musbat sonlardan yig'indisi 10 bo'lgan qism to'plam qidiraylik. Joriy yig'indi 12 bo'lsa, yana musbat son qo'shib 10 ga tushira olmaymiz. Demak, bu shoxni kesish asosli.
 
-```cpp
-void go(int i, long long sum) {         // a[] o'sish tartibida saralangan
-    if (sum == S) { cnt++; return; }
-    for (int j = i; j < n; j++) {
-        if (sum + a[j] > S) break;      // keyingilari bundan ham katta
-        go(j + 1, sum + a[j]);
-    }
-}
-```
+> [!WARNING]
+> Manfiy sonlar bo'lsa, shu kesish noto'g'ri bo'lishi mumkin: 12 ga keyin $-2$ qo'shilsa, 10 hosil bo'ladi. Har bir kesish qoidasi masala cheklovlari bilan asoslanishi kerak.
 
-Bu yerda holat `sum` parametrida uzatiladi, shuning uchun alohida "bekor qilish" kerak emas: rekursiyadan qaytganda `sum` o'z-o'zidan eski qiymatida qoladi.
-
-### Javobga yetib bo'lmasligini oldindan bilish
-
-Kesishni kuchaytirish mumkin: agar qolgan elementlar bilan ham maqsadga yetib bo'lmasa, to'xtaymiz. Masalan, eng ko'p yig'indini qidirayotganda "hozirgi yig'indi + qolgan barcha sonlar yig'indisi" topilgan eng yaxshi javobdan kichik bo'lsa, davom etish befoyda.
+Yig'indi `sum` parametri orqali qiymat bo'yicha uzatilsa, `go(i + 1, sum + a[i])` chaqiruvi tashqi `sum` ni o'zgartirmaydi. Uni alohida ayirib tiklash kerak emas. Ammo tanlangan elementlar umumiy massivga qo'shilsa, o'sha massivni tiklash kerak.
 
 ## Ko'p uchraydigan xatolar
 
-> [!WARNING]
-> **Holatni tiklashni unutish.**
-> ```cpp
-> colUsed[c] = true;
-> solve(r + 1);
-> // olib tashlash yo'q!
-> ```
-> Rekursiyadan qaytgach, `c` ustun band bo'lib qoladi. Keyingi barcha shoxlarda u "band" deb hisoblanadi va yechimlar yo'qoladi. To'g'ri: `solve(r + 1);` dan keyin `colUsed[c] = false;` yozing.
+### Rekursiyadan qaytishni holat tiklanishi deb o'ylash
 
-> [!WARNING]
-> **Tekshiruvni rekursiyadan keyin qilish.**
-> ```cpp
-> if (r > n) { if (good()) cnt++; return; }
-> ```
-> Bu backtracking emas, sodda to'liq qidiruv: shox oxirigacha quriladi, keyin tashlanadi. Tekshiruv yangi bo'lak qo'yilishidan oldin bo'lishi kerak — `continue` bilan.
+`search()` tugashi umumiy massivlarga kiritilgan o'zgarishlarni bekor qilmaydi. `push_back` ga mos `pop_back`, `used[x] = 1` ga mos `used[x] = 0` bo'lishi kerak. Har bir shoxdan keyin aynan kirishdagi holat tiklanganini tekshiring.
 
-> [!WARNING]
-> **Manfiy indeks.**
-> ```cpp
-> diag1[r - c] = true;   // r = 1, c = 4 bo'lsa, indeks -3
-> ```
-> Massivdan tashqariga yozish dasturni buzadi yoki boshqa o'zgaruvchini o'zgartiradi. To'g'ri: `diag1[r - c + n]`, massiv o'lchami esa kamida $2n$.
+### Shartni to'liq asoslamasdan kesish
 
-> [!WARNING]
-> **"Qo'yish" va "olib tashlash" mos kelmasligi.**
-> ```cpp
-> colUsed[c] = diag1[r - c + n] = diag2[r + c] = true;
-> solve(r + 1);
-> colUsed[c] = diag1[r - c + n] = false;   // diag2 unutildi
-> ```
-> Uchta belgidan bittasi tiklanmay qoladi. Eng ishonchli yo'l — ikkala qatorni bir xil ko'rinishda, yonma-yon yozish va ko'chirib olish.
+"Bu boshlanish yomon ko'rinyapti" yetarli sabab emas. Undan hech qanday kerakli javob chiqmasligini ko'rsata olish kerak. Bizning masalada buzilgan qo'shnilar o'z joyida qoladi, shuning uchun keyingi tanlov ularni tuzata olmaydi.
+
+### Natijani ham bekor qilish
+
+`answer++` dan keyin qaytishda `answer--` qilish topilgan yechimni yo'qotadi. Hisoblagich umumiy natija, vaqtinchalik tanlov emas. Qaysi o'zgaruvchi qidiruv holati, qaysisi natija ekanini oldindan ajrating.
+
+### Kesish bo'lmasa, usul noto'g'ri deb o'ylash
+
+Tekshiruvni faqat to'liq ketma-ketlikda qilish ham to'g'ri javob berishi mumkin. Bunda ko'proq variant quriladi. Backtracking tanlovdan qaytib boshqasini sinashni tashkil qiladi; erta kesish esa imkon bo'lganda ishni kamaytiradi.
 
 ## Xulosa
 
-- Backtracking — to'liq qidiruv, lekin noto'g'ri qisman yechim darhol tashlanadi.
-- Har qadam to'rt bosqichdan iborat: tanlash → tekshirish → chuqurlashish → bekor qilish.
-- Tekshiruv qancha erta va qancha tez ($O(1)$) bo'lsa, shuncha ko'p shox kesiladi.
-- Global holatni o'zgartirsangiz, rekursiyadan keyin uni albatta tiklang.
+- Qisman yechim va foydalanilgan tanlovlarni aniq saqlang.
+- Yangi tanlov mos bo'lsa, uni qo'shib rekursiyaga o'ting.
+- Qaytganda umumiy holatga kiritilgan o'zgarishlarni tiklang.
+- Faqat kerakli yechimga olib bormasligi asoslangan shoxlarni kesing.
+- Tezlikni baholaganda ko'riladigan holatlar va har biridagi ishni birga hisoblang.
 
-**Masalada qanday tanib olish mumkin:** chegaralar juda kichik ($n \le 10 \dots 20$); "barcha joylashtirishlarni sanang", "biror usul bormi?", "barcha kombinatsiyalarni chiqaring" kabi so'zlar; javob qadamma-qadam quriladi va har qadamda shart buzilganini sezish mumkin.
+**Qachon bu usulni o'ylab ko'rish kerak?** Javob ketma-ket tanlovlardan tuzilsa va tanlovlarning mosligini qurish davomida tekshirish mumkin bo'lsa. Tartiblar, joylashtirishlar va qism to'plamlar shunday masalalarga misol bo'ladi. Elementlar sonining kichikligi yordam beradi, lekin hisob-kitob o'rnini bosmaydi.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| Backtracking | backtracking | Yechimni bo'lakma-bo'lak quradigan, xato bo'lakda orqaga qaytadigan qidiruv usuli. |
-| Qisman yechim | partial solution | Yechimning hozircha qurilgan, hali tugallanmagan qismi. |
-| Qidiruv daraxti | search tree | Har bir uchi qisman yechim, shoxlari esa keyingi tanlovlar bo'lgan daraxt. |
-| Kesish | pruning | Natija bermasligi aniq bo'lgan shoxni oxirigacha qurmasdan tashlab yuborish. |
-| Holatni tiklash | undo | Rekursiyadan qaytgach, o'zgartirilgan ma'lumotlarni avvalgi ko'rinishiga qaytarish. |
+| Qisman yechim | Partial solution | Hali tugallanmagan, hozirgacha tanlangan qismlar. |
+| Backtracking | Backtracking | Tanlovni davom ettirib, keyin oldingi holatga qaytib boshqa tanlovni sinash usuli. |
+| Kesish | Pruning | Kerakli natija bermasligi asoslangan davomni tekshirmaslik. |
+| Qidiruv daraxti | Search tree | Qisman yechimlar va ulardan keyingi tanlovlarni ko'rsatadigan shoxlangan tuzilma. |
+| Holatni tiklash | Undo | Vaqtinchalik tanlov kiritgan o'zgarishlarni bekor qilish. |
 
-> [!TIP] O'zingizni tekshiring
-> 1. Agar `solve` ichidagi "olib tashlash" qatorini o'chirsak, $n = 4$ uchun dastur nima chiqaradi va nega?
-> 2. Farzinlar masalasida nega har bir qator uchun alohida tekshirish shart emas?
-> 3. Yig'indi bo'yicha kesishda `break` ishlatish uchun nega massiv saralangan bo'lishi kerak?
->
-> <details>
-> <summary>Javoblar</summary>
->
-> 1. `0` chiqaradi. Birinchi farzin qo'yilgandan keyin uning ustuni va diagonallari hech qachon bo'shamaydi, taxta tez orada "to'lib" qoladi va birorta ham to'liq joylashtirish topilmaydi.
-> 2. Har bir qatorga aynan bitta farzin qo'yamiz, shuning uchun ikki farzin hech qachon bir qatorda bo'lmaydi.
-> 3. Saralangan massivda `a[j]` dan keyingi barcha sonlar undan katta yoki teng. Agar `a[j]` bilan yig'indi $S$ dan oshsa, keyingilari bilan ham oshadi — ularni sinab ko'rishning keragi yo'q.
->
-> </details>
+### O'zingizni tekshiring
+
+1. `path = [3,1]`, $n=4$ bo'lsa, keyingi son sifatida qaysi sonni qo'shish mumkin?
+2. Nega `answer` tiklanmaydi, lekin `used[x]` tiklanadi?
+3. $n=2$ uchun nechta yechim bor? $n=1$ uchun-chi?
+4. Qism to'plam yig'indisi maqsaddan oshgan shoxni kesish uchun sonlar musbat bo'lishi shartmi yoki manfiy bo'lmasligi yetarlimi?
+
+<details>
+<summary>Javoblarni ko'rish</summary>
+
+1. Faqat 4. 1 va 3 ishlatilgan, 2 bilan oxirgi 1 ning farqi esa 1.
+2. `answer` barcha shoxlarning natijasini yig'adi. `used[x]` faqat joriy yo'lda $x$ tanlanganini bildiradi; boshqa yo'lga o'tganda belgi o'chiriladi.
+3. $n=2$ uchun 0: ikkala tartibda ham farq 1. $n=1$ uchun 1: tekshiriladigan qo'shnilar yo'q.
+4. Manfiy bo'lmasligi yetarli: 0 qo'shish yig'indini kamaytirmaydi. Ammo yig'indi maqsadga tenglashganda darhol qaytish boshqa qoida — nollar bor bo'lsa, u ayrim qo'shimcha qism to'plamlarni o'tkazib yuborishi mumkin.
+
+</details>
