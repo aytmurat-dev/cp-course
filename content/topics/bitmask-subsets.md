@@ -1,90 +1,97 @@
 ---
-summary: "Har bir qism to'plamni bitta butun son bilan ifodalab, barcha qism to'plamlarni oddiy sikl bilan ko'rib chiqish."
+summary: "Qism to'plamni bitmask bilan ifodalash, barcha tanlovlarni takrorsiz sanash va ularning yig'indisini tekshirish."
 prerequisites: [complete-search, binary-numbers, bit-operations]
 ---
 
 ## Kirish
 
-Ko'p masalalarda $n$ ta narsadan ba'zilarini tanlash kerak bo'ladi: qaysi buyumlarni olish, qaysi o'quvchilarni jamoaga qo'shish, qaysi sonlarni yig'ish. Agar $n$ kichik bo'lsa (odatda $n \le 20$), eng ishonchli yo'l — barcha tanlovlarni birma-bir tekshirish. Bu darsda buni bitta `for` sikli bilan qilishni o'rganasiz: har bir qism to'plam oddiy butun son bilan ifodalanadi. Darsdan keyin siz "$n \le 20$" cheklovli masalalarni o'n qatorcha kod bilan yecha olasiz.
+1, 2, 3 qiymatli uchta kartochkadan yig'indisi 3 bo'ladiganlarini tanlaymiz. Birinchi va ikkinchi kartochkani yoki faqat uchinchisini olish mumkin. Har bir kartochka uchun "olindi yoki olinmadi" degan bitta belgi yetadi. Bu darsda siz shu belgilarni bitta butun sonning bitlarida saqlab, barcha tanlovlarni sikl orqali tekshirasiz.
 
 ## Muammo
 
-Sizga $n$ ta musbat butun son $a_0, a_1, \dots, a_{n-1}$ va $S$ soni berilgan. Yig'indisi aynan $S$ ga teng bo'lgan nechta qism to'plam bor?
+$n$ ta manfiy bo'lmagan butun son va $S$ maqsad yig'indi berilgan. Yig'indisi aynan $S$ bo'ladigan qism to'plamlar sonini toping. Har bir elementni ko'pi bilan bir marta tanlash mumkin, tanlash tartibi muhim emas.
+
+Elementlar **indekslari bo'yicha farqlanadi**. Masalan, $[2,2]$ massivida yig'indisi 2 bo'lgan ikkita tanlov bor: birinchi element yoki ikkinchi element. Bo'sh tanlov ham ruxsat etiladi va uning yig'indisi 0.
 
 - **Kirish:** birinchi qatorda $n$ va $S$, ikkinchi qatorda $n$ ta son.
-- **Chiqish:** bitta son — mos qism to'plamlar soni.
-- **Cheklovlar:** $1 \le n \le 20$, $1 \le a_i \le 10^9$, $1 \le S \le 2 \cdot 10^{10}$.
+- **Chiqish:** mos qism to'plamlar soni.
+- **Cheklovlar:** $1\le n\le20$, $0\le a_i\le10^9$, $0\le S\le2\cdot10^{10}$.
+- Vaqt chegarasi: 2 soniya. Xotira chegarasi: 256 MB.
 
-```
-4 5
-3 1 4 2
-```
+Kirish:
 
-Javob: `2`. Mos qism to'plamlar: $\{1, 4\}$ va $\{3, 2\}$.
-
-E'tibor bering: bu darsda elementlar **0 dan** raqamlanadi. Nega bunday qulay ekanini "G'oya" bo'limida ko'rasiz.
-
-Har bir element uchun ikki tanlov bor: olamiz yoki olmaymiz. Agar $n = 3$ bo'lsa, buni uchta ichma-ich sikl bilan yozish mumkin:
-
-```cpp
-// faqat n = 3 uchun ishlaydi
-int ans = 0;
-for (int t0 = 0; t0 < 2; t0++)
-    for (int t1 = 0; t1 < 2; t1++)
-        for (int t2 = 0; t2 < 2; t2++) {
-            long long sum = 0;
-            if (t0) sum += a[0];
-            if (t1) sum += a[1];
-            if (t2) sum += a[2];
-            if (sum == s) ans++;
-        }
+```text
+3 3
+1 2 3
 ```
 
-Bu kod to'g'ri, lekin sikllar soni $n$ ga teng. $n$ esa faqat dastur ishlaganda ma'lum bo'ladi. $n = 20$ uchun 20 ta ichma-ich sikl yozib bo'lmaydi.
+Chiqish:
 
-Muammo tezlikda emas. $n = 20$ da qism to'plamlar soni $2^{20} = 1\,048\,576$ — kompyuter uchun bu juda oz. Muammo shundaki, ularni **qanday qilib birma-bir ko'rib chiqishni** bilmaymiz. Buni rekursiya bilan ham qilish mumkin, lekin bundan ham sodda usul bor.
+```text
+2
+```
+
+"To'liq qidiruv" darsida har bir tanlovni alohida 0/1 massiv bilan yozganmiz. Uni qo'lda hisoblagich kabi o'zgartirib, barcha $2^n$ holatni olganmiz. Endi "Ikkilik sonlar" va "Bit amallari" darslaridagi bilimlar bilan shu hisoblagichni bitta sonda saqlaymiz. Tanlovlar soni kamaymaydi, ularni ifodalash va sanash qulaylashadi.
 
 ## G'oya
 
-Keling, $n = 3$ uchun har bir tanlovni uchta raqam bilan yozaylik: element olinsa 1, olinmasa 0. Raqamlarni o'ngdan chapga yozamiz: eng o'ngda $a_0$, keyin $a_1$, keyin $a_2$.
+### Element bilan bitni moslashtirish
 
-| $a_2$ $a_1$ $a_0$ | O'nlik son | Qism to'plam |
+Elementlarni $a_0,a_1,a_2$ deb raqamlaymiz. 0-bit $a_0$ uchun, 1-bit $a_1$ uchun, 2-bit $a_2$ uchun javob beradi. Bit 1 bo'lsa, tegishli element tanlangan; 0 bo'lsa, tanlanmagan.
+
+Masalan, $5=101_2$. Unda 0- va 2-bitlar 1, demak $a_0$ va $a_2$ tanlangan. Bizning massivda bu 1 va 3 qiymatlari; yig'indi 4.
+
+Har bir biti bir elementning tanlanganini bildiradigan butun sonni **bitmask (bitmask)** deb ataymiz. Oldingi darsdagi bit niqobi endi butun qism to'plamni ifodalayapti.
+
+> [!IMPORTANT]
+> Sonning bitlari o'ngdan 0 dan boshlanadi. `101` yozuvida o'ngdagi belgi $a_0$ ga, chapdagi belgi $a_2$ ga tegishli. Jadvalda ustunlar $a_2,a_1,a_0$ tartibida turadi.
+
+### Barcha tanlovlarni qaysi sonlar beradi?
+
+Uchta element uchun 0 dan 7 gacha sonlar yetadi:
+
+| Son | Bitlar: $a_2,a_1,a_0$ | Tanlangan indekslar |
 |---|---|---|
-| 0 0 0 | 0 | $\{\}$ |
-| 0 0 1 | 1 | $\{a_0\}$ |
-| 0 1 0 | 2 | $\{a_1\}$ |
-| 0 1 1 | 3 | $\{a_0, a_1\}$ |
-| 1 0 0 | 4 | $\{a_2\}$ |
-| 1 0 1 | 5 | $\{a_0, a_2\}$ |
-| 1 1 0 | 6 | $\{a_1, a_2\}$ |
-| 1 1 1 | 7 | $\{a_0, a_1, a_2\}$ |
+| 0 | `000` | Yo'q |
+| 1 | `001` | 0 |
+| 2 | `010` | 1 |
+| 3 | `011` | 0, 1 |
+| 4 | `100` | 2 |
+| 5 | `101` | 0, 2 |
+| 6 | `110` | 1, 2 |
+| 7 | `111` | 0, 1, 2 |
 
-Chap ustunga qarang: bu 0 dan 7 gacha sonlarning ikkilik yozuvi. Demak, sakkizta qism to'plam — bu shunchaki 0, 1, …, 7 sonlari.
+Har bir element uchun ikkita imkoniyat bor. $n$ ta elementda $2^n$ ta tanlov hosil bo'ladi. $n$ ta bitning barcha ko'rinishlari esa aynan 0 dan $2^n-1$ gacha sonlar.
 
-**0 dan $2^n - 1$ gacha bo'lgan har bir son aynan bitta qism to'plamni ifodalaydi: sonning $i$-biti 1 bo'lsa, $a_i$ to'plamga kiradi.**
+**`mask` ni 0 dan $2^n-1$ gacha oshirish barcha qism to'plamlarni bir martadan ko'rib chiqadi.** `mask = 0` bo'sh tanlovni, `mask = 2^n-1` hamma elementlarni bildiradi.
 
-Shu tarzda qism to'plamni ifodalovchi son **bitmask (bitmask)** deyiladi. Uning har bir biti bitta elementning to'plamda bor-yo'qligini bildiradi. Masalan, $n = 4$ va mask $= 10 = 1010_2$ bo'lsa, 1-bit va 3-bit yoqilgan, demak qism to'plam $\{a_1, a_3\}$.
+Bu yerda har bir bitning o'rni oldindan belgilangan. Shu sababli $a_0$ va $a_1$ ni tanlash ularni qanday tartibda olganimizdan qat'i nazar bitta maskka mos keladi. Permutatsiyalarni alohida sanash kerak emas.
 
-Endi 0 dan raqamlashning sababi aniq: $i$-bitning qiymati $2^i$, eng o'ngdagi bit esa 0-bit. Element raqami bit raqamiga to'g'ridan-to'g'ri mos keladi.
+### Bitta tanlovning yig'indisi
+
+$\text{mask}=3=011_2$ bo'lsin. 0-bit 1 — $a_0=1$ ni qo'shamiz. 1-bit ham 1 — $a_1=2$ ni qo'shamiz. 2-bit 0 — $a_2=3$ ni olmaymiz. Yig'indi 3 bo'ldi.
+
+Bitni tekshirish uchun oldingi darsdagi `(mask >> i) & uint64_t{1}` ifodasini ishlatamiz. Siljitish $i$-bitni eng o'ngga olib keladi, AND esa boshqa bitlarni olib tashlaydi. Natija 0 yoki 1.
+
+1. `limit` ni $2^n$ ga tenglaymiz.
+2. Har bir `mask < limit` uchun yig'indini 0 dan boshlaymiz.
+3. Barcha $i=0,1,\dots,n-1$ bitlarni tekshiramiz va tanlangan elementlarni qo'shamiz.
+4. Yig'indi $S$ ga teng bo'lsa, javobni bittaga oshiramiz.
 
 > [!NOTE]
-> To'xtang va o'ylang: $n$ ta element uchun bitmasklar qaysi oraliqda va ular nechta?
+> To'xtang va o'ylang: $a=[2,2]$, $S=2$ bo'lsa, `01` va `10` ni bir xil tanlov deb hisoblash kerakmi?
 
-Eng kichik mask — barcha bitlar 0, ya'ni $0$ (bo'sh to'plam). Eng kattasi — $n$ ta bitning hammasi 1, ya'ni $2^n - 1$ (barcha elementlar). Jami $2^n$ ta mask: har bir element ikki holatda bo'lgani uchun aynan shuncha bo'lishi kerak edi. C++ da $2^n$ ni `1 << n` deb yozamiz.
+Yo'q. `01` birinchi elementni, `10` ikkinchi elementni tanlaydi. Qiymatlar teng, lekin indekslar boshqa. Masala sharti bo'yicha ular ikkita yechim.
 
-Endi algoritmni qadamma-qadam yozaylik:
+### Nega sanash to'g'ri?
 
-1. `mask` ni $0$ dan $2^n - 1$ gacha birma-bir o'zgartiramiz.
-2. Har bir `mask` uchun $i = 0, 1, \dots, n-1$ bitlarni tekshiramiz.
-3. $i$-bit ifodasi: `(mask >> i) & 1`. Surish $i$-bitni eng o'ngga olib keladi, `& 1` esa faqat shu bitni qoldiradi ("Bit amallari" darsini eslang).
-4. Bit 1 bo'lsa, $a_i$ ni yig'indiga qo'shamiz.
-5. Yig'indi $S$ ga teng bo'lsa, javobni bittaga oshiramiz.
+Har qanday tanlov uchun olingan elementlarning bitlarini 1 qilsak, yagona mask hosil bo'ladi. Aksincha, maskning bitlari tanlangan indekslarni to'liq belgilaydi. Ikki xil mask kamida bitta bitda farq qiladi, demak kamida bitta element tanlovi ham farq qiladi.
 
-3-qadamni misolda ko'raylik. $\text{mask} = 6 = 0110_2$, $i = 2$: $6 \gg 2 = 1 = 01_2$, $1 \,\&\, 1 = 1$ — demak $a_2$ to'plamda. $i = 0$ uchun: $6 \gg 0 = 6$, $6 \,\&\, 1 = 0$ — $a_0$ to'plamda yo'q.
-
-Nega bu usul hech narsani tashlab ketmaydi va ikki marta sanamaydi? Ikki xil son kamida bitta bitda farq qiladi, demak ular ikki xil qism to'plamni beradi. Aksincha, istalgan qism to'plamning bitlarini yozsak, $0$ dan $2^n - 1$ gacha bo'lgan qandaydir son hosil bo'ladi. Shunday qilib, sonlar va qism to'plamlar o'rtasida birga-bir moslik bor.
+Sikl barcha masklarni bir martadan oladi. Ichki sikl aynan 1 bitlarga mos elementlarni qo'shadi. Javob faqat yig'indi mos kelganda oshgani uchun kerakli tanlovlar qolib ketmaydi va takror sanalmaydi.
 
 ## Amalga oshirish
+
+Mask uchun oldingi darsdagidek `uint64_t` ishlatamiz. Yig'indilar esa `long long` da saqlanadi.
 
 ```cpp
 #include <bits/stdc++.h>
@@ -94,211 +101,155 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    // ma'lumotlarni o'qiymiz, elementlar 0 dan raqamlangan
     int n;
-    long long s;
-    cin >> n >> s;
+    long long target;
+    cin >> n >> target;
     vector<long long> a(n);
     for (int i = 0; i < n; i++) cin >> a[i];
 
-    int ans = 0;
-    // har bir mask — bitta qism to'plam
-    for (int mask = 0; mask < (1 << n); mask++) {
-        // mask ichidagi elementlar yig'indisi
+    uint64_t limit = uint64_t{1} << n;
+    long long answer = 0;
+
+    for (uint64_t mask = 0; mask < limit; mask++) {
+        // Har bir yangi tanlovning yig'indisi alohida hisoblanadi.
         long long sum = 0;
         for (int i = 0; i < n; i++) {
-            if ((mask >> i) & 1) sum += a[i];
+            if (((mask >> i) & uint64_t{1}) != 0) {
+                sum += a[i];
+            }
         }
-        if (sum == s) ans++;
+        if (sum == target) answer++;
     }
 
-    cout << ans << '\n';
+    cout << answer << '\n';
     return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- Tashqi sikl shartida `<` turibdi, `<=` emas: oxirgi mask $2^n - 1$.
-- `sum` va `a` — `long long`. 20 ta $10^9$ ning yig'indisi $2 \cdot 10^{10}$ ga yetadi, bu `int` ga sig'maydi.
-- Bitni tekshirish `(mask >> i) & 1` — natija doim 0 yoki 1.
-- Har bir mask uchun yig'indi noldan qayta hisoblanadi, shuning uchun `sum` sikl ichida e'lon qilingan.
+- `uint64_t{1} << n` $2^n$ ni beradi. Bu yerda $n\le20$, shuning uchun siljitish 64 bitli tur uchun ruxsat etilgan oraliqda.
+- `mask < limit`: `limit` ning o'zi qism to'plam emas, siklning yuqori chegarasi.
+- `sum` ko'pi bilan $20\cdot10^9=2\cdot10^{10}$ bo'ladi. Shu sababli uni `long long` da hisoblaymiz.
+- `answer` ko'pi bilan $2^{20}=1\,048\,576$. Barcha elementlar 0 va maqsad ham 0 bo'lsa, barcha masklar mos keladi.
 
 ## Misol
 
-Testni olaylik: $n = 4$, $S = 5$, $a = [3, 1, 4, 2]$. Bitlar $a_3\,a_2\,a_1\,a_0$ tartibida yozilgan.
+$a=[1,2,3]$, $S=3$ uchun barcha tanlovlar:
 
-| mask | Bitlar | Elementlar | Yig'indi | $= 5$? |
+| `mask` | Ikkilik yozuv | Tanlangan qiymatlar | Yig'indi | Tekshiruvdan keyingi `answer` |
 |---|---|---|---|---|
-| 0 | 0000 | — | 0 | |
-| 1 | 0001 | 3 | 3 | |
-| 2 | 0010 | 1 | 1 | |
-| 3 | 0011 | 3, 1 | 4 | |
-| 4 | 0100 | 4 | 4 | |
-| 5 | 0101 | 3, 4 | 7 | |
-| 6 | 0110 | 1, 4 | 5 | ✓ |
-| 7 | 0111 | 3, 1, 4 | 8 | |
-| 8 | 1000 | 2 | 2 | |
-| 9 | 1001 | 3, 2 | 5 | ✓ |
-| 10 | 1010 | 1, 2 | 3 | |
-| 11 | 1011 | 3, 1, 2 | 6 | |
-| 12 | 1100 | 4, 2 | 6 | |
-| 13 | 1101 | 3, 4, 2 | 9 | |
-| 14 | 1110 | 1, 4, 2 | 7 | |
-| 15 | 1111 | 3, 1, 4, 2 | 10 | |
+| 0 | `000` | Bo'sh | 0 | 0 |
+| 1 | `001` | 1 | 1 | 0 |
+| 2 | `010` | 2 | 2 | 0 |
+| 3 | `011` | 1, 2 | 3 | 1 |
+| 4 | `100` | 3 | 3 | 2 |
+| 5 | `101` | 1, 3 | 4 | 2 |
+| 6 | `110` | 2, 3 | 5 | 2 |
+| 7 | `111` | 1, 2, 3 | 6 | 2 |
 
-$\text{mask} = 6$ uchun ichki sikl qanday ishlashini batafsil ko'raylik:
+Mos masklar 3 va 4. Birinchisi ikkita elementni, ikkinchisi bitta elementni bildiradi. Dastur 2 chiqaradi.
 
-| $i$ | `(6 >> i) & 1` | Amal | `sum` |
-|---|---|---|---|
-| 0 | 0 | — | 0 |
-| 1 | 1 | $+ a_1 = 1$ | 1 |
-| 2 | 1 | $+ a_2 = 4$ | 5 |
-| 3 | 0 | — | 5 |
-
-Faqat 6 va 9 masklarda yig'indi 5 ga teng. Dastur `2` chiqaradi — bu kutilgan javob.
+Mask soni elementlar yig'indisi emas. Masalan, `mask = 4` ning ma'nosi "2-bit yoqilgan"; yig'indi esa o'sha indeksdagi $a_2=3$ qiymatidan olinadi.
 
 ## Murakkablik
 
-**Vaqt:** $O(2^n \cdot n)$. Tashqi sikl $2^n$ marta, ichki sikl har safar $n$ marta aylanadi. $n = 20$ da bu $2^{20} \cdot 20 \approx 2 \cdot 10^7$ amal — 1 soniyaga bemalol sig'adi.
+Tashqi sikl $2^n$ marta, ichki sikl har safar $n$ marta ishlaydi. Vaqt **$O(n2^n)$**. Maskning bitta sonda saqlanishi barcha qism to'plamlarni tekshirish ishini yo'qotmaydi.
 
-Lekin $2^n$ juda tez o'sadi. $n = 25$ da $3.3 \cdot 10^7 \cdot 25 \approx 8 \cdot 10^8$ amal — chegarada. $n = 30$ da esa $10^9 \cdot 30 = 3 \cdot 10^{10}$ — bir necha soniya emas, bir necha daqiqa.
+| $n$ | Masklar soni $2^n$ | Ichki sikl qadamlari $n2^n$ |
+|---|---|---|
+| 10 | 1 024 | 10 240 |
+| 20 | 1 048 576 | 20 971 520 |
+| 25 | 33 554 432 | 838 860 800 |
+| 30 | 1 073 741 824 | 32 212 254 720 |
 
-**Xotira:** $O(n)$ — faqat massivning o'zi. Qism to'plamlar xotirada saqlanmaydi, har biri bitta `int` soni sifatida "o'tib ketadi".
+$n=20$ uchun yigirma bir millionga yaqin bit tekshiruvi bajariladi. $n=30$ da ish hajmi keskin oshadi. Jadval aniq ishlash vaqtini bermaydi: muhit, kompilyator va har bir tanlovdagi ish ham muhim.
+
+Massiv $O(n)$ xotira oladi. Mask, yig'indi va hisoblagich uchun qo'shimcha xotira $O(1)$. Barcha qism to'plamlarni alohida saqlamaganimiz uchun umumiy xotira $O(n)$.
 
 > [!IMPORTANT]
-> Cheklovda $n \le 20$ (ba'zan $n \le 22$) ko'rsangiz, birinchi navbatda bitmask bilan to'liq tanlashni o'ylang.
+> 64 bitli turga tanlovni sig'dirish va barcha tanlovlarni vaqtida tekshirish boshqa-boshqa masalalar. 60 elementning bitta maski sig'adi, lekin $2^{60}$ ta maskni birma-bir ko'rish amaliy emas.
 
 ## Variantlar
 
-### Ikki guruhga bo'lish
+### Aynan $k$ ta elementni tanlash
 
-*Qachon kerak:* elementlarni ikki guruhga ajratish so'ralganda, masalan, yig'indilar farqi eng kichik bo'lsin.
+Maskdagi birlar soni tanlangan elementlar soniga teng. Masalan, $13=1101_2$ uchta elementni bildiradi. "Bit amallari" darsidagi `countOnes` funksiyasi bilan sonini tekshirish mumkin.
 
-Mask birinchi guruhni bildirsa, qolgan elementlar ikkinchi guruhga tushadi. Mask'da 0 bo'lgan elementlar to'plami **to'ldiruvchi (complement)** deyiladi. Son ko'rinishida u `((1 << n) - 1) ^ mask`. Lekin ko'pincha uni alohida hisoblash shart emas: ikkinchi guruh yig'indisi $\text{total} - \text{sum}$.
-
-```cpp
-long long best = LLONG_MAX;
-for (int mask = 0; mask < (1 << n); mask++) {
-    long long sum = 0;
-    for (int i = 0; i < n; i++)
-        if ((mask >> i) & 1) sum += a[i];
-    best = min(best, llabs(total - 2 * sum));  // |sum - (total - sum)|
-}
-```
-
-### Aniq $k$ ta elementli qism to'plamlar
-
-*Qachon kerak:* "aynan $k$ ta element tanlang" degan shartda.
-
-Sondagi 1 bitlar soni **popcount (popcount)** deyiladi. C++ da uni `__builtin_popcount(mask)` hisoblaydi. Masalan, `__builtin_popcount(13)` $= 3$, chunki $13 = 1101_2$.
+Yoki asosiy dasturdagi ichki siklda yig'indi bilan birga elementlar sonini ham sanaymiz:
 
 ```cpp
-for (int mask = 0; mask < (1 << n); mask++) {
-    if (__builtin_popcount(mask) != k) continue;
-    // faqat k elementli qism to'plamlar shu yerga yetib keladi
+long long sum = 0;
+int selected = 0;
+for (int i = 0; i < n; i++) {
+    if (((mask >> i) & uint64_t{1}) != 0) {
+        sum += a[i];
+        selected++;
+    }
 }
+if (selected == k && sum == target) answer++;
 ```
 
-### Maskning qism masklari
+Bu parcha asosiy dasturdagi bitta maskni tekshirish qismining o'rniga qo'yiladi; $k$ qo'shimcha kirish qiymati bo'ladi. Barcha masklar baribir ko'riladi, vaqt bahosi $O(n2^n)$ bo'lib qoladi.
 
-*Qachon kerak:* berilgan to'plamning ichidagi barcha qism to'plamlarni ko'rish kerak bo'lganda.
+### Ikki guruhga ajratish
 
-**Qism mask (submask)** — faqat berilgan mask'dagi 1 bitlar ichidan tanlangan bitlardan iborat mask. Ularni quyidagi sikl kamayish tartibida chiqaradi:
+Mask birinchi guruhni bildirsa, olinmagan elementlar ikkinchi guruhga tushadi. Berilgan barcha elementlar ichida tanlanmaganlar **to'ldiruvchi qism to'plam (complement)** deyiladi.
 
-```cpp
-for (int sub = mask; sub > 0; sub = (sub - 1) & mask) {
-    // sub — mask'ning bo'sh bo'lmagan qism maski
-}
-```
+Masalan, uchta elementda `001` ning to'ldiruvchisi `110`. Kodda `full = limit - 1` deb olsak, `full ^ mask` faqat pastki $n$ bitni almashtiradi. `~mask` esa 64 bitning hammasini almashtiradi va bizda yo'q elementlarning bitlarini ham yoqadi.
 
-$\text{mask} = 11 = 1011_2$ uchun `sub` ketma-ket $11, 10, 9, 8, 3, 2, 1$ qiymatlarni oladi. Bo'sh qism mask ($0$) sikl ichiga kirmaydi — kerak bo'lsa, uni alohida qarang.
+Guruhlar og'irligi farqini izlashda to'ldiruvchi maskni hisoblash shart emas: barcha qiymatlar yig'indisi $T$, tanlanganlar yig'indisi $S_1$ bo'lsa, qolganlar yig'indisi $T-S_1$. Farq $|S_1-(T-S_1)|$ bo'ladi.
+
+Eng kichik farqni topishda guruhlar o'rnini almashtirib qayta ko'rish natijani buzmaydi. Ammo nomlanmagan ikki guruhga bo'lish usullarini sanashda bunday juft holatlar takror hisoblanishini alohida hal qilish kerak.
 
 ## Ko'p uchraydigan xatolar
 
-### Amallar tartibi
+### Bitta ortiqcha maskni tekshirish
 
-> [!WARNING]
-> ```cpp
-> if (mask & 1 << i == 1)  // XATO
-> ```
-> C++ da `==` amali `&` dan oldin bajariladi. Bu yozuv aslida `mask & ((1 << i) == 1)` degani va $i > 0$ da doim 0 beradi. Qavs qo'ysangiz ham `(mask & (1 << i)) == 1` faqat $i = 0$ da ishlaydi: natija 1 emas, $2^i$ bo'ladi.
->
-> To'g'ri: `if ((mask >> i) & 1)` yoki `if (mask & (1 << i))`.
+`mask <= limit` yozilsa, $2^n$ ham kiradi. Uning faqat $n$-biti yoqilgan, ichki sikl esa 0–$n-1$ bitlarni tekshiradi. Natijada ortiqcha holat yig'indisi 0 bo'lib, $S=0$ da noto'g'ri qo'shimcha javob beradi. To'g'ri chegara — `mask < limit`.
 
-### Bitta ortiqcha mask
+### Bo'sh tanlovni tasodifan chiqarib tashlash
 
-> [!WARNING]
-> ```cpp
-> for (int mask = 0; mask <= (1 << n); mask++)  // XATO
-> ```
-> $2^n$ soni $n$-bitni yoqadi, lekin $a_n$ element yo'q. Ichki sikl uni bo'sh to'plam deb qabul qiladi va bo'sh to'plam ikki marta sanaladi.
->
-> To'g'ri: `mask < (1 << n)`.
+Bizning masalada `mask = 0` ham ruxsat etilgan. $S=0$ bo'lsa, uni sanash kerak. Agar boshqa masalada faqat bo'sh bo'lmagan tanlovlar so'ralsa, siklni 1 dan boshlash mumkin.
 
-### Yig'indining to'lib ketishi
+### Yig'indini eski maskdan olib qolish
 
-> [!WARNING]
-> ```cpp
-> int sum = 0;  // XATO
-> ```
-> $20 \cdot 10^9 = 2 \cdot 10^{10}$, `int` esa taxminan $2.1 \cdot 10^9$ gacha sig'adi. Natijada to'lib ketish (overflow) bo'ladi va javob noto'g'ri chiqadi.
->
-> To'g'ri: `long long sum = 0;`
+`sum` ni tashqi sikldan oldin yaratib, har safar nollamaslik oldingi qism to'plam yig'indisini yangi hisobga aralashtiradi. Har bir mask mustaqil tanlov; yig'indini uning ichida 0 dan boshlang.
 
-### Bo'sh to'plamni unutish
+### Yig'indi topilishi bilan butun qidiruvni to'xtatish
 
-> [!WARNING]
-> "Eng kichik yig'indili bo'sh bo'lmagan qism to'plam" kabi masalada `mask = 0` dan boshlasangiz, javob doim 0 chiqadi — bu bo'sh to'plam.
->
-> To'g'ri: shartni o'qing. Bo'sh to'plam mumkin bo'lmasa, siklni `mask = 1` dan boshlang.
+Bitta mos mask topilishi qolganlari yo'q degani emas. Bizning testda `011` dan keyin `100` ham mos keladi. Masala barcha usullar sonini so'ragani uchun qidiruv davom etishi kerak.
+
+Nollar ham muhim: $[0,0]$, $S=0$ uchun bo'sh tanlov, har bir alohida element va ikkala element — jami 4 ta yechim. Teng yig'indilarni birlashtirib yubormang.
 
 ## Xulosa
 
-- $n$ ta elementning har bir qism to'plami $0$ dan $2^n - 1$ gacha bo'lgan bitta son — bitmask.
-- $a_i$ to'plamda ekanini `(mask >> i) & 1` tekshiradi; elementlar 0 dan raqamlanadi.
-- Barcha qism to'plamlarni ko'rish — bitta `for` sikli, vaqt $O(2^n \cdot n)$.
-- Yig'indilar uchun `long long`, sikl shartida `<` ishlating.
+- $i$-bitni $a_i$ elementga bog'lang; ikkilik yozuvda 0-bit o'ngda turadi.
+- 0 dan $2^n-1$ gacha sonlar indekslar bo'yicha barcha qism to'plamlarni bir martadan ifodalaydi.
+- Har bir mask uchun shartni alohida tekshiring; maskning o'zi elementlar yig'indisi emas.
+- Bo'sh tanlov va teng qiymatli elementlar qanday hisoblanishini masala shartidan aniqlang.
+- Vaqtni masklar soni va bitta maskni tekshirish xarajati orqali baholang.
 
-**Masalada qanday tanib olish mumkin:**
-
-- cheklovda $n \le 20$ (ba'zan 15, 18, 22);
-- shartda "tanlang", "ikki guruhga bo'ling", "bir nechtasini oling" kabi so'zlar;
-- har bir element faqat ikki holatda bo'ladi: olinadi yoki olinmaydi.
+**Qachon qo'llash mumkin?** Har bir element olinishi yoki olinmasligi kerak bo'lsa va jami tanlovlarni tekshirish cheklovlarga mos kelsa. Kichik $n$ bitmaskni ko'rib chiqishga sabab, lekin yetarlilikni $n2^n$ kabi hisob bilan tekshiramiz.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| bitmask | bitmask | Har bir biti bitta elementning to'plamda bor-yo'qligini bildiradigan butun son. |
-| to'ldiruvchi | complement | Mask'ka kirmagan elementlardan iborat to'plam. |
-| popcount | popcount | Sonning ikkilik yozuvidagi 1 lar soni. |
-| qism mask | submask | Faqat berilgan mask'dagi 1 bitlardan tanlab olingan bitlarga ega mask. |
+| Bitmask | Bitmask | Har bir biti tegishli element tanlanganini bildiradigan butun son. |
+| To'ldiruvchi qism to'plam | Complement | Berilgan elementlar ichidan joriy tanlovga kirmaganlari. |
 
-> [!TIP] O'zingizni tekshiring
-> 1. $n = 5$ va $\text{mask} = 13$ bo'lsa, qaysi elementlar tanlangan?
->
-> <details>
-> <summary>Javob</summary>
->
-> $13 = 01101_2$, ya'ni 0-, 2- va 3-bitlar yoqilgan: $\{a_0, a_2, a_3\}$.
->
-> </details>
->
-> 2. $n = 22$ bo'lsa, dastur taxminan nechta amal bajaradi va 1 soniyaga sig'adimi?
->
-> <details>
-> <summary>Javob</summary>
->
-> $2^{22} \cdot 22 \approx 4.2 \cdot 10^6 \cdot 22 \approx 9.2 \cdot 10^7$ amal. Chegarada, lekin oddiy amallar bo'lgani uchun odatda sig'adi.
->
-> </details>
->
-> 3. Nega `(mask & (1 << i)) == 1` sharti faqat $i = 0$ da to'g'ri ishlaydi?
->
-> <details>
-> <summary>Javob</summary>
->
-> Bit yoqilgan bo'lsa, `mask & (1 << i)` ning qiymati 1 emas, $2^i$ bo'ladi. Faqat $i = 0$ da $2^0 = 1$.
->
-> </details>
+### O'zingizni tekshiring
+
+1. $n=5$, `mask = 13` bo'lsa, qaysi indekslar tanlangan?
+2. $a=[2,2,2]$, $S=4$ bo'lsa, nechta mos mask bor?
+3. $a=[0,0,0]$, $S=0$ bo'lsa, javob qancha?
+4. $n=4$ va `mask = 5` bo'lsa, uning shu to'rtta element ichidagi to'ldiruvchisi qanday?
+
+<details>
+<summary>Javoblarni ko'rish</summary>
+
+1. $13=01101_2$: 0, 2 va 3 indekslar.
+2. Uchta: `011`, `101`, `110`. Har birida boshqa ikkita indeks tanlangan.
+3. $2^3=8$. Har bir tanlov yig'indisi 0, bo'sh tanlov ham hisoblanadi.
+4. `full = 15 = 1111` va `mask = 5 = 0101`. XOR natijasi `1010`, ya'ni 10; 1- va 3-indekslar tanlanadi.
+
+</details>

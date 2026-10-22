@@ -1,101 +1,79 @@
 ---
-summary: "Sonlarni ikkilik sanoq sistemasida yozish, o'nlikdan ikkilikka va aksincha tez o'tkazish."
+summary: "Ikkilik yozuvdagi xona qiymatlarini tushunish, sonni ikkilikka va ikkilik satrni songa o'tkazish."
 prerequisites: [brute-force]
 ---
 
 ## Kirish
 
-Kompyuter barcha sonlarni faqat ikki xil raqam — 0 va 1 yordamida saqlaydi. Shuning uchun ko'p masalalarda sonning "ichini", ya'ni uning ikkilik yozuvini ko'rish kerak bo'ladi. Bu darsda sonni ikkilik ko'rinishga va qaytadan o'nlik ko'rinishga o'tkazishni o'rganamiz. Shuningdek, `int` va `long long` nega aynan shunday chegaralarga ega ekanini tushunasiz. Bu bilim keyingi darslardagi bit amallari va bitmask usuli uchun poydevor bo'ladi.
+13 sonini $8+4+1$ ko'rinishida yozish mumkin. 8, 4, 2, 1 qiymatli to'rtta katak ajratsak, 13 ni ifodalash uchun birinchi, ikkinchi va to'rtinchi katakni belgilaymiz: `1101`. Bu sonni 0 va 1 bilan yozishning bir misoli. Dars davomida siz bu yozuvni o'qish, hosil qilish va undagi birlarni sanashni o'rganasiz.
 
 ## Muammo
 
-Butun son $n$ berilgan. Uning ikkilik yozuvini va bu yozuvdagi birlar sonini chiqaring.
+Manfiy bo'lmagan $n$ butun son berilgan. Uning ikkilik yozuvini hamda shu yozuvdagi 1 raqamlari sonini chiqaring.
 
-- **Kirish:** bitta butun son $n$ ($0 \le n \le 10^{18}$).
-- **Chiqish:** birinchi qatorda $n$ ning ikkilik yozuvi (boshida ortiqcha nollarsiz), ikkinchi qatorda undagi birlar soni.
+- **Kirish:** bitta butun son $n$, $0\le n\le10^{18}$.
+- **Chiqish:** birinchi qatorda ikkilik yozuv, ikkinchi qatorda birlar soni.
+- Yozuv boshida ortiqcha nollar bo'lmasin. 0 soni `0` deb chiqarilsin.
+- Vaqt chegarasi: 1 soniya. Xotira chegarasi: 256 MB.
 
-| Kirish | Chiqish |
-|---|---|
-| `13` | `1101`<br>`3` |
+Kirish:
 
-Eng sodda fikr: ikkilik sanoqda 0 dan boshlab $n$ gacha birma-bir sanab chiqamiz. Har safar oxirgi xonaga 1 qo'shamiz. Agar u yerda 1 tursa, uni 0 ga aylantirib, "bir"ni chapga o'tkazamiz — xuddi o'nlikda 9 dan 10 ga o'tgandek.
-
-```cpp
-string s = "0";
-for (long long i = 0; i < n; i++) {
-    int j = s.size() - 1;
-    // oxiridagi birlarni nolga aylantiramiz
-    while (j >= 0 && s[j] == '1') { s[j] = '0'; j--; }
-    if (j >= 0) s[j] = '1';
-    else s = "1" + s;   // xonalar yetmadi — chapga yangi xona
-}
-cout << s << "\n" << count(s.begin(), s.end(), '1') << "\n";
+```text
+13
 ```
 
-Bu kod to'g'ri ishlaydi, lekin sikl $n$ marta aylanadi. $n = 10^{18}$ bo'lsa, bu $10^{18}$ amal demak. 1 soniyada taxminan $10^8$ amal bajariladi, ya'ni dastur $10^{10}$ soniya — 300 yildan ortiq ishlaydi. Bizga ancha tezroq usul kerak.
+Chiqish:
+
+```text
+1101
+3
+```
+
+Sonni 0 dan boshlab bittalab sanash shart emas. Bizga faqat uning raqamlari kerak. "Rekursiya asoslari" darsidagi o'nlik raqamlar bilan ishlashni eslasangiz, `% 10` oxirgi raqamni, `/ 10` qolgan qismini bergan edi. Quyida xuddi shu fikrni 2 asosida qo'llaymiz; rekursiya talab qilinmaydi.
 
 ## G'oya
 
-Avval o'zimizga tanish o'nlik sonni ko'raylik. $345$ soni aslida $3 \cdot 100 + 4 \cdot 10 + 5 \cdot 1$ degani. Har bir xona o'ngdagisidan 10 marta "og'irroq". Raqamlarni yozish qoidasi **sanoq sistemasi (number system)** deyiladi, har bir xona necha marta og'irlashishini ko'rsatuvchi son esa uning **asosi (base)** deyiladi. Biz kundalik hayotda asosi 10 bo'lgan sistemadan foydalanamiz.
+### Xona qiymatlari
 
-**Ikkilik sanoq sistemasi (binary number system)** — asosi 2 bo'lgan sistema. Unda faqat 0 va 1 raqamlari bor, xonalar esa o'ngdan chapga $1, 2, 4, 8, 16, \dots$ qiymatga ega. Ikkilik yozuvning bitta raqami **bit** deyiladi. Masalan, $1010_2$ yozuvini ko'raylik (pastdagi 2 — asos):
+O'nlikdagi $345$ yozuvi $3\cdot100+4\cdot10+5\cdot1$ degani. O'ngdan chapga xona qiymatlari $1,10,100,\dots$ bo'lib o'sadi. Sonni raqamlar va ularning o'rni orqali yozish qoidasi **pozitsion sanoq sistemasi (positional numeral system)** deyiladi.
 
-| Xona qiymati | 8 | 4 | 2 | 1 |
+Har bir xona o'ng qo'shnisidan necha marta katta ekanini ko'rsatuvchi son **asos (base)** deyiladi. O'nlik yozuvda asos 10, raqamlar esa 0 dan 9 gacha.
+
+Ikkilik yozuvda xona qiymatlari $1,2,4,8,16,\dots$. **Ikkilik sanoq sistemasi (binary numeral system)** — asosi 2 bo'lgan, faqat 0 va 1 raqamlari ishlatiladigan sistema. Uning bitta raqami **bit (bit)** deyiladi.
+
+| Bit o'rni | 3 | 2 | 1 | 0 |
 |---|---|---|---|---|
-| Bit | 1 | 0 | 1 | 0 |
-| Hissasi | 8 | 0 | 2 | 0 |
+| Xona qiymati | 8 | 4 | 2 | 1 |
+| 13 ning biti | 1 | 1 | 0 | 1 |
+| Yig'indiga hissasi | 8 | 4 | 0 | 1 |
 
-$8 + 2 = 10$, demak $1010_2 = 10$. Eng o'ngdagi bit **eng kichik bit (least significant bit, LSB)**, eng chapdagisi **eng katta bit (most significant bit, MSB)** deyiladi.
+Demak, $1101_2=8+4+1=13$. Pastdagi 2 yozuvning asosini bildiradi. Oddiy `1101` satrini esa qaysi sanoq sistemasida o'qiyotganimizni kontekstdan bilamiz.
 
-### O'nlikdan ikkilikka
+Bitlar **o'ngdan 0 dan boshlab** raqamlanadi. $k$-o'rinning qiymati $2^k$. Masalan, 2-bitning qiymati 4, 3-bitniki 8.
 
-Endi teskari yo'nalish: $10$ sonining bitlarini qanday topamiz? Asosiy kuzatish:
+### Nega 2 ga bo'lamiz?
 
-**Sonning eng kichik biti $n \bmod 2$ ga teng, $n / 2$ (butun bo'lish) esa shu bitni "kesib tashlaydi".**
+13 ni 2 ga bo'lsak, butun qismi 6, qoldig'i 1: $13=2\cdot6+1$. Ikkilik yozuvda ham $1101_2$ ning oxirgi biti 1, qolgan qismi $110_2=6$.
 
-Nega? Eng kichik bitdan boshqa barcha xonalar ($2, 4, 8, \dots$) juft. Demak son juft yoki toqligini faqat eng kichik bit hal qiladi. $2$ ga butun bo'lganda esa har bir xona bir pog'ona o'ngga suriladi, eng kichik bit esa yo'qoladi. Bu o'nlikdagi holatga o'xshaydi: $345 \bmod 10 = 5$ (oxirgi raqam), $345 / 10 = 34$ (oxirgi raqamsiz).
+**`n % 2` oxirgi bitni beradi, `n / 2` esa shu bit olib tashlangan sonni beradi.** Sababi: eng o'ngdagi xonadan boshqa barcha xona qiymatlari 2 ga bo'linadi. Ularning hissasi qoldiq bermaydi; qoldiqni faqat oxirgi bit belgilaydi.
 
-Shuning uchun algoritm juda sodda:
+Keyin 6 uchun shu ishni takrorlaymiz: $6=2\cdot3+0$. Shunday davom etib, bitlarni o'ngdan chapga yig'amiz.
 
-1. $n \bmod 2$ ni yozib olamiz — bu navbatdagi bit.
-2. $n$ ni $2$ ga butun bo'lamiz.
-3. $n$ nolga teng bo'lguncha takrorlaymiz.
-4. Yig'ilgan bitlarni teskari tartibda o'qiymiz.
-
-$n = 10$ uchun:
-
-| $n$ | $n \bmod 2$ | $n / 2$ |
-|---|---|---|
-| 10 | 0 | 5 |
-| 5 | 1 | 2 |
-| 2 | 0 | 1 |
-| 1 | 1 | 0 |
-
-Yig'ilgan bitlar: `0101`. Teskari o'qisak, `1010` chiqadi — kutganimizdek.
+1. Son 0 bo'lsa, uning yozuvi `0`.
+2. Aks holda `n % 2` ni satr oxiriga qo'shamiz.
+3. `n` ni 2 ga butun bo'lamiz va u musbat ekan, takrorlaymiz.
+4. Yig'ilgan satrni teskari aylantiramiz.
 
 > [!NOTE]
-> To'xtang va o'ylang: nega bitlarni teskari tartibda o'qishimiz kerak?
+> To'xtang va o'ylang: 6 uchun qoldiqlar `0`, `1`, `1` chiqadi. Natijani `011` deb chiqarish nega noto'g'ri?
 
-Javob: birinchi qadamda biz eng kichik bitni, ya'ni eng o'ngdagi xonani oldik. Keyingi qadamlarda chaproqdagi xonalar chiqdi. Demak bitlar o'ngdan chapga tartibda yig'ilgan, ularni chapdan o'ngga o'qish uchun teskarisiga aylantirish kerak.
+Birinchi topilgan 0 eng o'ngdagi bit edi. Uni satrning chap tomoniga yozib qo'ydik. Tartibni tuzatsak, `110` hosil bo'ladi: $4+2=6$. `011` esa $2+1=3$.
 
-### Ikkilikdan o'nlikka
+### Nega usul barcha bitlarni topadi?
 
-Teskari o'tish ham oddiy. Bitlarni chapdan o'ngga o'qiymiz va har safar joriy qiymatni 2 ga ko'paytirib, yangi bitni qo'shamiz. `1010` uchun: $0 \to 0 \cdot 2 + 1 = 1 \to 1 \cdot 2 + 0 = 2 \to 2 \cdot 2 + 1 = 5 \to 5 \cdot 2 + 0 = 10$. Har bir ko'paytirish oldingi bitlarni bir xona chapga suradi.
+Har qadamda $n=2q+r$, bu yerda $q$ — butun bo'linma, $r$ esa 0 yoki 1. Qoldiq oxirgi bitni aniq belgilaydi, qolgan bitlar $q$ ichida qoladi. Musbat son 2 ga butun bo'linganda kichrayadi, shuning uchun oxir-oqibat 0 ga yetamiz.
 
-### Son nechta bitdan iborat?
-
-$n$ ni har qadamda 2 ga bo'lamiz, demak qadamlar soni — $n$ ni necha marta 2 ga bo'lib 1 ga yetish mumkinligi. Bu son **ikkilik logarifm (binary logarithm)** deyiladi va $\log_2 n$ deb yoziladi: masalan, $\log_2 8 = 3$, chunki $2 \cdot 2 \cdot 2 = 8$. $n \ge 1$ sonidagi bitlar soni $\lfloor \log_2 n \rfloor + 1$ ga teng.
-
-Taxminiy hisob uchun qulay qoida: $2^{10} = 1024 \approx 10^3$. Demak $2^{20} \approx 10^6$, $2^{30} \approx 10^9$, $2^{60} \approx 10^{18}$. Shuning uchun $10^{18}$ gacha bo'lgan son ko'pi bilan 60 bitdan iborat.
-
-### `int` va `long long` chegaralari
-
-Endi tiplar chegarasini tushunish oson. `int` 32 bitdan iborat, ulardan bittasi ishora (musbat yoki manfiy) uchun ketadi. Shuning uchun eng katta `int` $2^{31} - 1 = 2\,147\,483\,647 \approx 2{,}1 \cdot 10^9$. `long long` 64 bitli, uning eng katta qiymati $2^{63} - 1 \approx 9{,}2 \cdot 10^{18}$.
-
-Agar hisob natijasi tipga sig'masa, son "aylanib" noto'g'ri qiymatga aylanadi. Bu **to'lib ketish (overflow)** deyiladi. Masalan, `int x = 2000000000; x = x * 2;` bo'lganda manfiy son chiqadi.
-
-> [!IMPORTANT]
-> Chegara $10^9$ dan katta bo'lsa yoki ko'paytmalar $10^9$ dan oshishi mumkin bo'lsa, `long long` ishlating.
+Oxirgi musbat qiymat 1 bo'ladi. Undan olingan qoldiq teskari aylantirilgach yozuvning boshiga keladi. Shu sababli musbat sonning natijasida ortiqcha boshlang'ich nol bo'lmaydi.
 
 ## Amalga oshirish
 
@@ -103,18 +81,18 @@ Agar hisob natijasi tipga sig'masa, son "aylanib" noto'g'ri qiymatga aylanadi. B
 #include <bits/stdc++.h>
 using namespace std;
 
-// n ni ikkilik yozuvga o'tkazadi
 string toBinary(long long n) {
-    if (n == 0) return "0";          // nol uchun alohida holat
-    string s;
-    // eng kichik bitdan boshlab bitlarni yig'amiz
+    if (n == 0) return "0";
+
+    string digits;
     while (n > 0) {
-        s += char('0' + n % 2);
+        // Qoldiq 0 yoki 1; uni satr belgisi sifatida qo'shamiz.
+        digits.push_back(char('0' + n % 2));
         n /= 2;
     }
-    // bitlar teskari tartibda yig'ilgan
-    reverse(s.begin(), s.end());
-    return s;
+
+    reverse(digits.begin(), digits.end());
+    return digits;
 }
 
 int main() {
@@ -123,143 +101,132 @@ int main() {
 
     long long n;
     cin >> n;
+    string binary = toBinary(n);
 
-    string bin = toBinary(n);
-    // yozuvdagi birlarni sanaymiz
-    int ones = count(bin.begin(), bin.end(), '1');
+    int ones = 0;
+    for (char digit : binary) {
+        if (digit == '1') ones++;
+    }
 
-    cout << bin << "\n" << ones << "\n";
+    cout << binary << '\n' << ones << '\n';
     return 0;
 }
 ```
 
-Kodning muhim joylari:
-
-- `n` — `long long`, chunki $10^{18}$ `int` ga sig'maydi.
-- `char('0' + n % 2)` — `0` yoki `1` sonini `'0'` yoki `'1'` belgisiga aylantiradi.
-- `n == 0` alohida tekshiriladi: aks holda sikl bir marta ham aylanmaydi va bo'sh satr chiqadi.
-- `reverse` bitlarni to'g'ri tartibga keltiradi.
+- `long long` berilgan $10^{18}$ gacha bo'lgan qiymatlarni saqlay oladi.
+- `'0'` va `'1'` — belgilar; 0 va 1 esa sonlar. `char('0' + n % 2)` kerakli belgini hosil qiladi.
+- `toBinary` parametrni qiymat bo'yicha oladi. Ichidagi bo'lishlar `main` dagi `n` ni o'zgartirmaydi.
+- 0 ning yozuvi bitta belgidan iborat, lekin unda birlar soni 0.
 
 ## Misol
 
-Muammodagi test: $n = 13$.
+$n=13$ uchun barcha qadamlar:
 
-| Qadam | $n$ | $n \bmod 2$ | $n / 2$ | `s` (teskari tartibda) |
+| Qadam | Bo'lishdan oldingi $n$ | Qoldiq | Yangi $n$ | Yig'ilgan satr |
 |---|---|---|---|---|
 | 1 | 13 | 1 | 6 | `1` |
 | 2 | 6 | 0 | 3 | `10` |
 | 3 | 3 | 1 | 1 | `101` |
 | 4 | 1 | 1 | 0 | `1011` |
 
-$n = 0$ bo'ldi, sikl to'xtaydi. `reverse` dan keyin `s = "1101"`. Undagi birlar soni — 3.
-
-Tekshiramiz: $1101_2 = 8 + 4 + 0 + 1 = 13$. Dastur `1101` va `3` ni chiqaradi — javob to'g'ri.
+Sikl tugagach, `1011` satrini teskari aylantirib `1101` olamiz. Birlar soni 3. Xona qiymatlari orqali qayta hisoblasak, $8+4+1=13$ — boshlang'ich son qaytdi.
 
 ## Murakkablik
 
-Har qadamda $n$ ikki baravar kamayadi, shuning uchun qadamlar soni bitlar soniga, ya'ni $\lfloor \log_2 n \rfloor + 1$ ga teng. Vaqt murakkabligi — $O(\log n)$. $n = 10^{18}$ da bu atigi 60 ta qadam: sodda usuldagi $10^{18}$ ta qadam bilan solishtiring.
+Ikkilik yozuv uzunligini $b$ deb olaylik. Bo'lish sikli musbat son uchun $b$ marta ishlaydi. Satrni teskari aylantirish va birlarni sanash ham $O(b)$ vaqt oladi. Jami vaqt $O(b)$, satr uchun xotira $O(b)$.
 
-Xotira ham $O(\log n)$ — faqat bitlar satri saqlanadi.
+Musbat $n$ uchun $b=\lfloor\log_2 n\rfloor+1$. Masalan, $8=1000_2$ to'rt bitli; $\log_2 8=3$ darajani bildiradi, uzunlik esa undan bitta ko'p. $\lfloor x\rfloor$ belgisi $x$ dan katta bo'lmagan eng katta butun sonni bildiradi.
+
+$2^{59}\le10^{18}<2^{60}$ bo'lgani uchun bizning musbat kirishlarimiz ko'pi bilan 60 bitli. Algoritmning bo'lish sikli ham ko'pi bilan 60 marta aylanadi. 0 uchun logarifm formulasini ishlatmaymiz: uni alohida, bir belgili yozuv deb olganmiz.
 
 ## Variantlar
 
-### Ikkilikdan o'nlikka o'tkazish
+### Ikkilik satrdan son olish
 
-Qachon kerak: kirishda ikkilik satr berilganda. "G'oya" bo'limidagi usulning kodi:
+`1101` ni chapdan o'ngga o'qiylik. Avvalgi qiymatni ikki baravar oshirib, keyingi bitni qo'shamiz:
+
+| O'qilgan qism | Hisob | Qiymat |
+|---|---|---|
+| `1` | $0\cdot2+1$ | 1 |
+| `11` | $1\cdot2+1$ | 3 |
+| `110` | $3\cdot2+0$ | 6 |
+| `1101` | $6\cdot2+1$ | 13 |
+
+Yangi xona qo'shilganda oldingi xonalarning qiymati ikki baravar oshadi. Shu sababli quyidagi funksiya ishlaydi. Uning sharti: satr bo'sh emas, faqat `0` va `1` dan iborat, uzunligi ko'pi bilan 60.
 
 ```cpp
-long long toDecimal(const string& s) {
-    long long val = 0;
-    for (char c : s) val = val * 2 + (c - '0');
-    return val;
+long long toDecimal(const string& binary) {
+    long long value = 0;
+    for (char digit : binary) {
+        value = value * 2 + (digit - '0');
+    }
+    return value;
 }
 ```
 
-### Ixtiyoriy asosga o'tkazish
+60 bitli yozuvning eng katta qiymati $2^{60}-1$ bo'lib, `long long` ga sig'adi. Uzunlik cheklanmasa, bu kod uchun to'lib ketish ehtimolini alohida tekshirish kerak.
 
-Qachon kerak: masalada uchlik, sakkizlik yoki boshqa sanoq sistemasi so'ralganda. G'oya o'zgarmaydi: 2 o'rniga $k$ ga bo'lamiz.
+### Yozuv uzunligi va birlar soni
 
-```cpp
-string toBase(long long n, int k) {   // 2 <= k <= 10
-    if (n == 0) return "0";
-    string s;
-    while (n > 0) { s += char('0' + n % k); n /= k; }
-    reverse(s.begin(), s.end());
-    return s;
-}
-```
+$8=1000_2$: uzunligi 4, birlar soni 1. $7=111_2$: uzunligi 3, birlar soni 3. Demak, bu ikki savol boshqa-boshqa natija beradi.
 
-Masalan, `toBase(13, 3)` natijasi `111`, chunki $9 + 3 + 1 = 13$.
+Har qanday $2^k$ sonining yozuvi bitta 1 va undan keyingi $k$ ta noldan iborat. $2^k-1$ esa $k$ ta birdan iborat: $15=16-1=1111_2$. Bu kuzatishlar keyingi bit amallari darsida kerak bo'ladi.
 
-### `bitset` bilan tez chiqarish
+### Boshlang'ich nollar
 
-Qachon kerak: sonning aniq uzunlikdagi ikkilik yozuvini tez ko'rish yoki tekshirish uchun. `bitset<8>(13).to_string()` natijasi `"00001101"` — boshidagi nollar ham chiqadi.
+`1101` va `00001101` bir xil 13 sonini bildiradi. Qo'shilgan nollar yangi qiymat bermaydi. Sonning o'ziga kerak bo'lgan yozuv uzunligi bilan dasturdagi son turi uchun ajratilgan bitlar sonini ajrating.
+
+Masalan, odatdagi musobaqa muhitida `int` 32 bitli, `long long` esa 64 bitli. C++ da `int` ning aniq o'lchami barcha muhitlar uchun bir xil deb belgilanmagan. Son turi chegarasini tekshirish kerak bo'lsa, `numeric_limits<T>::max()` dan foydalanish mumkin.
 
 ## Ko'p uchraydigan xatolar
 
-### Nolni unutish
+### Nol uchun bo'sh satr chiqarish
 
-> [!WARNING]
-> ```cpp
-> string s;
-> while (n > 0) { s += char('0' + n % 2); n /= 2; }
-> ```
-> $n = 0$ bo'lsa, sikl bir marta ham aylanmaydi va bo'sh satr chiqadi. To'g'risi: boshida `if (n == 0) return "0";` deb tekshiring.
+Faqat `while (n > 0)` ga tayansak, 0 uchun hech qanday raqam yig'ilmaydi. `if (n == 0) return "0";` shu holatni to'g'rilaydi.
 
-### Teskari aylantirishni unutish
+### Bit indeksini satr indeksi bilan adashtirish
 
-> [!WARNING]
-> `reverse` siz $13$ uchun `1011` chiqadi, bu esa $11$ soni. Bitlar eng kichigidan boshlab yig'iladi, shuning uchun oxirida `reverse(s.begin(), s.end());` shart.
+`1101` satrida chapdagi belgi `binary[0]`, lekin u sonning 3-biti. Sonning 0-biti eng o'ngda. Satr bilan ishlaganda yo'nalishni aniq belgilang.
 
-### `int` ga katta sonni o'qish
+### Natija har doim son turiga sig'adi deb o'ylash
 
-> [!WARNING]
-> ```cpp
-> int n; cin >> n;   // n = 10^18
-> ```
-> $10^{18}$ `int` chegarasidan ($\approx 2{,}1 \cdot 10^9$) ancha katta — to'lib ketish yuz beradi. To'g'risi: `long long n;`.
+Ikkilikdan qaytishda `value * 2 + bit` ham son turi chegarasidan oshishi mumkin. C++ da ishorali butun sonning to'lib ketishini "son aylanib ketadi" deb ishonchli qoida sifatida ishlatib bo'lmaydi. Yuqoridagi funksiyada xavfsizlik kirish uzunligi orqali ta'minlangan.
 
-### `pow` bilan ikkining darajasini hisoblash
+### Butun son hisobiga keraksiz `pow` qo'shish
 
-> [!WARNING]
-> ```cpp
-> val += pow(2, k);
-> ```
-> `pow` haqiqiy son (`double`) qaytaradi. Katta $k$ larda u aniqlikni yo'qotadi va javob bir-ikki birlikka xato chiqishi mumkin. To'g'risi: `val = val * 2 + bit` usulidan foydalaning yoki darajani butun sonlarda sikl bilan hisoblang.
+Bu masalada darajalarni haqiqiy sonlarda hisoblash shart emas. `value = value * 2 + bit` aniq butun son arifmetikasida ishlaydi. Katta sonlarni `double` orqali yig'ish barcha butun qiymatlarni aniq saqlash kafolatini bermaydi.
 
 ## Xulosa
 
-- Ikkilik sistemada xonalar qiymati $1, 2, 4, 8, \dots$; son — birli xonalar qiymatlarining yig'indisi.
-- O'nlikdan ikkilikka: $n \bmod 2$ ni yozib, $n$ ni 2 ga bo'lamiz, oxirida teskari o'qiymiz.
-- Ikkilikdan o'nlikka: `val = val * 2 + bit`.
-- $n$ da $\lfloor \log_2 n \rfloor + 1$ ta bit bor; $2^{10} \approx 10^3$ qoidasi bilan tez baholang.
-- `int` $\approx 2{,}1 \cdot 10^9$ gacha, `long long` $\approx 9{,}2 \cdot 10^{18}$ gacha sig'adi.
+- Ikkilik yozuvda $k$-bitning xona qiymati $2^k$; indekslar o'ngdan 0 dan boshlanadi.
+- Sonni 2 ga bo'lib, qoldiqlarni yig'amiz va ularni teskari tartibga keltiramiz.
+- Ikkilik satrni o'qishda oldingi qiymatni 2 ga ko'paytirib, yangi bitni qo'shamiz.
+- Yozuv uzunligi, birlar soni va son turi kengligi — uchta alohida tushuncha.
 
-**Masalada qanday tanib olish mumkin:** shartda "ikkilik yozuv", "binary", "bitlar soni", "birlar soni", "ikkining darajalari" so'zlari bo'lsa yoki $n$ juda katta ($10^{18}$ gacha), lekin javob son raqamlariga bog'liq bo'lsa.
+**Qachon kerak?** Masala sonning ikkilik yozuvi, alohida bitlari yoki ikkining darajalari haqida bo'lsa. Keyingi darsda bitlarni satrga aylantirmasdan tekshirish va o'zgartirishni ko'ramiz.
 
 ### Atamalar
 
 | Atama | Inglizcha | Ma'nosi |
 |---|---|---|
-| Sanoq sistemasi | number system | Sonlarni raqamlar bilan yozish qoidasi. |
-| Asos | base | Har bir xona o'ngdagisidan necha marta katta ekanini ko'rsatuvchi son. |
-| Ikkilik sanoq sistemasi | binary number system | Faqat 0 va 1 ishlatiladigan, asosi 2 bo'lgan sistema. |
-| Bit | bit | Ikkilik yozuvdagi bitta raqam (0 yoki 1). |
-| Eng kichik bit | least significant bit (LSB) | Ikkilik yozuvning eng o'ngdagi, qiymati 1 bo'lgan biti. |
-| Eng katta bit | most significant bit (MSB) | Ikkilik yozuvning eng chapdagi biti. |
-| Ikkilik logarifm | binary logarithm | Sonni necha marta 2 ga bo'lib 1 ga yetish mumkinligi. |
-| To'lib ketish | overflow | Natija tipga sig'magani uchun noto'g'ri qiymat hosil bo'lishi. |
+| Pozitsion sanoq sistemasi | Positional numeral system | Raqamning hissasi uning yozuvdagi o'rniga bog'liq bo'lgan yozish qoidasi. |
+| Asos | Base | Har bir xona o'ng qo'shnisidan necha marta katta ekanini bildiruvchi son. |
+| Ikkilik sanoq sistemasi | Binary numeral system | 0 va 1 raqamlari ishlatiladigan, asosi 2 bo'lgan sistema. |
+| Bit | Bit | Ikkilik yozuvdagi bitta raqam. |
 
-> [!TIP] O'zingizni tekshiring
-> 1. $100110_2$ o'nlikda nechaga teng?
-> 2. $25$ sonining ikkilik yozuvi qanday va unda nechta bit bor?
-> 3. $n \le 10^{9}$ bo'lsa, `toBinary` sikli ko'pi bilan necha marta aylanadi?
->
-> <details>
-> <summary>Javoblar</summary>
->
-> 1. $32 + 4 + 2 = 38$.
-> 2. $25 = 16 + 8 + 1 = 11001_2$, 5 ta bit.
-> 3. $2^{30} \approx 1{,}07 \cdot 10^9 > 10^9$, demak ko'pi bilan 30 marta.
->
-> </details>
+### O'zingizni tekshiring
+
+1. $100110_2$ o'nlikda nechaga teng?
+2. 25 ning ikkilik yozuvi, yozuv uzunligi va birlar soni qanday?
+3. 0 uchun dastur ikki qatorda nima chiqaradi?
+4. Nega $2^{10}=1024$ sonining yozuvi 10 emas, 11 bitli?
+
+<details>
+<summary>Javoblarni ko'rish</summary>
+
+1. $32+4+2=38$.
+2. `11001`, uzunligi 5, birlar soni 3.
+3. Birinchi qatorda `0`, ikkinchisida ham `0`.
+4. 10-bit yoqilgan, undan pastda 0–9 bitlar bor: jami 11 ta xona. Yozuv bitta 1 va o'nta noldan iborat.
+
+</details>
