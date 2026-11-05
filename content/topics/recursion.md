@@ -1,5 +1,5 @@
 ---
-summary: "Kichikroq masala orqali javob topish, rekursiv chaqiruvlardan qaytish va stek sarfini baholash."
+summary: "Raqamlar yig'indisi va Hanoi minoralari misolida rekursiyani tuzish hamda vaqt va xotira cheklovlariga qarab sikl yoki rekursiyani tanlash."
 prerequisites: [brute-force]
 ---
 
@@ -84,7 +84,7 @@ Kompyuter tugamagan chaqiruvlarning davom etish joyi va mahalliy ma'lumotlarini 
 
 ### Nega javob to'g'ri?
 
-0 uchun funksiya to'g'ri javob — 0 ni qaytaradi. Endi kichikroq sonning raqamlari yig'indisi to'g'ri hisoblangan deb olaylik. Uning oldiga emas, oxiriga qo'shilgan raqamni yig'indiga qo'shsak, butun sonning raqamlari yig'indisi chiqadi.
+0 uchun funksiya to'g'ri javob — 0 ni qaytaradi. Endi kichikroq sonning raqamlari yig'indisi to'g'ri hisoblangan deb olaylik. Har qanday musbat sonni $n=10q+r$ ko'rinishida yozish mumkin. Bu yerda $r$ oxirgi raqam, $q$ esa qolgan raqamlardan tuzilgan son. Demak, $q$ ning raqamlari yig'indisiga $r$ ni qo'shish bilan har bir raqamni aynan bir marta hisobga olamiz.
 
 Bizning funksiya aynan shu ishni qiladi: `n % 10` ni `digitSum(n / 10)` natijasiga qo'shadi. Har bir musbat son kichrayib asos holatiga yetgani uchun hisob qaytishda ham to'g'ri davom etadi. Bu yerda to'g'rilik uch narsaga tayanadi: asos holati, kichikroq masalaga o'tish va javoblarni to'g'ri birlashtirish.
 
@@ -136,11 +136,26 @@ Oxirgi 19 qiymati `main` ga qaytadi va ekranga chiqariladi. O'rtadagi 0 raqami h
 
 ## Murakkablik
 
-Sonning raqamlari sonini $d$ deb olaylik. Musbat son uchun $d$ ta raqamli chaqiruv va bitta asos holati bor. Har birida, ichki chaqiruv sarfini alohida hisoblaganda, o'zgarmas miqdorda ish bajariladi. Vaqt $O(d)$, stek xotirasi ham $O(d)$.
+Musbat sonning o'nlik yozuvida $d$ ta raqam bo'lsin. Har chaqiruv bitta raqamni ajratadi. Oxirida yana bitta chaqiruv 0 ni qaytaradi. Har bir qadam $O(1)$ vaqt oladi, demak jami vaqt $O(d)$. Eng chuqur nuqtada barcha $d+1$ ta chaqiruv faol bo'lgani uchun stekka $O(d)$ joy kerak. Berilgan cheklovda son ko'pi bilan 19 raqamli, ya'ni chuqurlik ko'pi bilan 20.
 
-Bizning cheklovlarda musbat son ko'pi bilan 19 raqamli. Demak, asos holati bilan ko'pi bilan 20 ta chaqiruv faol turadi. $n=0$ uchun bitta chaqiruv yetadi.
+### Shu hisobni sikl bilan bajarsak-chi?
 
-Oldingi darsdagi murakkablik bahosini qo'llashda **jami chaqiruvlar soni** va **bir vaqtdagi chaqiruvlar soni**ni ajrating. Birinchisi vaqtni, ikkinchisi stek sarfini baholashga yordam beradi. Agar har bir chaqiruv katta massiv yaratsa, uning xotirasini ham qo'shish kerak.
+```cpp
+int digitSumLoop(long long n) {
+    int sum = 0;
+    while (n > 0) {
+        sum += n % 10;
+        n /= 10;
+    }
+    return sum;
+}
+```
+
+4096 uchun sikl 6, 9, 0, 4 raqamlarini shu tartibda oladi. Har qadamdan keyin `sum` qiymati mos ravishda 6, 15, 15, 19 bo'ladi. Rekursiv funksiya ajratilgan raqamlarni qaytishda qo'shgan edi. Siklda esa yig'indi darhol yangilanadi, shuning uchun oldingi qadamlarni saqlashga hojat yo'q. Kirishda 0 berilsa, siklga kirmaymiz va boshlang'ich yig'indi 0 qaytadi.
+
+**Vaqt limiti (time limit).** Ikkala yechim ham har bir raqamga bir marta murojaat qiladi va $O(d)$ vaqt oladi. Funksiyani chaqirish va undan qaytish qo'shimcha vaqt olishi mumkin. Bitta 19 raqamli son uchun bu farq juda kichik. Tarmoqlanuvchi masalada esa vaqtni baholash uchun barcha shoxlarda bajariladigan ishni qo'shib chiqing.
+
+**Xotira limiti (memory limit).** Siklga son va joriy yig'indini saqlash kifoya, ya'ni qo'shimcha xotira $O(1)$. Rekursiyada esa eng chuqur nuqtada nechta chaqiruv faol bo'lishini va har birida nima saqlanishini tekshiring. Masaladagi 256 MB butun dastur uchun berilgan. Chaqiruvlar stekining o'z chegarasi bo'lishi mumkin, shuning uchun umumiy xotira hali yetarli bo'lsa ham, chuqur rekursiya dasturni bajarilish xatosi bilan to'xtatishi mumkin.
 
 ## Variantlar
 
@@ -191,6 +206,16 @@ Yurishlar soni 0 diskda 0, 1 diskda 1, 2 diskda 3, 3 diskda 7. Har safar oldingi
 
 Bu kodda asos holatlari bilan jami $2^{k+1}-1$ ta chaqiruv bor, vaqt $O(2^k)$. Ammo bir vaqtda ko'pi bilan $k+1$ ta `hanoi` chaqiruvi faol: stek $O(k)$. Yurishlarni ro'yxatga yig'may, darhol chiqarayotganimiz uchun ularni saqlashga qo'shimcha joy ketmaydi.
 
+### Qachon sikl, qachon rekursiya qulay?
+
+| Masalaning tuzilishi | Tanlov va sababi |
+|---|---|
+| Massiv yig'indisi kabi har qadamda faqat navbatdagi elementga o'tamiz. | Sikl qulay. Indeks va joriy yig'indi kifoya, hatto millionta elementda ham qo'shimcha xotira $O(1)$. |
+| Hanoi minoralaridagi kabi bir kichik masaladan qaytib, amal bajarib, keyin boshqasiga o'tamiz. | Chuqurlik kichik bo'lsa, rekursiya qulay. Har bir chaqiruv qaysi qoziqlar bilan ishlayotganini va qaytgach qayerdan davom etishini saqlaydi. |
+| Daraxt shoxlarini ko'rish kerak, lekin daraxt bitta uzun zanjir bo'lishi ham mumkin. | Sikl va alohida stek ishlating. Ko'rilishi kerak bo'lgan tugunlarni o'zingiz saqlaysiz. Bu funksiya stekiga tushadigan yukni kamaytiradi, alohida stekdagi tugunlar esa umumiy xotiradan joy oladi. |
+
+Hanoi misolida 15 ta disk uchun eng chuqur nuqtada atigi 16 ta chaqiruv faol, lekin dastur 32 767 ta yurishni chiqaradi. Agar vaqtning asosiy qismi chiqarishga ketsa, siklga o'tish bilan bu xarajatni yo'qota olmaymiz. Avval masala barcha yurishlarni so'rayaptimi yoki faqat ularning soninimi, shuni aniqlang.
+
 ## Ko'p uchraydigan xatolar
 
 ### Kichrayish bilan to'xtashni bir xil deb o'ylash
@@ -210,7 +235,7 @@ Argument kamayishi asos holatiga yetishni kafolatlamaydi. Masalan, faqat `n == 0
 > [!WARNING]
 > Stek uchun ajratilgan xotira cheklangan. Chaqiruvlar unga sig'may qolishi **stekning to'lib ketishi (stack overflow)** deyiladi. Barcha muhitlar uchun xavfsiz bitta chuqurlik yo'q: u stek hajmi va har bir chaqiruvdagi ma'lumotga bog'liq.
 
-Masalan, millionta massiv elementini bittadan rekursiv qo'shish millionga yaqin chuqurlik talab qiladi. Bunday oddiy hisobda sikl qulayroq. Bizning raqamlar yig'indisi misolimizda esa chuqurlik ko'pi bilan 20. Dastur rekursiyani avtomatik siklga aylantiradi deb hisoblamang.
+Eng katta kirish qiymati uchun asos holatigacha necha qadam borligini hisoblang. Masalan, 1 000 000 dan 0 gacha bittadan kamayish 1 000 001 ta faol chaqiruvga olib kelishi mumkin. C++ kompilyatori bunday chaqiruvlarni siklga aylantirishiga kafolat yo'q.
 
 ## Xulosa
 
@@ -239,6 +264,7 @@ Masalan, millionta massiv elementini bittadan rekursiv qo'shish millionga yaqin 
 2. Ichki `digitSum(40)` chaqiruvi tashqi `digitSum(409)` ning `n` qiymatini 40 ga almashtiradimi?
 3. `printDigits(507)` nimani chiqaradi? `cout` rekursiv chaqiruvdan oldinga o'tkazilsa-chi?
 4. `hanoi(3, 1, 3, 2)` uchun yurishlar soni, jami chaqiruvlar soni va eng katta chuqurlik nechta?
+5. 200 000 ta element yig'indisini topishda sikl va elementlarni bittadan qo'shadigan rekursiya vaqt va qo'shimcha xotira bo'yicha qanday farq qiladi?
 
 <details>
 <summary>Javoblarni ko'rish</summary>
@@ -247,5 +273,6 @@ Masalan, millionta massiv elementini bittadan rekursiv qo'shish millionga yaqin 
 2. Yo'q. Bu kodda har bir chaqiruv o'zining qiymat bo'yicha uzatilgan parametriga ega. Ichki chaqiruv qaytgach, tashqisida `n` hamon 409.
 3. Avvalgi kod `5 0 7` chiqaradi. `cout` oldinga o'tsa, `7 0 5` chiqadi.
 4. 7 ta yurish, asos holatlari bilan 15 ta chaqiruv. Eng katta chuqurlik 4: $k=3,2,1,0$ holatlari bir vaqtda faol bo'ladi.
+5. Ikkalasi ham har bir elementni bir marta o'qiydi va $O(n)$ vaqt oladi. Siklga $O(1)$ qo'shimcha xotira yetadi. Rekursiyada chuqurlik 200 000 ga yaqinlashadi va stek to'lishi mumkin. Shu cheklovda siklni tanlaymiz.
 
 </details>
