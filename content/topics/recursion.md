@@ -174,13 +174,38 @@ void printDigits(long long n) {
 
 `cout` ni `if` dan oldinga ko'chirsak, 3, 2, 1 chiqadi. Demak, chaqiruvning oldidagi ish ichkariga kirishda, keyingisi esa qaytishda bajariladi. Bu funksiya qiymat qaytarmaydi, chiqarish amalini bajaradi.
 
-### Bir chaqiruv ichida ikkita kichik masala
+### Hanoi minoralari
 
-Hanoi minoralarida uchta qoziq bor. Birinchi qoziqdagi disklar pastdan yuqoriga kattadan kichikka joylashgan. Ularni uchinchi qoziqqa ko'chiramiz: faqat tepadagi disk olinadi va katta disk kichik disk ustiga qo'yilmaydi.
+**Masala sharti.** Uchta qoziq 1, 2 va 3 raqamlari bilan belgilangan. Dastlab 1-qoziqda har xil kattalikdagi $k$ ta disk bor. Eng katta disk pastda, qolganlari esa kattaligiga qarab kichrayib boradigan tartibda uning ustiga terilgan. 2- va 3-qoziqlar bo'sh.
 
-Ikki diskda uch yurish yetadi: kichigini 1 dan 2 ga, kattasini 1 dan 3 ga, kichigini 2 dan 3 ga ko'chiramiz. Uch diskda esa katta diskka tegishdan oldin uning ustidagi ikkita diskni yordamchi qoziqqa o'tkazish kerak.
+Barcha disklarni 1-qoziqdan 3-qoziqqa **eng kam yurish bilan** ko'chiring. 2-qoziqdan yordamchi sifatida foydalanishingiz mumkin. Har bir yurishda quyidagi ikki qoidaga rioya qiling:
 
-Shundan umumiy reja keladi: yuqoridagi $k-1$ diskni yordamchi qoziqqa o'tkazamiz, eng kattasini maqsad qoziqqa ko'chiramiz, keyin $k-1$ diskni uning ustiga o'tkazamiz. Quyidagi funksiya shu yurishlarni chiqaradi; disklar sonini kichik, masalan $0\le k\le15$ deb olamiz.
+1. Istalgan qoziqning faqat eng yuqoridagi bitta diskini olib, boshqa qoziqqa ko'chiring.
+2. Olingan diskni bo'sh qoziqqa yoki o'zidan kattaroq diskning ustiga qo'ying.
+
+**Kirish.** Bitta butun son $k$ ($0 le k le 15$) — disklar soni.
+
+**Chiqish.** Har bir yurish uchun alohida satrda bo'sh joy bilan ajratilgan ikkita son `a b` chiqaring. Bu yurishda disk `a` raqamli qoziqdan `b` raqamli qoziqqa ko'chiriladi. Satrlarni yurishlar bajariladigan tartibda chiqaring. Agar $k=0$ bo'lsa, chiqish bo'sh bo'ladi.
+
+**Kirish namunasi**
+
+```text
+2
+```
+
+**Chiqish namunasi**
+
+```text
+1 2
+1 3
+2 3
+```
+
+Katta diskni 3-qoziqqa o'tkazish uchun avval uning ustidagi kichik diskni 2-qoziqqa olib turamiz (`1 2`). Endi katta diskning yo'li ochiq (`1 3`). Oxirida kichik diskni uning ustiga qo'yamiz (`2 3`).
+
+**Rekursiv yechim.** Eng katta diskni boshlang'ich qoziqdan maqsad qoziqqa o'tkazish paytida qolgan $k-1$ ta disk yordamchi qoziqda turishi kerak. Shuning uchun avval $k-1$ ta diskni yordamchi qoziqqa ko'chiramiz. Keyin eng katta diskni maqsad qoziqqa o'tkazamiz. Oxirida yordamchi qoziqdagi $k-1$ ta diskni uning ustiga ko'chiramiz. Birinchi va oxirgi qadamda yana o'sha masalani yechamiz, faqat disklar soni va qoziqlarning vazifalari o'zgaradi.
+
+`from` — boshlang'ich qoziq, `to` — maqsad qoziq, `via` — yordamchi qoziq. Kirishdan `k` ni o'qigach, `hanoi(k, 1, 3, 2)` ni chaqiramiz.
 
 ```cpp
 void hanoi(int k, int from, int to, int via) {
@@ -190,14 +215,6 @@ void hanoi(int k, int from, int to, int via) {
     cout << from << ' ' << to << '\n';
     hanoi(k - 1, via, to, from);
 }
-```
-
-`hanoi(2, 1, 3, 2)` quyidagini chiqaradi:
-
-```text
-1 2
-1 3
-2 3
 ```
 
 Birinchi ichki chaqiruv **to'liq tugagach**, o'rtadagi yurish chiqariladi. Shundan keyingina ikkinchi chaqiruv boshlanadi. Ikki shox bir vaqtda bajarilmaydi. Yuqoridagi disklar kichik bo'lgani uchun ularni eng katta disk ustiga qo'yish qoidani buzmaydi; $k=0$ holatida ko'chirish kerak emas.
